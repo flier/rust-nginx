@@ -1,8 +1,8 @@
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::ffi;
+use crate::{fake_drop, ffi, AsRaw};
 
-use super::{LogRef, PoolRef, Str, fake_drop};
+use super::{LogRef, PoolRef, Str};
 
 foreign_type! {
     pub unsafe type Cycle: Send {
@@ -61,9 +61,5 @@ impl CycleRef {
         unsafe { Str::from_raw(self.as_raw().hostname) }
             .as_str()
             .expect("hostname")
-    }
-
-    unsafe fn as_raw(&self) -> &ffi::ngx_cycle_t {
-        &*self.as_ptr()
     }
 }

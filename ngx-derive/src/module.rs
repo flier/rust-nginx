@@ -115,7 +115,7 @@ impl Parse for Type {
 const WELL_KNOWN_ATTRS: &[&str] = &["allow", "deny", "doc", "cfg"];
 
 pub fn expand(input: syn::DeriveInput) -> TokenStream {
-    let (args, attrs) = Args::extract(input.attrs);
+    let (args, _) = Args::extract(input.attrs);
 
     let ident: &Ident = &input.ident;
     let mod_name = args

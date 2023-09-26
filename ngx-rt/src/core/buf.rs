@@ -3,9 +3,9 @@ use std::slice;
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::ffi;
+use crate::{fake_drop, ffi, AsRaw};
 
-use super::{fake_drop, PoolRef};
+use super::PoolRef;
 
 foreign_type! {
     pub unsafe type Buf: Send {
@@ -60,10 +60,6 @@ impl BufRef {
 
             slice::from_raw_parts_mut(r.pos, self.len() as usize)
         }
-    }
-
-    unsafe fn as_raw(&self) -> &ffi::ngx_buf_t {
-        &*self.as_ptr()
     }
 }
 

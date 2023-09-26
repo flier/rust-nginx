@@ -1,13 +1,13 @@
 use std::{
     ffi::{c_char, CStr, CString},
-    ptr,
+    ptr::{self, NonNull},
 };
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::ffi;
+use crate::{fake_drop, ffi, http, AsRaw};
 
-use super::{fake_drop, log, ArrayRef, BufRef, CycleRef, LogRef, ModuleType, PoolRef, Str};
+use super::{log, ArrayRef, BufRef, CycleRef, LogRef, ModuleType, PoolRef, Str};
 
 pub const NGX_CONF_OK: *mut c_char = ptr::null_mut();
 pub const NGX_CONF_ERROR: *mut c_char = usize::MAX as *mut c_char;
@@ -98,12 +98,19 @@ impl ConfRef {
         }
     }
 
-    pub fn module_type(&self) -> ModuleType {
-        ModuleType::try_from(unsafe { self.as_raw().module_type as u32 }).expect("module_type")
+    pub fn as_http_context(&self) -> Option<&http::ContextRef> {
+        if self.module_type() == ModuleType::Http {
+            unsafe {
+                NonNull::new(self.as_raw().ctx)
+                    .map(|p| http::ContextRef::from_ptr(p.cast().as_ptr()))
+            }
+        } else {
+            None
+        }
     }
 
-    unsafe fn as_raw(&self) -> &ffi::ngx_conf_t {
-        &*self.as_ptr()
+    pub fn module_type(&self) -> ModuleType {
+        ModuleType::try_from(unsafe { self.as_raw().module_type as u32 }).expect("module_type")
     }
 }
 
@@ -126,8 +133,5 @@ impl ConfFileRef {
 
     pub fn line(&self) -> usize {
         unsafe { self.as_raw().line }
-    }
-    unsafe fn as_raw(&self) -> &ffi::ngx_conf_file_t {
-        &*self.as_ptr()
     }
 }

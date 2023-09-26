@@ -1,4 +1,30 @@
-use crate::ffi;
+use std::ffi::CStr;
+
+use foreign_types::foreign_type;
+
+use crate::{fake_drop, ffi, AsRaw};
+
+foreign_type! {
+    pub unsafe type Module: Send {
+        type CType = ffi::ngx_module_t;
+
+        fn drop = fake_drop::<ffi::ngx_module_t>;
+    }
+}
+
+impl ModuleRef {
+    pub fn context_index(&self) -> usize {
+        unsafe { self.as_raw().ctx_index }
+    }
+
+    pub fn index(&self) -> usize {
+        unsafe { self.as_raw().index }
+    }
+
+    pub fn name(&self) -> &CStr {
+        unsafe { CStr::from_ptr(self.as_raw().name) }
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Type {

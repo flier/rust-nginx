@@ -7,7 +7,7 @@ use std::{
 
 use foreign_types::{foreign_type, ForeignType, ForeignTypeRef};
 
-use crate::ffi;
+use crate::{ffi, AsRaw};
 
 use super::PoolRef;
 
@@ -66,10 +66,6 @@ impl<T: Sized> ArrayRef<T> {
 
             Some(p.as_mut())
         })
-    }
-
-    unsafe fn as_raw(&self) -> &ffi::ngx_array_t {
-        &*self.as_ptr()
     }
 }
 

@@ -5,11 +5,12 @@ use std::ffi::c_char;
 use merge::Merge as AutoMerge;
 
 use ngx_mod::{
-    core::{CmdRef, Setter},
+    core::Setter,
     ffi::{self, ngx_command_t, ngx_module_t},
     http,
     rt::{
-        core::{ConfRef, LogLevel},
+        core::{CmdRef, ConfRef},
+        http::upstream,
         ngx_str,
     },
     Merge, Module,
@@ -62,6 +63,20 @@ impl Setter for SrvConfig {
             }
         }
 
+        let uscf = unsafe {
+            cf.as_http_context()
+                .expect("ctx")
+                .srv_conf::<upstream::SrvConf>(ffi::ngx_http_upstream_module.ctx_index)
+                .expect("conf")
+        };
+
+        conf.original_init_upstream = uscf
+            .peer()
+            .init_upstream
+            .or(Some(ffi::ngx_http_upstream_init_round_robin));
+
+        uscf.peer_mut().init_upstream = Some(ngx_http_upstream_init_custom);
+
         Ok(())
     }
 }
@@ -84,6 +99,14 @@ impl Merge for SrvConfig {
 
         Ok(())
     }
+}
+
+#[no_mangle]
+unsafe extern "C" fn ngx_http_upstream_init_custom(
+    cf: *mut ffi::ngx_conf_t,
+    us: *mut ffi::ngx_http_upstream_srv_conf_t,
+) -> ffi::ngx_int_t {
+    0
 }
 
 #[no_mangle]

@@ -3,9 +3,7 @@ use std::ffi::CString;
 use bitflags::bitflags;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::ffi;
-
-use super::fake_drop;
+use crate::{fake_drop, ffi, AsRaw};
 
 foreign_type! {
     pub unsafe type Log: Send {
@@ -66,10 +64,6 @@ impl LogRef {
                 )
             }
         }
-    }
-
-    unsafe fn as_raw(&self) -> &ffi::ngx_log_t {
-        &*self.as_ptr()
     }
 }
 
