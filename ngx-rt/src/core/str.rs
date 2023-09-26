@@ -21,6 +21,14 @@ impl Str {
         &mut self.0
     }
 
+    pub fn as_str(&self) -> Result<Option<&str>, Utf8Error> {
+        if self.is_empty() {
+            Ok(None)
+        } else {
+            str::from_utf8(self.as_bytes()).map(Some)
+        }
+    }
+
     pub fn to_str(&self) -> Result<&str, Utf8Error> {
         str::from_utf8(self.as_bytes())
     }

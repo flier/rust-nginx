@@ -56,7 +56,7 @@ mod gen {
             ])
             .allowlist_type("^(NGX|ngx)_.*$")
             .allowlist_function("^(NGX|ngx)_.*$")
-            .allowlist_var("^(NGX|ngx)_.*$")
+            .allowlist_var("^(NGX|ngx|NGINX|nginx)_.*$")
             .parse_callbacks(Box::new(bindgen::CargoCallbacks));
 
         if cfg!(feature = "event") {

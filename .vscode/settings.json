@@ -1,0 +1,16 @@
+{
+    "C_Cpp.files.exclude": {
+        "**/.vscode": true,
+        "**/.vs": true,
+        "${workspaceFolder}/target/**": true,
+    },
+    "files.watcherExclude": {
+        "${workspaceFolder}/target/**": true,
+    },
+    "search.exclude": {
+        "${workspaceFolder}/target/**": true,
+    },
+    "files.exclude": {
+        "${workspaceFolder}/target/**": true,
+    },
+}
