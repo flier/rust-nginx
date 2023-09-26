@@ -13,7 +13,7 @@ pub use self::array::{Array, ArrayRef};
 pub use self::buf::{Buf, BufRef};
 pub use self::conf::{Conf, ConfFile, ConfFileRef, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK};
 pub use self::cycle::{Cycle, CycleRef};
-pub use self::log::{Log, LogRef};
+pub use self::log::{Level as LogLevel, Log, LogRef};
 pub use self::module::Type as ModuleType;
 pub use self::pool::{Pool, PoolRef};
 pub use self::status::Code;

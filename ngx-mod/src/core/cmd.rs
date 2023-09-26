@@ -87,7 +87,7 @@ impl CmdRef {
     }
 }
 
-pub trait UnsafeSet {
+pub trait UnsafeSetter {
     unsafe extern "C" fn set(
         cf: *mut ffi::ngx_conf_t,
         cmd: *mut ffi::ngx_command_t,
@@ -95,7 +95,7 @@ pub trait UnsafeSet {
     ) -> *mut c_char;
 }
 
-impl<T: Set> UnsafeSet for T {
+impl<T: Setter> UnsafeSetter for T {
     unsafe extern "C" fn set(
         cf: *mut ffi::ngx_conf_t,
         cmd: *mut ffi::ngx_command_t,
@@ -110,7 +110,7 @@ impl<T: Set> UnsafeSet for T {
     }
 }
 
-pub trait Set {
+pub trait Setter {
     type Error;
     type Conf;
 

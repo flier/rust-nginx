@@ -2,11 +2,17 @@
 
 use std::ffi::c_char;
 
+use merge::Merge as AutoMerge;
+
 use ngx_mod::{
-    ffi::{ngx_command_t, ngx_module_t},
+    core::{CmdRef, Setter},
+    ffi::{self, ngx_command_t, ngx_module_t},
     http,
-    rt::ngx_str,
-    Module,
+    rt::{
+        core::{ConfRef, LogLevel},
+        ngx_str,
+    },
+    Merge, Module,
 };
 
 #[derive(Module)]
@@ -18,8 +24,66 @@ impl Module for HttpUpstreamCustomModule {}
 impl http::Module for HttpUpstreamCustomModule {
     type Error = ();
     type MainConf = ();
-    type SrvConf = ();
+    type SrvConf = SrvConfig;
     type LocConf = ();
+}
+
+#[derive(Clone, Debug, AutoMerge)]
+struct SrvConfig {
+    #[merge(strategy = merge::num::overwrite_zero)]
+    max: u32,
+    original_init_upstream: ffi::ngx_http_upstream_init_pt,
+    original_init_peer: ffi::ngx_http_upstream_init_peer_pt,
+}
+
+impl Setter for SrvConfig {
+    type Error = ();
+    type Conf = SrvConfig;
+
+    fn set(cf: &ConfRef, cmd: &CmdRef, conf: &mut Self::Conf) -> Result<(), Self::Error> {
+        cf.log().http().debug("custom init upstream");
+
+        if cf.args().len() == 2 {
+            let s = cf.args().get(1).unwrap().to_str().expect("max");
+            match s.parse() {
+                Ok(n) => {
+                    conf.max = n;
+                }
+                Err(err) => {
+                    cf.emerg(format!(
+                        "invalid value `{}` in `{}` directive, {}",
+                        s,
+                        cmd.name(),
+                        err
+                    ));
+
+                    return Err(());
+                }
+            }
+        }
+
+        Ok(())
+    }
+}
+
+impl Default for SrvConfig {
+    fn default() -> Self {
+        SrvConfig {
+            max: u32::MAX,
+            original_init_upstream: None,
+            original_init_peer: None,
+        }
+    }
+}
+
+impl Merge for SrvConfig {
+    type Error = ();
+
+    fn merge(&mut self, prev: &SrvConfig) -> Result<(), ()> {
+        merge::Merge::merge(self, prev.clone());
+
+        Ok(())
+    }
 }
 
 #[no_mangle]

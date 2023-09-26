@@ -9,5 +9,6 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+merge = "0.1"
 
 ngx-mod = { version = "0.1", path = "../../ngx-mod" }
