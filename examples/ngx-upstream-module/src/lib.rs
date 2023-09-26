@@ -3,6 +3,7 @@
 use std::ffi::c_char;
 
 use ngx_mod::{
+    core,
     ffi::{ngx_command_t, ngx_module_t},
     http,
     rt::ngx_str,
@@ -13,7 +14,7 @@ use ngx_mod::{
 #[module(name = "ngx_http_upstream_custom_module")]
 struct HttpUpstreamCustomModule;
 
-impl Module for HttpUpstreamCustomModule {}
+impl core::Module for HttpUpstreamCustomModule {}
 
 impl http::Module for HttpUpstreamCustomModule {
     type Error = ();

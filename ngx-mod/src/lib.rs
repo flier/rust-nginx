@@ -4,9 +4,8 @@ pub extern crate ngx_sys as ffi;
 
 pub use self::derive::Module;
 
+pub mod core;
 pub mod http;
 mod merge;
-mod module;
 
 pub use self::merge::Merge;
-pub use self::module::{Module, UnsafeModule, UNSET_INDEX};

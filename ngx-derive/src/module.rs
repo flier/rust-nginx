@@ -129,8 +129,8 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
     let ngx_module: ItemStatic = parse_quote! {
         #[no_mangle]
         pub static mut #name: ::ngx_mod::ffi::ngx_module_t = ::ngx_mod::ffi::ngx_module_t {
-            ctx_index: ::ngx_mod::UNSET_INDEX,
-            index: ::ngx_mod::UNSET_INDEX,
+            ctx_index: ::ngx_mod::core::UNSET_INDEX,
+            index: ::ngx_mod::core::UNSET_INDEX,
             name: ::std::ptr::null_mut(),
             spare0: 0,
             spare1: 0,
@@ -141,13 +141,13 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
             commands: unsafe { &ngx_http_upstream_custom_commands[0] as *const _ as *mut _ },
             type_: ::ngx_mod::ffi::NGX_HTTP_MODULE as ::ngx_mod::ffi::ngx_uint_t,
 
-            init_master: Some(<#ident as ::ngx_mod::UnsafeModule>::init_master),
-            init_module: Some(<#ident as ::ngx_mod::UnsafeModule>::init_module),
-            init_process: Some(<#ident as ::ngx_mod::UnsafeModule>::init_process),
-            init_thread: Some(<#ident as ::ngx_mod::UnsafeModule>::init_thread),
-            exit_thread: Some(<#ident as ::ngx_mod::UnsafeModule>::exit_thread),
-            exit_process: Some(<#ident as ::ngx_mod::UnsafeModule>::exit_process),
-            exit_master: Some(<#ident as ::ngx_mod::UnsafeModule>::exit_master),
+            init_master: Some(<#ident as ::ngx_mod::core::UnsafeModule>::init_master),
+            init_module: Some(<#ident as ::ngx_mod::core::UnsafeModule>::init_module),
+            init_process: Some(<#ident as ::ngx_mod::core::UnsafeModule>::init_process),
+            init_thread: Some(<#ident as ::ngx_mod::core::UnsafeModule>::init_thread),
+            exit_thread: Some(<#ident as ::ngx_mod::core::UnsafeModule>::exit_thread),
+            exit_process: Some(<#ident as ::ngx_mod::core::UnsafeModule>::exit_process),
+            exit_master: Some(<#ident as ::ngx_mod::core::UnsafeModule>::exit_master),
 
             spare_hook0: 0,
             spare_hook1: 0,
