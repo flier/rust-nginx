@@ -1,0 +1,3 @@
+[workspace]
+members = ["ngx-build", "ngx-src", "ngx-sys", "ngx-rt", "ngx-mod"]
+resolver = "2"

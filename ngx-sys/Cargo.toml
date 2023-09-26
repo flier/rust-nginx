@@ -1,0 +1,42 @@
+[package]
+name = "ngx-sys"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+default = ["stable", "vendored", "base"]
+gen = ["bindgen"]
+vendored = ['ngx-src']
+
+mainline = ["v1_25"]
+stable = ["v1_24"]
+legacy = ["v1_22"]
+
+v1_25 = ["ngx-src/v1_25"]
+v1_24 = ["ngx-src/v1_24"]
+v1_22 = ["ngx-src/v1_22"]
+
+minimal = ["ngx-src/minimal"]
+base = ["minimal", "ngx-src/base", "module", "event", "http", "stream"]
+full = ["base", "ngx-src/full", "mail"]
+
+module = []
+event = []
+http = []
+mail = ["ngx-src/mail"]
+stream = ["ngx-src/stream"]
+
+[dependencies]
+cfg-if = "1.0"
+
+[build-dependencies]
+anyhow = "1.0"
+bindgen = { version = "0.68", optional = true }
+cfg-if = "1.0"
+cargo-emit = "0.2"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+ngx-src = { version = "0.1", path = "../ngx-src", optional = true }
