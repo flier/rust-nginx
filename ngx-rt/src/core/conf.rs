@@ -1,8 +1,13 @@
+use std::{ffi::c_char, ptr};
+
 use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::ffi;
 
 use super::{fake_drop, BufRef, CycleRef, LogRef, ModuleType, PoolRef};
+
+pub const NGX_CONF_OK: *mut c_char = ptr::null_mut();
+pub const NGX_CONF_ERROR: *mut c_char = usize::MAX as *mut c_char;
 
 foreign_type! {
     pub unsafe type Conf: Send {

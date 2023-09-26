@@ -15,6 +15,7 @@ use ngx_rt::core::ModuleType;
 
 #[derive(Clone, Debug, Default, Merge, StructMeta)]
 struct Args {
+    #[struct_meta(name = "type")]
     ty: Option<NameValue<Type>>,
     name: Option<NameValue<LitStr>>,
 }
@@ -117,37 +118,35 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
     let (args, attrs) = Args::extract(input.attrs);
 
     let ident: &Ident = &input.ident;
-    let name = Ident::new(
-        args.name()
-            .unwrap_or_else(|| input.ident.to_string())
-            .to_snake()
-            .as_str(),
-        Span::call_site(),
-    );
-    let ctx_name = format_ident!("{}_ctx", &name);
+    let mod_name = args
+        .name()
+        .unwrap_or_else(|| input.ident.to_string())
+        .to_snake();
+    let ngx_module_name = Ident::new(mod_name.as_str(), Span::call_site());
+    let ngx_module_ctx_name = format_ident!("{}_ctx", &mod_name);
 
     let ngx_module: ItemStatic = parse_quote! {
         #[no_mangle]
-        pub static mut #name: ::ngx_mod::ffi::ngx_module_t = ::ngx_mod::ffi::ngx_module_t {
-            ctx_index: ::ngx_mod::core::UNSET_INDEX,
-            index: ::ngx_mod::core::UNSET_INDEX,
+        pub static mut #ngx_module_name: ::ngx_mod::ffi::ngx_module_t = ::ngx_mod::ffi::ngx_module_t {
+            ctx_index: ::ngx_mod::UNSET_INDEX,
+            index: ::ngx_mod::UNSET_INDEX,
             name: ::std::ptr::null_mut(),
             spare0: 0,
             spare1: 0,
             version: ::ngx_mod::ffi::nginx_version as ::ngx_mod::ffi::ngx_uint_t,
             signature: ::ngx_mod::ffi::NGX_RS_MODULE_SIGNATURE.as_ptr() as *const ::std::ffi::c_char,
 
-            ctx: & #ctx_name as *const _ as *mut _,
+            ctx: & #ngx_module_ctx_name as *const _ as *mut _,
             commands: unsafe { &ngx_http_upstream_custom_commands[0] as *const _ as *mut _ },
             type_: ::ngx_mod::ffi::NGX_HTTP_MODULE as ::ngx_mod::ffi::ngx_uint_t,
 
-            init_master: Some(<#ident as ::ngx_mod::core::UnsafeModule>::init_master),
-            init_module: Some(<#ident as ::ngx_mod::core::UnsafeModule>::init_module),
-            init_process: Some(<#ident as ::ngx_mod::core::UnsafeModule>::init_process),
-            init_thread: Some(<#ident as ::ngx_mod::core::UnsafeModule>::init_thread),
-            exit_thread: Some(<#ident as ::ngx_mod::core::UnsafeModule>::exit_thread),
-            exit_process: Some(<#ident as ::ngx_mod::core::UnsafeModule>::exit_process),
-            exit_master: Some(<#ident as ::ngx_mod::core::UnsafeModule>::exit_master),
+            init_master: Some(<#ident as ::ngx_mod::UnsafeModule>::init_master),
+            init_module: Some(<#ident as ::ngx_mod::UnsafeModule>::init_module),
+            init_process: Some(<#ident as ::ngx_mod::UnsafeModule>::init_process),
+            init_thread: Some(<#ident as ::ngx_mod::UnsafeModule>::init_thread),
+            exit_thread: Some(<#ident as ::ngx_mod::UnsafeModule>::exit_thread),
+            exit_process: Some(<#ident as ::ngx_mod::UnsafeModule>::exit_process),
+            exit_master: Some(<#ident as ::ngx_mod::UnsafeModule>::exit_master),
 
             spare_hook0: 0,
             spare_hook1: 0,
@@ -161,9 +160,17 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
     };
 
     let ngx_module_ctx: Option<ItemStatic> = match args.ty() {
+        ModuleType::Core => Some(parse_quote! {
+            #[no_mangle]
+            static #ngx_module_ctx_name: ::ngx_mod::ffi::ngx_core_module_t = ::ngx_mod::ffi::ngx_core_module_t {
+                name: ::ngx_mod::rt::ngx_str!( #mod_name ),
+                create_conf: Some(<#ident as ::ngx_mod::core::UnsafeModule>::create_conf),
+                init_conf: Some(<#ident as ::ngx_mod::core::UnsafeModule>::init_conf),
+            };
+        }),
         ModuleType::Http => Some(parse_quote! {
             #[no_mangle]
-            static #ctx_name: ::ngx_mod::ffi::ngx_http_module_t = ::ngx_mod::ffi::ngx_http_module_t {
+            static #ngx_module_ctx_name: ::ngx_mod::ffi::ngx_http_module_t = ::ngx_mod::ffi::ngx_http_module_t {
                 preconfiguration: Some(<#ident as ::ngx_mod::http::UnsafeModule>::preconfiguration),
                 postconfiguration: Some(<#ident as ::ngx_mod::http::UnsafeModule>::postconfiguration),
                 create_main_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::create_main_conf),

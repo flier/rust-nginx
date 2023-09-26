@@ -7,12 +7,9 @@ use foreign_types::ForeignTypeRef;
 
 use crate::{
     ffi,
-    rt::core::{Code, ConfRef},
+    rt::core::{Code, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK},
     Merge,
 };
-
-pub const NGX_CONF_OK: *mut c_char = ptr::null_mut();
-pub const NGX_CONF_ERROR: *mut c_char = usize::MAX as *mut c_char;
 
 pub trait UnsafeModule {
     unsafe extern "C" fn preconfiguration(cf: *mut ffi::ngx_conf_t) -> ffi::ngx_int_t;

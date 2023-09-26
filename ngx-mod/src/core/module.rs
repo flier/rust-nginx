@@ -1,87 +1,41 @@
-use foreign_types::ForeignTypeRef;
-use ngx_rt::core::Code;
-
-use crate::{
-    ffi,
-    rt::core::{CycleRef, LogRef},
+use std::{
+    ffi::{c_char, c_void},
+    ptr::{self, NonNull},
 };
 
-pub const UNSET_INDEX: ffi::ngx_uint_t = ffi::ngx_uint_t::max_value();
+use foreign_types::ForeignTypeRef;
+
+use ngx_rt::core::{CycleRef, NGX_CONF_ERROR, NGX_CONF_OK};
+
+use crate::{ffi, Merge};
 
 pub trait UnsafeModule {
-    unsafe extern "C" fn init_master(log: *mut ffi::ngx_log_t) -> ffi::ngx_int_t;
+    unsafe extern "C" fn create_conf(cycle: *mut ffi::ngx_cycle_t) -> *mut c_void;
 
-    unsafe extern "C" fn init_module(cycle: *mut ffi::ngx_cycle_t) -> ffi::ngx_int_t;
-
-    unsafe extern "C" fn init_process(cycle: *mut ffi::ngx_cycle_t) -> ffi::ngx_int_t;
-
-    unsafe extern "C" fn init_thread(cycle: *mut ffi::ngx_cycle_t) -> ffi::ngx_int_t;
-
-    unsafe extern "C" fn exit_thread(cycle: *mut ffi::ngx_cycle_t);
-
-    unsafe extern "C" fn exit_process(cycle: *mut ffi::ngx_cycle_t);
-
-    unsafe extern "C" fn exit_master(cycle: *mut ffi::ngx_cycle_t);
+    unsafe extern "C" fn init_conf(cycle: *mut ffi::ngx_cycle_t, conf: *mut c_void) -> *mut c_char;
 }
 
-impl<T: Module + Sized> UnsafeModule for T {
-    unsafe extern "C" fn init_master(log: *mut ffi::ngx_log_t) -> ffi::ngx_int_t {
-        <T as Module>::init_master(LogRef::from_ptr(log))
-            .map(|_| Code::Ok)
-            .unwrap_or_else(|code| code) as ffi::ngx_int_t
+impl<T: Module> UnsafeModule for T {
+    unsafe extern "C" fn create_conf(cycle: *mut ffi::ngx_cycle_t) -> *mut c_void {
+        <T as Module>::create_conf(CycleRef::from_ptr(cycle))
+            .map_or_else(ptr::null_mut, |p| p.as_ptr().cast())
     }
 
-    unsafe extern "C" fn init_module(cycle: *mut ffi::ngx_cycle_t) -> ffi::ngx_int_t {
-        <T as Module>::init_module(CycleRef::from_ptr(cycle))
-            .map(|_| Code::Ok)
-            .unwrap_or_else(|code| code) as ffi::ngx_int_t
-    }
-
-    unsafe extern "C" fn init_process(cycle: *mut ffi::ngx_cycle_t) -> ffi::ngx_int_t {
-        <T as Module>::init_process(CycleRef::from_ptr(cycle))
-            .map(|_| Code::Ok)
-            .unwrap_or_else(|code| code) as ffi::ngx_int_t
-    }
-
-    unsafe extern "C" fn init_thread(cycle: *mut ffi::ngx_cycle_t) -> ffi::ngx_int_t {
-        <T as Module>::init_thread(CycleRef::from_ptr(cycle))
-            .map(|_| Code::Ok)
-            .unwrap_or_else(|code| code) as ffi::ngx_int_t
-    }
-
-    unsafe extern "C" fn exit_thread(cycle: *mut ffi::ngx_cycle_t) {
-        <T as Module>::exit_thread(CycleRef::from_ptr(cycle))
-    }
-
-    unsafe extern "C" fn exit_process(cycle: *mut ffi::ngx_cycle_t) {
-        <T as Module>::exit_process(CycleRef::from_ptr(cycle))
-    }
-
-    unsafe extern "C" fn exit_master(cycle: *mut ffi::ngx_cycle_t) {
-        <T as Module>::exit_master(CycleRef::from_ptr(cycle))
+    unsafe extern "C" fn init_conf(cycle: *mut ffi::ngx_cycle_t, conf: *mut c_void) -> *mut c_char {
+        <T as Module>::init_conf(CycleRef::from_ptr(cycle), &mut *conf.cast())
+            .map_or(NGX_CONF_ERROR, |_| NGX_CONF_OK)
     }
 }
 
 pub trait Module {
-    fn init_master(_: &LogRef) -> Result<(), Code> {
-        Ok(())
+    type Error: From<<Self::Conf as Merge>::Error>;
+    type Conf: Default + Merge;
+
+    fn create_conf(cycle: &CycleRef) -> Option<NonNull<Self::Conf>> {
+        cycle.pool().allocate(Self::Conf::default())
     }
 
-    fn init_module(_: &CycleRef) -> Result<(), Code> {
+    fn init_conf(_cycle: &CycleRef, _conf: &mut Self::Conf) -> Result<(), Self::Error> {
         Ok(())
     }
-
-    fn init_process(_: &CycleRef) -> Result<(), Code> {
-        Ok(())
-    }
-
-    fn init_thread(_: &CycleRef) -> Result<(), Code> {
-        Ok(())
-    }
-
-    fn exit_thread(_: &CycleRef) {}
-
-    fn exit_process(_: &CycleRef) {}
-
-    fn exit_master(_: &CycleRef) {}
 }

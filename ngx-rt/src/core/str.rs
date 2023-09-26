@@ -111,7 +111,7 @@ macro_rules! ngx_str {
     ($s:literal) => {{
         $crate::ffi::ngx_str_t {
             len: $s.len() as _,
-            data: concat!($s, "\0").as_ptr() as *mut u_char,
+            data: concat!($s, "\0").as_ptr() as *mut $crate::ffi::u_char,
         }
     }};
 }
