@@ -1,3 +1,4 @@
+mod array;
 mod buf;
 mod conf;
 mod cycle;
@@ -8,6 +9,7 @@ mod pool;
 mod status;
 mod str;
 
+pub use self::array::{Array, ArrayRef};
 pub use self::buf::{Buf, BufRef};
 pub use self::conf::{Conf, ConfFile, ConfFileRef, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK};
 pub use self::cycle::{Cycle, CycleRef};

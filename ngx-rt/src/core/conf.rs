@@ -1,10 +1,13 @@
-use std::{ffi::c_char, ptr};
+use std::{
+    ffi::{c_char, CStr},
+    ptr,
+};
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::ffi;
 
-use super::{fake_drop, BufRef, CycleRef, LogRef, ModuleType, PoolRef};
+use super::{fake_drop, ArrayRef, BufRef, CycleRef, LogRef, ModuleType, PoolRef, Str};
 
 pub const NGX_CONF_OK: *mut c_char = ptr::null_mut();
 pub const NGX_CONF_ERROR: *mut c_char = usize::MAX as *mut c_char;
@@ -18,6 +21,14 @@ foreign_type! {
 }
 
 impl ConfRef {
+    pub fn name(&self) -> &CStr {
+        unsafe { CStr::from_ptr(self.as_raw().name) }
+    }
+
+    pub fn args(&self) -> &ArrayRef<&Str> {
+        unsafe { ArrayRef::from_ptr(self.as_raw().args) }
+    }
+
     pub fn cycle(&self) -> &CycleRef {
         unsafe { CycleRef::from_ptr(self.as_raw().cycle) }
     }
