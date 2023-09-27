@@ -214,7 +214,6 @@ mod build {
         "http_xslt",
     ];
 
-    #[cfg(not(target_family = "windows"))]
     #[instrument]
     pub fn nginx(src_dir: &Path, out_dir: &Path) -> Result<()> {
         let mut builder = ngx_build::Builder::default();
@@ -240,16 +239,12 @@ mod build {
             .out_dir(&dist_dir)
             .with_modules(MODULES);
 
-        builder.build()?;
+        let configure = builder.configure()?;
+        let make = configure.run()?;
+
+        make.build()?;
+        make.install()?;
 
         Ok(())
-    }
-
-    #[cfg(target_family = "windows")]
-    #[instrument]
-    pub fn nginx(src_dir: &Path, out_dir: &Path) -> Result<()> {
-        use anyhow::anyhow;
-
-        Err(anyhow!("windows is not supported"))
     }
 }

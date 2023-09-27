@@ -1,4 +1,4 @@
-use std::result::Result as StdResult;
+use std::{process::Output, result::Result as StdResult};
 
 use thiserror::Error;
 
@@ -9,8 +9,8 @@ pub enum Error {
     #[error("missing argument: {0}")]
     MissingArgument(&'static str),
 
-    #[error("configure failed:\nstdout:\n{stdout}\nstderr:\n{stderr}")]
-    ConfigureError { stdout: String, stderr: String },
+    #[error("execute command failed: {0:?}")]
+    ExecuteError(Output),
 
     #[error(transparent)]
     FromUtf8Error(#[from] std::string::FromUtf8Error),

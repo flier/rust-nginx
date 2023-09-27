@@ -1,10 +1,6 @@
-use std::fs::{self, create_dir_all};
-use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::path::PathBuf;
 
-use tracing::{debug, instrument};
-
-use crate::{Error, Result};
+use crate::{Configure, Error, Result};
 
 #[derive(Clone, Debug, Default)]
 pub struct Builder {
@@ -134,189 +130,30 @@ impl Builder {
         self
     }
 
-    fn configure(&self) -> Result<()> {
-        let cmd = Configure {
+    pub fn configure(self) -> Result<Configure> {
+        Ok(Configure {
             debug: self.debug,
             compat: self.compat,
             stream: self.stream,
             threads: self.threads,
             #[cfg(any(target_os = "freebsd", target_os = "linux"))]
             file_aio: self.file_aio,
-            modules: self.modules.as_slice(),
+            modules: self.modules,
             src_dir: self
                 .src_dir
-                .as_ref()
-                .map(|p| p.as_path())
                 .ok_or_else(|| Error::MissingArgument("src_dir"))?,
             build_dir: self
                 .build_dir
-                .as_ref()
-                .map(|p| p.as_path())
                 .ok_or_else(|| Error::MissingArgument("build_dir"))?,
             out_dir: self
                 .out_dir
-                .as_ref()
-                .map(|p| p.as_path())
                 .ok_or_else(|| Error::MissingArgument("out_dir"))?,
-            openssl_dir: self.openssl_dir.as_ref().map(|p| p.as_path()),
-            openssl_opt: self.openssl_opt.as_ref().map(|s| s.as_str()),
-            pcre_dir: self.pcre_dir.as_ref().map(|p| p.as_path()),
-            pcre_opt: self.pcre_opt.as_ref().map(|s| s.as_str()),
-            zlib_dir: self.zlib_dir.as_ref().map(|p| p.as_path()),
-            zlib_opt: self.zlib_opt.as_ref().map(|s| s.as_str()),
-        };
-
-        cmd.run()
-    }
-
-    fn make(&self) -> Result<()> {
-        let cmd = Make {
-            src_dir: self
-                .src_dir
-                .as_ref()
-                .map(|p| p.as_path())
-                .ok_or_else(|| Error::MissingArgument("src_dir"))?,
-            build_dir: self
-                .build_dir
-                .as_ref()
-                .map(|p| p.as_path())
-                .ok_or_else(|| Error::MissingArgument("build_dir"))?,
-        };
-
-        cmd.run()
-    }
-
-    /// build the nginx sources
-    pub fn build(self) -> Result<()> {
-        self.configure()?;
-        self.make()?;
-
-        Ok(())
-    }
-}
-
-#[derive(Clone, Debug)]
-struct Configure<'a> {
-    debug: bool,
-    compat: bool,
-    stream: bool,
-    threads: bool,
-    #[cfg(any(target_os = "freebsd", target_os = "linux"))]
-    file_aio: bool,
-    modules: &'a [String],
-    src_dir: &'a Path,
-    build_dir: &'a Path,
-    out_dir: &'a Path,
-    openssl_dir: Option<&'a Path>,
-    openssl_opt: Option<&'a str>,
-    pcre_dir: Option<&'a Path>,
-    pcre_opt: Option<&'a str>,
-    zlib_dir: Option<&'a Path>,
-    zlib_opt: Option<&'a str>,
-}
-
-impl<'a> Configure<'a> {
-    #[instrument]
-    pub fn run(self) -> Result<()> {
-        let mut args = vec![
-            format!("--builddir={}", self.build_dir.display()),
-            format!("--prefix={}", self.out_dir.display()),
-        ];
-
-        if self.debug {
-            args.push("--with-debug".to_string());
-        }
-        if self.compat {
-            args.push("--with-compat".to_string());
-        }
-        if self.stream {
-            args.push("--with-stream".to_string());
-        }
-        if self.threads {
-            args.push("--with-threads".to_string());
-        }
-        #[cfg(any(target_os = "freebsd", target_os = "linux"))]
-        if self.file_aio {
-            args.push("--with-file-aio".to_string());
-        }
-
-        if let Some(dir) = self.openssl_dir {
-            args.push(format!("--with-openssl={}", dir.display()));
-            if let Some(opt) = self.openssl_opt {
-                args.push(format!("--with-openssl-opt={}", opt));
-            }
-        }
-        if let Some(dir) = self.pcre_dir {
-            args.push(format!("--with-pcre={}", dir.display()));
-            if let Some(opt) = self.pcre_opt {
-                args.push(format!("--with-pcre-opt={}", opt));
-            }
-        }
-        if let Some(dir) = self.zlib_dir {
-            args.push(format!("--with-zlib={}", dir.display()));
-            if let Some(opt) = self.zlib_opt {
-                args.push(format!("--with-zlib-opt={}", opt));
-            }
-        }
-
-        args.extend(
-            self.modules
-                .into_iter()
-                .map(|m| format!("--with-{}_module", m)),
-        );
-
-        let mut cmd = Command::new(self.src_dir.join("configure").as_path());
-
-        cmd.current_dir(&self.src_dir).args(&args);
-
-        create_dir_all(&self.build_dir)?;
-        create_dir_all(&self.out_dir)?;
-
-        fs::write(&self.build_dir.join("configure.sh"), format!("{:?}", cmd))?;
-
-        debug!(?cmd);
-
-        let out = cmd.output()?;
-
-        fs::write(&self.build_dir.join("configure.stdout"), &out.stdout)?;
-        fs::write(&self.build_dir.join("configure.stderr"), &out.stderr)?;
-
-        if out.status.success() {
-            Ok(())
-        } else {
-            Err(Error::ConfigureError {
-                stdout: String::from_utf8(out.stdout)?,
-                stderr: String::from_utf8(out.stderr)?,
-            })
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-struct Make<'a> {
-    src_dir: &'a Path,
-    build_dir: &'a Path,
-}
-
-impl<'a> Make<'a> {
-    #[instrument]
-    pub fn run(self) -> Result<()> {
-        let mut cmd = Command::new("make");
-
-        debug!(?cmd);
-
-        let out = cmd.current_dir(&self.src_dir).output()?;
-
-        fs::write(&self.build_dir.join("make.stdout"), &out.stdout)?;
-        fs::write(&self.build_dir.join("make.stderr"), &out.stderr)?;
-
-        if out.status.success() {
-            Ok(())
-        } else {
-            Err(Error::ConfigureError {
-                stdout: String::from_utf8(out.stdout)?,
-                stderr: String::from_utf8(out.stderr)?,
-            })
-        }
+            openssl_dir: self.openssl_dir,
+            openssl_opt: self.openssl_opt,
+            pcre_dir: self.pcre_dir,
+            pcre_opt: self.pcre_opt,
+            zlib_dir: self.zlib_dir,
+            zlib_opt: self.zlib_opt,
+        })
     }
 }
