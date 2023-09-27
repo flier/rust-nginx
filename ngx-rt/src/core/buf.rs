@@ -63,10 +63,8 @@ impl BufRef {
     }
 }
 
-impl PoolRef {
-    /// Creates a buffer of the specified size in the memory pool.
-    pub fn create_buffer(&self, len: usize) -> Option<&BufRef> {
-        NonNull::new(unsafe { ffi::ngx_create_temp_buf(self.as_ptr(), len) })
-            .map(|p| unsafe { BufRef::from_ptr(p.as_ptr()) })
-    }
+/// Creates a buffer of the specified size in the memory pool.
+pub fn new(p: &PoolRef, len: usize) -> Option<&BufRef> {
+    NonNull::new(unsafe { ffi::ngx_create_temp_buf(p.as_ptr(), len) })
+        .map(|p| unsafe { BufRef::from_ptr(p.as_ptr()) })
 }
