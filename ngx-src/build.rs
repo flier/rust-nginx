@@ -49,8 +49,17 @@ fn main() -> Result<()> {
 
     info!(dir = ?src_dir, "building nginx source");
 
+    let build_dir = out_dir.join(&"build");
+    let dist_dir = out_dir.join("dist");
+
     #[cfg(feature = "build")]
-    build::nginx(&src_dir, &out_dir)?;
+    build::nginx(&src_dir, &build_dir, &dist_dir)?;
+
+    cargo_emit::rerun_if_env_changed!("STATIC_LINK_NGINX");
+
+    if cfg!(feature = "static-lib") || env::var("STATIC_LINK_NGINX").is_ok() {
+        build::static_lib(&build_dir)?;
+    }
 
     Ok(())
 }
@@ -136,30 +145,37 @@ mod extract {
     use std::path::{Path, PathBuf};
 
     use anyhow::{anyhow, Result};
-    use tracing::instrument;
+    use tracing::{info, instrument};
 
     #[instrument]
     pub fn nginx_src(file: &Path, to: &Path) -> Result<PathBuf> {
-        let f = File::open(&file)?;
-        let mut ar = tar::Archive::new(libflate::gzip::Decoder::new(f)?);
-
-        ar.unpack(to)?;
-
-        Ok(to.join(
+        let dir = to.join(
             file.file_name()
                 .and_then(|s| s.to_str())
                 .and_then(|s| s.strip_suffix(".tar.gz"))
                 .ok_or_else(|| anyhow!("expect filename with `.tar.gz` ext"))?,
-        ))
+        );
+
+        if dir.is_dir() {
+            info!(path = ?dir, "use extracted source dir");
+        } else {
+            let f = File::open(&file)?;
+            let mut ar = tar::Archive::new(libflate::gzip::Decoder::new(f)?);
+
+            ar.unpack(to)?;
+        }
+
+        Ok(dir)
     }
 }
 
 #[cfg(feature = "build")]
 mod build {
-    use std::path::Path;
+    use std::{fs, path::Path, process::Command};
 
     use anyhow::Result;
-    use tracing::instrument;
+    use ngx_build::CommandExt;
+    use tracing::{info, instrument};
 
     const MODULES: &[&str] = &[
         #[cfg(feature = "http_addition")]
@@ -215,35 +231,94 @@ mod build {
     ];
 
     #[instrument]
-    pub fn nginx(src_dir: &Path, out_dir: &Path) -> Result<()> {
-        let mut builder = ngx_build::Builder::default();
+    pub fn nginx(src_dir: &Path, build_dir: &Path, dist_dir: &Path) -> Result<()> {
+        if dist_dir.join("sbin/nginx").is_file() {
+            info!(build = ?build_dir, dist = ?dist_dir, "use installed nginx");
+        } else {
+            let mut builder = ngx_build::Builder::default();
 
-        #[cfg(feature = "compat")]
-        builder.with_compat();
+            #[cfg(feature = "compat")]
+            builder.with_compat();
 
-        #[cfg(feature = "stream")]
-        builder.with_stream();
+            #[cfg(feature = "stream")]
+            builder.with_stream();
 
-        #[cfg(feature = "threads")]
-        builder.with_threads();
+            #[cfg(feature = "threads")]
+            builder.with_threads();
 
-        #[cfg(all(feature = "file_aio", any(target_os = "linux", target_os = "freebsd")))]
-        builder.with_file_aio();
+            #[cfg(all(feature = "file_aio", any(target_os = "linux", target_os = "freebsd")))]
+            builder.with_file_aio();
 
-        let build_dir = out_dir.join(&"build");
-        let dist_dir = out_dir.join("dist");
+            builder
+                .src_dir(&src_dir)
+                .build_dir(&build_dir)
+                .out_dir(&dist_dir)
+                .with_modules(MODULES);
 
-        builder
-            .src_dir(&src_dir)
-            .build_dir(&build_dir)
-            .out_dir(&dist_dir)
-            .with_modules(MODULES);
+            let configure = builder.configure()?;
+            let make = configure.run()?;
 
-        let configure = builder.configure()?;
-        let make = configure.run()?;
+            make.build()?;
+            make.install()?;
+        }
 
-        make.build()?;
-        make.install()?;
+        Ok(())
+    }
+
+    pub fn static_lib(build_dir: &Path) -> Result<()> {
+        let mut cc = cc::Build::new();
+
+        for dir in &[
+            "",
+            "src/core",
+            #[cfg(feature = "event")]
+            "src/event",
+            #[cfg(feature = "event")]
+            "src/event/modules",
+            #[cfg(feature = "http")]
+            "src/http",
+            #[cfg(feature = "http")]
+            "src/http/v2",
+            #[cfg(feature = "http")]
+            "src/http/modules",
+            #[cfg(feature = "mail")]
+            "src/mail",
+            #[cfg(target_family = "unix")]
+            "src/os/unix",
+            #[cfg(target_family = "windows")]
+            "src/os/win32",
+            #[cfg(feature = "stream")]
+            "src/stream",
+        ] {
+            for entry in fs::read_dir(build_dir.join(dir))? {
+                let entry = entry?;
+                let filename = entry.path();
+
+                if filename.is_file() && matches!(filename.extension(), Some(ext) if ext == "o") {
+                    if matches!(filename.file_name(), Some(name) if name == "nginx.o") {
+                        let new = filename.with_file_name("nginx-no-main.o");
+
+                        Command::new("objcopy")
+                            .args(&[
+                                "--strip-symbol=main".to_owned(),
+                                filename.display().to_string(),
+                                new.display().to_string(),
+                            ])
+                            .current_dir(filename.parent().unwrap())
+                            .run()?;
+
+                        cc.object(new);
+                    } else {
+                        cc.object(filename);
+                    }
+                }
+            }
+        }
+
+        cc.static_flag(true)
+            .out_dir(build_dir)
+            .cargo_metadata(true)
+            .compile("nginx");
 
         Ok(())
     }

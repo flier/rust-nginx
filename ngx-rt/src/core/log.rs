@@ -1,9 +1,11 @@
-use std::ffi::CString;
+use std::{ffi::CString, path::Path, ptr};
 
 use bitflags::bitflags;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{fake_drop, ffi, AsRaw};
+use crate::{fake_drop, ffi, AsRaw, Error, Result};
+
+use super::conf::OpenFileRef;
 
 foreign_type! {
     pub unsafe type Log: Send {
@@ -13,7 +15,43 @@ foreign_type! {
     }
 }
 
+impl Log {
+    pub fn init(prefix: Option<&'_ Path>, error_log: Option<&'_ str>) -> Result<&'static LogRef> {
+        let prefix: Option<CString> = prefix
+            .map(|p| CString::new(p.to_string_lossy().to_string()))
+            .transpose()?;
+        let error_log = error_log.map(CString::new).transpose()?;
+
+        unsafe {
+            let p = ffi::ngx_log_init(
+                prefix
+                    .as_ref()
+                    .map(|s| s.as_ptr() as *mut _)
+                    .unwrap_or_else(ptr::null_mut),
+                error_log
+                    .as_ref()
+                    .map(|s| s.as_ptr() as *mut _)
+                    .unwrap_or_else(ptr::null_mut),
+            );
+
+            if p.is_null() {
+                Err(Error::OutOfMemory)
+            } else {
+                Ok(LogRef::from_ptr(p))
+            }
+        }
+    }
+}
+
 impl LogRef {
+    pub fn level(&self) -> Level {
+        Level::from_bits_truncate(unsafe { self.as_raw().log_level as u32 })
+    }
+
+    pub fn file(&self) -> &OpenFileRef {
+        unsafe { OpenFileRef::from_ptr(self.as_raw().file) }
+    }
+
     pub fn core(&self) -> WithModule {
         WithModule(self, Level::CORE)
     }
@@ -40,10 +78,6 @@ impl LogRef {
 
     pub fn stream(&self) -> WithModule {
         WithModule(self, Level::STREAM)
-    }
-
-    pub fn level(&self) -> Level {
-        Level::from_bits_truncate(unsafe { self.as_raw().log_level as u32 })
     }
 
     #[cfg(feature = "debug_log")]
@@ -146,5 +180,24 @@ bitflags! {
         const HTTP = ffi::NGX_LOG_DEBUG_HTTP;
         const MAIL = ffi::NGX_LOG_DEBUG_MAIL;
         const STREAM = ffi::NGX_LOG_DEBUG_STREAM;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::env::temp_dir;
+    use std::os::fd::AsRawFd;
+
+    use super::*;
+
+    #[test]
+    fn log() {
+        let tmp_dir = temp_dir();
+        let log = Log::init(Some(&tmp_dir), Some("error.log")).unwrap();
+
+        assert_eq!(log.level(), Level::ALERT | Level::ERR);
+        assert_ne!(log.file().as_raw_fd(), 0);
+
+        log.core().debug("test");
     }
 }

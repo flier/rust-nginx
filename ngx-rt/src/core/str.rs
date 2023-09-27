@@ -1,16 +1,19 @@
 use std::borrow::Cow;
+use std::fmt;
 use std::ops::{Deref, DerefMut};
+use std::ptr::NonNull;
 use std::slice;
 use std::str::{self, Utf8Error};
 
 use crate::ffi::{ngx_str_t, u_char};
 
 #[repr(transparent)]
+#[derive(Debug)]
 pub struct Str([u_char]);
 
 impl Str {
-    pub unsafe fn from_raw<'a>(str: ngx_str_t) -> &'a Self {
-        slice::from_raw_parts(str.data, str.len).into()
+    pub unsafe fn from_raw<'a>(str: ngx_str_t) -> Option<&'a Self> {
+        NonNull::new(str.data).map(|p| slice::from_raw_parts(p.as_ptr(), str.len).into())
     }
 
     pub fn as_bytes(&self) -> &[u8] {
@@ -43,6 +46,12 @@ impl Str {
 
     pub fn len(&self) -> usize {
         self.0.len()
+    }
+}
+
+impl fmt::Display for Str {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.to_string_lossy())
     }
 }
 
@@ -90,12 +99,6 @@ impl Deref for Str {
 impl DerefMut for Str {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.as_bytes_mut()
-    }
-}
-
-impl Default for &Str {
-    fn default() -> Self {
-        unsafe { Str::from_raw(crate::ngx_str!()) }
     }
 }
 

@@ -16,7 +16,7 @@ v1_25 = []
 v1_24 = []
 v1_22 = []
 
-minimal = ["compat", "threads"]
+minimal = ["compat", "event", "threads"]
 
 base = [
     "minimal",
@@ -38,30 +38,33 @@ base = [
     "stream_realip",
     "stream_ssl_preread",
     "stream_ssl",
-    "stream",
 ]
 
 compat = []
-stream = []
 threads = []
 file-aio = []
 
-http_addition = []
-http_auth_request = []
-http_flv = []
-http_gunzip = []
-http_gzip_static = []
-http_random_index = []
-http_realip = []
-http_secure_link = []
-http_slice = []
-http_ssl = []
-http_stub_status = []
-http_sub = []
-http_v2 = []
-stream_realip = []
-stream_ssl = []
-stream_ssl_preread = []
+event = []
+http = []
+mail = []
+stream = []
+
+http_addition = ["http"]
+http_auth_request = ["http"]
+http_flv = ["http"]
+http_gunzip = ["http"]
+http_gzip_static = ["http"]
+http_random_index = ["http"]
+http_realip = ["http"]
+http_secure_link = ["http"]
+http_slice = ["http"]
+http_ssl = ["http"]
+http_stub_status = ["http"]
+http_sub = ["http"]
+http_v2 = ["http"]
+stream_realip = ["stream"]
+stream_ssl = ["stream"]
+stream_ssl_preread = ["stream"]
 
 geoip = ["http_geoip", "stream_geoip"]
 
@@ -79,25 +82,27 @@ full = [
     "http_perl",
     "http_v3",
     "http_xslt",
+
+    "mail",
 ]
 
-http_dav = []
-http_degradation = []
-http_image_filter = []
-http_mp4 = []
-http_perl = []
-http_v3 = []
-http_xslt = []
-
-mail = []
+http_dav = ["http"]
+http_degradation = ["http"]
+http_image_filter = ["http"]
+http_mp4 = ["http"]
+http_perl = ["http"]
+http_v3 = ["http"]
+http_xslt = ["http"]
 
 fetch = ["reqwest"]
 build = ["ngx-build"]
+static-lib = ["build"]
 
 [dependencies]
 
 [build-dependencies]
 anyhow = "1.0"
+cc = "1.0"
 cfg-if = "1.0"
 cargo-emit = "0.2"
 libflate = "2.0"

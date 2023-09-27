@@ -8,9 +8,14 @@ edition = "2021"
 [features]
 default = []
 debug_log = []
+static-link = ["ngx-sys/static-link"]
 
 [dependencies]
 bitflags = "2.4"
 foreign-types = "0.5"
+thiserror = "1.0"
 
 ngx-sys = { version = "0.1", path = "../ngx-sys" }
+
+[dev-dependencies]
+assert_matches = "1.5"

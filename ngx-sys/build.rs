@@ -6,6 +6,28 @@ fn main() -> Result<()> {
     #[cfg(feature = "gen")]
     gen::nginx_binding()?;
 
+    if cfg!(feature = "static-link") {
+        let mut cfg = pkg_config::Config::new();
+
+        if cfg.statik(true).probe("libssl").is_err() {
+            cargo_emit::rustc_link_lib!("crypto", "ssl");
+        }
+        if cfg.statik(true).probe("libcrypt").is_err() {
+            cargo_emit::rustc_link_lib!("crypt");
+        }
+        if cfg.statik(true).probe("libpcre2-8").is_err() {
+            cargo_emit::rustc_link_lib!("pcre2-8");
+        }
+        if cfg.statik(true).probe("zlib").is_err() {
+            cargo_emit::rustc_link_lib!("z");
+        }
+
+        cargo_emit::rustc_link_search!(ngx_src::BUILD_DIR);
+        cargo_emit::rustc_link_lib!(
+            "nginx" => "static"
+        );
+    }
+
     Ok(())
 }
 

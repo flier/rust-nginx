@@ -37,6 +37,26 @@ struct SrvConfig {
     original_init_peer: ffi::ngx_http_upstream_init_peer_pt,
 }
 
+impl Default for SrvConfig {
+    fn default() -> Self {
+        SrvConfig {
+            max: u32::MAX,
+            original_init_upstream: None,
+            original_init_peer: None,
+        }
+    }
+}
+
+impl Merge for SrvConfig {
+    type Error = ();
+
+    fn merge(&mut self, prev: &SrvConfig) -> Result<(), ()> {
+        merge::Merge::merge(self, prev.clone());
+
+        Ok(())
+    }
+}
+
 impl Setter for SrvConfig {
     type Error = ();
     type Conf = SrvConfig;
@@ -54,7 +74,7 @@ impl Setter for SrvConfig {
                     cf.emerg(format!(
                         "invalid value `{}` in `{}` directive, {}",
                         s,
-                        cmd.name(),
+                        cmd.name().unwrap(),
                         err
                     ));
 
@@ -76,26 +96,6 @@ impl Setter for SrvConfig {
             .or(Some(ffi::ngx_http_upstream_init_round_robin));
 
         uscf.peer_mut().init_upstream = Some(ngx_http_upstream_init_custom);
-
-        Ok(())
-    }
-}
-
-impl Default for SrvConfig {
-    fn default() -> Self {
-        SrvConfig {
-            max: u32::MAX,
-            original_init_upstream: None,
-            original_init_peer: None,
-        }
-    }
-}
-
-impl Merge for SrvConfig {
-    type Error = ();
-
-    fn merge(&mut self, prev: &SrvConfig) -> Result<(), ()> {
-        merge::Merge::merge(self, prev.clone());
 
         Ok(())
     }

@@ -12,8 +12,8 @@ foreign_type! {
 }
 
 impl CmdRef {
-    pub fn name(&self) -> &str {
-        unsafe { Str::from_raw(self.as_raw().name).to_str().expect("name") }
+    pub fn name(&self) -> Option<&Str> {
+        unsafe { Str::from_raw(self.as_raw().name) }
     }
 
     pub fn ty(&self) -> Type {
