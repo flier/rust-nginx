@@ -128,17 +128,13 @@ unsafe extern "C" fn cleanup_type<T>(data: *mut c_void) {
 
 #[cfg(test)]
 mod tests {
-    use std::env::temp_dir;
-
     use crate::core::Log;
 
     use super::*;
 
     #[test]
     fn pool() {
-        let tmp_dir = temp_dir();
-        let log = Log::init(Some(&tmp_dir), Some("")).unwrap();
-        let p = Pool::new(4096, log).unwrap();
+        let p = Pool::new(4096, Log::stderr()).unwrap();
 
         let v = p.calloc::<usize>();
         assert!(v.is_some());

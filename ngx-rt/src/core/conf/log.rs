@@ -13,39 +13,39 @@ impl ConfRef {
     }
 
     pub fn stderr<S: Into<Vec<u8>>>(&self, msg: S) {
-        self.log_error(log::Level::STDERR, None, msg)
+        self.log_error(log::Level::StdErr, None, msg)
     }
 
     pub fn emerg<S: Into<Vec<u8>>>(&self, msg: S) {
-        self.log_error(log::Level::EMERG, None, msg)
+        self.log_error(log::Level::Emerg, None, msg)
     }
 
     pub fn alert<S: Into<Vec<u8>>>(&self, msg: S) {
-        self.log_error(log::Level::ALERT, None, msg)
+        self.log_error(log::Level::Alert, None, msg)
     }
 
     pub fn critical<S: Into<Vec<u8>>>(&self, msg: S) {
-        self.log_error(log::Level::CRIT, None, msg)
+        self.log_error(log::Level::Critical, None, msg)
     }
 
     pub fn error<S: Into<Vec<u8>>>(&self, msg: S) {
-        self.log_error(log::Level::EMERG, None, msg)
+        self.log_error(log::Level::Error, None, msg)
     }
 
     pub fn warn<S: Into<Vec<u8>>>(&self, msg: S) {
-        self.log_error(log::Level::WARN, None, msg)
+        self.log_error(log::Level::Warn, None, msg)
     }
 
     pub fn notice<S: Into<Vec<u8>>>(&self, msg: S) {
-        self.log_error(log::Level::NOTICE, None, msg)
+        self.log_error(log::Level::Notice, None, msg)
     }
 
     pub fn info<S: Into<Vec<u8>>>(&self, msg: S) {
-        self.log_error(log::Level::NOTICE, None, msg)
+        self.log_error(log::Level::Info, None, msg)
     }
 
     pub fn debug<S: Into<Vec<u8>>>(&self, msg: S) {
-        self.log_error(log::Level::DEBUG, None, msg)
+        self.log_error(log::Level::Debug, None, msg)
     }
 
     pub fn log_error<S: Into<Vec<u8>>>(&self, level: log::Level, err: Option<i32>, msg: S) {
@@ -53,7 +53,7 @@ impl ConfRef {
 
         unsafe {
             ffi::ngx_conf_log_error(
-                level.bits() as usize,
+                level as usize,
                 self.as_ptr(),
                 err.unwrap_or_default(),
                 msg.as_ptr(),

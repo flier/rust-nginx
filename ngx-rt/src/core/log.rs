@@ -1,9 +1,9 @@
-use std::{ffi::CString, path::Path, ptr};
+use std::{ffi::CString, mem, path::Path, ptr};
 
 use bitflags::bitflags;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{fake_drop, ffi, AsRaw, Error, Result};
+use crate::{core::time, fake_drop, ffi, AsRaw, Error, Result};
 
 use super::conf::OpenFileRef;
 
@@ -16,19 +16,31 @@ foreign_type! {
 }
 
 impl Log {
-    pub fn init(prefix: Option<&'_ Path>, error_log: Option<&'_ str>) -> Result<&'static LogRef> {
-        let prefix: Option<CString> = prefix
-            .map(|p| CString::new(p.to_string_lossy().to_string()))
-            .transpose()?;
-        let error_log = error_log.map(CString::new).transpose()?;
+    pub fn stderr() -> &'static mut LogRef {
+        time::init();
+
+        unsafe {
+            LogRef::from_ptr_mut(ffi::ngx_log_init(ptr::null_mut(), b"\0".as_ptr() as *mut _))
+        }
+    }
+
+    pub fn init(
+        prefix: Option<&'_ Path>,
+        error_log: Option<&'_ str>,
+    ) -> Result<&'static mut LogRef> {
+        time::init();
 
         unsafe {
             let p = ffi::ngx_log_init(
                 prefix
+                    .map(|p| CString::new(p.to_string_lossy().to_string()))
+                    .transpose()?
                     .as_ref()
                     .map(|s| s.as_ptr() as *mut _)
                     .unwrap_or_else(ptr::null_mut),
                 error_log
+                    .map(CString::new)
+                    .transpose()?
                     .as_ref()
                     .map(|s| s.as_ptr() as *mut _)
                     .unwrap_or_else(ptr::null_mut),
@@ -37,15 +49,32 @@ impl Log {
             if p.is_null() {
                 Err(Error::OutOfMemory)
             } else {
-                Ok(LogRef::from_ptr(p))
+                Ok(LogRef::from_ptr_mut(p))
             }
         }
     }
 }
 
 impl LogRef {
+    const LOG_LEVEL_MASK: u32 = 0x000F;
+    const LOG_MODULE_MASK: u32 = 0xFFF0;
+
     pub fn level(&self) -> Level {
-        Level::from_bits_truncate(unsafe { self.as_raw().log_level as u32 })
+        unsafe {
+            let level = self.as_raw().log_level as u32;
+
+            mem::transmute(level & Self::LOG_LEVEL_MASK)
+        }
+    }
+
+    pub fn module(&self) -> Module {
+        Module::from_bits_truncate(unsafe {
+            self.as_raw().log_level as u32 & Self::LOG_MODULE_MASK
+        })
+    }
+
+    pub fn with_module(&mut self, module: Module) {
+        unsafe { self.as_raw_mut().log_level |= module.bits() as usize }
     }
 
     pub fn file(&self) -> &OpenFileRef {
@@ -53,31 +82,31 @@ impl LogRef {
     }
 
     pub fn core(&self) -> WithModule {
-        WithModule(self, Level::CORE)
+        WithModule(self, Module::CORE)
     }
 
     pub fn alloc(&self) -> WithModule {
-        WithModule(self, Level::ALLOC)
+        WithModule(self, Module::ALLOC)
     }
 
     pub fn mutex(&self) -> WithModule {
-        WithModule(self, Level::MUTEX)
+        WithModule(self, Module::MUTEX)
     }
 
     pub fn event(&self) -> WithModule {
-        WithModule(self, Level::EVENT)
+        WithModule(self, Module::EVENT)
     }
 
     pub fn http(&self) -> WithModule {
-        WithModule(self, Level::HTTP)
+        WithModule(self, Module::HTTP)
     }
 
     pub fn mail(&self) -> WithModule {
-        WithModule(self, Level::MAIL)
+        WithModule(self, Module::MAIL)
     }
 
     pub fn stream(&self) -> WithModule {
-        WithModule(self, Level::STREAM)
+        WithModule(self, Module::STREAM)
     }
 
     #[cfg(feature = "debug_log")]
@@ -91,7 +120,7 @@ impl LogRef {
 
             unsafe {
                 ffi::ngx_log_error_core(
-                    level.bits() as usize,
+                    level as usize,
                     self.as_ptr(),
                     err.unwrap_or_default(),
                     msg.as_ptr(),
@@ -101,78 +130,82 @@ impl LogRef {
     }
 }
 
-pub struct WithModule<'a>(&'a LogRef, Level);
+pub struct WithModule<'a>(&'a LogRef, Module);
 
 impl<'a> WithModule<'a> {
     pub fn stderr<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.level().contains(self.1) {
-            self.log(Level::STDERR, msg)
+        if self.0.module().contains(self.1) {
+            self.log(Level::StdErr, msg)
         }
     }
 
     pub fn emerg<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.level().contains(self.1) {
-            self.log(Level::EMERG, msg)
+        if self.0.module().contains(self.1) {
+            self.log(Level::Emerg, msg)
         }
     }
 
     pub fn alert<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.level().contains(self.1) {
-            self.log(Level::ALERT, msg)
+        if self.0.module().contains(self.1) {
+            self.log(Level::Alert, msg)
         }
     }
 
     pub fn critical<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.level().contains(self.1) {
-            self.log(Level::CRIT, msg)
+        if self.0.module().contains(self.1) {
+            self.log(Level::Critical, msg)
         }
     }
 
     pub fn error<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.level().contains(self.1) {
-            self.log(Level::ERR, msg)
+        if self.0.module().contains(self.1) {
+            self.log(Level::Error, msg)
         }
     }
 
     pub fn warn<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.level().contains(self.1) {
-            self.log(Level::WARN, msg)
+        if self.0.module().contains(self.1) {
+            self.log(Level::Warn, msg)
         }
     }
 
     pub fn notice<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.level().contains(self.1) {
-            self.log(Level::NOTICE, msg)
+        if self.0.module().contains(self.1) {
+            self.log(Level::Notice, msg)
         }
     }
 
     pub fn debug<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.level().contains(self.1) {
-            self.log(Level::DEBUG, msg)
+        if self.0.module().contains(self.1) {
+            self.log(Level::Debug, msg)
         }
     }
 
     pub fn log<S: Into<Vec<u8>>>(&self, level: Level, msg: S) {
-        if self.0.level().contains(self.1) {
+        if self.0.module().contains(self.1) {
             self.0.error_core(level, None, msg);
         }
     }
 }
 
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Level {
+    StdErr = ffi::NGX_LOG_STDERR,
+    Emerg = ffi::NGX_LOG_EMERG,
+    Alert = ffi::NGX_LOG_ALERT,
+    Critical = ffi::NGX_LOG_CRIT,
+    Error = ffi::NGX_LOG_ERR,
+    Warn = ffi::NGX_LOG_WARN,
+    Notice = ffi::NGX_LOG_NOTICE,
+    Info = ffi::NGX_LOG_INFO,
+    Debug = ffi::NGX_LOG_DEBUG,
+}
+
 bitflags! {
     #[repr(transparent)]
     #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-    pub struct Level: u32 {
-        const STDERR = ffi::NGX_LOG_STDERR;
-        const EMERG = ffi::NGX_LOG_EMERG;
-        const ALERT = ffi::NGX_LOG_ALERT;
-        const CRIT = ffi::NGX_LOG_CRIT;
-        const ERR = ffi::NGX_LOG_ERR;
-        const WARN = ffi::NGX_LOG_WARN;
-        const NOTICE = ffi::NGX_LOG_NOTICE;
-        const INFO = ffi::NGX_LOG_INFO;
-        const DEBUG = ffi::NGX_LOG_DEBUG;
-
+    pub struct Module: u32 {
         const CORE = ffi::NGX_LOG_DEBUG_CORE;
         const ALLOC = ffi::NGX_LOG_DEBUG_ALLOC;
         const MUTEX = ffi::NGX_LOG_DEBUG_MUTEX;
@@ -191,11 +224,24 @@ mod tests {
     use super::*;
 
     #[test]
-    fn log() {
+    fn log_stderr() {
+        let log = Log::stderr();
+
+        assert_eq!(log.level(), Level::Notice);
+        assert_eq!(log.module(), Module::empty());
+        assert_ne!(log.file().as_raw_fd(), 0);
+
+        log.with_module(Module::CORE);
+        log.core().notice("some test log");
+    }
+
+    #[test]
+    fn log_tmp_file() {
         let tmp_dir = temp_dir();
         let log = Log::init(Some(&tmp_dir), Some("error.log")).unwrap();
 
-        assert_eq!(log.level(), Level::ALERT | Level::ERR);
+        assert_eq!(log.level(), Level::Notice);
+        assert_eq!(log.module(), Module::empty());
         assert_ne!(log.file().as_raw_fd(), 0);
 
         log.core().debug("test");

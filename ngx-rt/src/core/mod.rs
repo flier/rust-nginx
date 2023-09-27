@@ -9,6 +9,7 @@ mod module;
 mod pool;
 mod status;
 mod str;
+pub mod time;
 
 pub use self::array::{Array, ArrayRef};
 pub use self::buf::{Buf, BufRef};
