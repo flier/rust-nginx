@@ -44,8 +44,8 @@ impl<T: Sized> ArrayRef<T> {
         unsafe { slice::from_raw_parts(self.as_raw().elts as *const _ as *const _, self.len()) }
     }
 
-    pub fn as_mut_slice(&self) -> &mut [T] {
-        unsafe { slice::from_raw_parts_mut(self.as_raw().elts as *mut _, self.len()) }
+    pub fn as_mut_slice(&mut self) -> &mut [T] {
+        unsafe { slice::from_raw_parts_mut(self.as_raw_mut().elts.cast(), self.len()) }
     }
 
     pub fn reserve(&mut self) -> Option<&mut MaybeUninit<T>> {
@@ -127,10 +127,10 @@ impl<T: Sized> ArrayRef<T> {
     }
 }
 
-pub unsafe fn slice_assume_init_mut<T>(slice: &mut [MaybeUninit<T>]) -> &mut [T] {
+unsafe fn slice_assume_init_mut<T>(slice: &mut [MaybeUninit<T>]) -> &mut [T] {
     // SAFETY: similar to safety notes for `slice_get_ref`, but we have a
     // mutable reference which is also guaranteed to be valid for writes.
-    unsafe { &mut *(slice as *mut [MaybeUninit<T>] as *mut [T]) }
+    &mut *(slice as *mut [MaybeUninit<T>] as *mut [T])
 }
 
 impl<T: Sized> Extend<T> for ArrayRef<T> {

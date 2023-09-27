@@ -12,25 +12,65 @@ use crate::{
 };
 
 pub trait UnsafeModule {
+    /// A pre-configuration callback
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn preconfiguration(cf: *mut ffi::ngx_conf_t) -> ffi::ngx_int_t;
 
+    /// A post-configuration callback
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn postconfiguration(cf: *mut ffi::ngx_conf_t) -> ffi::ngx_int_t;
 
+    /// A callback for allocations and initializations of configurations for the main block configuration
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn create_main_conf(cf: *mut ffi::ngx_conf_t) -> *mut c_void;
 
+    /// A callback to set the configuration based on the directives supplied in the configuration files
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn init_main_conf(cf: *mut ffi::ngx_conf_t, conf: *mut c_void)
         -> *mut c_char;
 
+    /// A callback for allocations and initializations of configurations for the server block configuration
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn create_srv_conf(cf: *mut ffi::ngx_conf_t) -> *mut c_void;
 
+    /// A callback to merge the server block configuration with the main block
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn merge_srv_conf(
         cf: *mut ffi::ngx_conf_t,
         prev: *mut c_void,
         conf: *mut c_void,
     ) -> *mut c_char;
 
+    /// A callback for allocations and initializations of configurations for the location block configuration
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn create_loc_conf(cf: *mut ffi::ngx_conf_t) -> *mut c_void;
 
+    /// A callback to merge the location block configuration with the server block
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn merge_loc_conf(
         cf: *mut ffi::ngx_conf_t,
         prev: *mut c_void,
@@ -60,7 +100,7 @@ impl<T: Module> UnsafeModule for T {
         cf: *mut ffi::ngx_conf_t,
         conf: *mut c_void,
     ) -> *mut c_char {
-        <T as Module>::init_main_conf(ConfRef::from_ptr(cf), &mut *conf.cast())
+        <T as Module>::init_main_conf(ConfRef::from_ptr(cf), &*conf.cast())
             .map_or(NGX_CONF_ERROR, |_| NGX_CONF_OK)
     }
 

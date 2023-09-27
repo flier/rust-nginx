@@ -8,6 +8,11 @@ use crate::{
 };
 
 pub trait UnsafeSetter {
+    /// Set the configuration.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn set(
         _cf: *mut ffi::ngx_conf_t,
         cmd: *mut ffi::ngx_command_t,

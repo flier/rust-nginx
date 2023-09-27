@@ -9,18 +9,57 @@ use crate::{
 pub const UNSET_INDEX: ffi::ngx_uint_t = ffi::ngx_uint_t::max_value();
 
 pub trait UnsafeModule {
+    /// Initialize the master process.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn init_master(log: *mut ffi::ngx_log_t) -> ffi::ngx_int_t;
 
+    /// Initialize the module.
+    ///
+    /// This happens prior to the master process forking.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn init_module(cycle: *mut ffi::ngx_cycle_t) -> ffi::ngx_int_t;
 
+    /// Initialize the process.
+    ///
+    /// This happens as the worker processes are forked.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn init_process(cycle: *mut ffi::ngx_cycle_t) -> ffi::ngx_int_t;
 
+    /// Initialize the thread.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn init_thread(cycle: *mut ffi::ngx_cycle_t) -> ffi::ngx_int_t;
 
+    /// Terminated the thread.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn exit_thread(cycle: *mut ffi::ngx_cycle_t);
 
+    /// Terminated the child process.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn exit_process(cycle: *mut ffi::ngx_cycle_t);
 
+    /// Terminated the master process.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn exit_master(cycle: *mut ffi::ngx_cycle_t);
 }
 

@@ -12,6 +12,15 @@ use crate::ffi::{ngx_str_t, u_char};
 pub struct Str([u_char]);
 
 impl Str {
+    /// Create an [`Str`] from an [`ngx_str_t`].
+    ///
+    /// [`ngx_str_t`]: https://nginx.org/en/docs/dev/development_guide.html#string_overview
+    ///
+    /// # Safety
+    ///
+    /// The caller has provided a valid `ngx_str_t` with a `data` pointer that points
+    /// to range of bytes of at least `len` bytes, whose content remains valid and doesn't
+    /// change for the lifetime of the returned `Str`.
     pub unsafe fn from_raw<'a>(str: ngx_str_t) -> Option<&'a Self> {
         NonNull::new(str.data).map(|p| slice::from_raw_parts(p.as_ptr(), str.len).into())
     }
@@ -66,7 +75,7 @@ impl From<&Str> for ngx_str_t {
 
 impl From<&[u8]> for &Str {
     fn from(bytes: &[u8]) -> Self {
-        unsafe { &*bytes.as_ptr().cast::<Self>() }
+        unsafe { *bytes.as_ptr().cast::<Self>() }
     }
 }
 

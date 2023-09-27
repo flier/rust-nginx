@@ -5,8 +5,18 @@ pub(crate) fn fake_drop<T>(_: *mut T) {
 }
 
 pub trait AsRaw: ForeignTypeRef {
+    /// Get the raw reference to the type.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe fn as_raw(&self) -> &Self::CType;
 
+    /// Get the mutable raw reference to the type.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe fn as_raw_mut(&mut self) -> &mut Self::CType;
 }
 

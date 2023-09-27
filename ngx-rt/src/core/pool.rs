@@ -33,6 +33,10 @@ impl PoolRef {
     /// Allocates memory from the pool of the specified size.
     ///
     /// Returns a raw pointer to the allocated memory.
+    ///
+    /// # Safety
+    ///
+    /// This function is marked as unsafe due to the raw pointer manipulation.
     pub unsafe fn palloc(&self, size: usize) -> *mut c_void {
         ffi::ngx_palloc(self.as_ptr(), size)
     }
@@ -40,6 +44,10 @@ impl PoolRef {
     /// Allocates aligned memory from the pool of the specified size.
     ///
     /// Returns a raw pointer to the allocated memory.
+    ///
+    /// # Safety
+    ///
+    /// This function is marked as unsafe due to the raw pointer manipulation.
     pub unsafe fn pnalloc(&self, size: usize) -> *mut c_void {
         ffi::ngx_pnalloc(self.as_ptr(), size)
     }
@@ -47,6 +55,10 @@ impl PoolRef {
     /// Allocates zeroed memory from the pool of the specified size.
     ///
     /// Returns a raw pointer to the allocated memory.
+    ///
+    /// # Safety
+    ///
+    /// This function is marked as unsafe due to the raw pointer manipulation.
     pub unsafe fn pcalloc(&self, size: usize) -> *mut c_void {
         ffi::ngx_pcalloc(self.as_ptr(), size)
     }
@@ -54,6 +66,10 @@ impl PoolRef {
     /// Allocates aligned large memory from the pool.
     ///
     /// Returns a raw pointer to the allocated memory.
+    ///
+    /// # Safety
+    ///
+    /// This function is marked as unsafe due to the raw pointer manipulation.
     pub unsafe fn pmemalign(&self, size: usize, alignment: usize) -> *mut c_void {
         ffi::ngx_pmemalign(self.as_ptr(), size, alignment)
     }
@@ -61,6 +77,10 @@ impl PoolRef {
     /// Free large memory from the pool.
     ///
     /// Returns `true` if successful, or `false` if memory is not allocated from the pool.
+    ///
+    /// # Safety
+    ///
+    /// This function is marked as unsafe due to the raw pointer manipulation.
     pub unsafe fn pfree<T>(&self, p: NonNull<T>) -> bool {
         ffi::ngx_pfree(self.as_ptr(), p.as_ptr().cast()) == ffi::NGX_OK as isize
     }
@@ -90,7 +110,7 @@ impl PoolRef {
             NonNull::new(self.palloc(mem::size_of::<T>()).cast()).and_then(|p| {
                 ptr::write(p.as_ptr(), value);
 
-                if let Ok(_) = self.add_cleanup(p) {
+                if self.add_cleanup(p).is_ok() {
                     Some(p)
                 } else {
                     ptr::drop_in_place(p.as_ptr());
@@ -117,6 +137,7 @@ impl PoolRef {
 /// This function is called when cleaning up a value of type `T` in an FFI context.
 ///
 /// # Safety
+///
 /// This function is marked as unsafe due to the raw pointer manipulation and the assumption that `data` is a valid pointer to `T`.
 ///
 /// # Arguments
@@ -128,6 +149,7 @@ unsafe extern "C" fn cleanup_type<T>(data: *mut c_void) {
 
 #[cfg(test)]
 mod tests {
+
     use crate::core::Log;
 
     use super::*;

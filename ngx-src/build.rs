@@ -12,6 +12,12 @@ use tracing::{debug, info};
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
 
+    if env::var("DOCS_RS").is_ok() || cfg!(feature = "cargo-clippy") {
+        info!("skip building nginx for clippy and docs");
+
+        return Ok(());
+    }
+
     let out_dir = env::var("OUT_DIR").unwrap();
     let out_dir = Path::new(out_dir.as_str());
 
@@ -24,7 +30,7 @@ fn main() -> Result<()> {
     } else {
         cfg_if! {
             if #[cfg(feature = "fetch")] {
-                fetch::nginx_src(&out_dir)?
+                fetch::nginx_src(out_dir)?
             } else {
                 anyhow::bail!("NGINX_SRC_FILE is not set")
             }
@@ -33,7 +39,7 @@ fn main() -> Result<()> {
 
     debug!(dir = ?out_dir, "extracting nginx source file");
 
-    let src_dir = extract::nginx_src(&src_file, &out_dir)?;
+    let src_dir = extract::nginx_src(&src_file, out_dir)?;
 
     let nginx_dir = out_dir.join("nginx");
 
@@ -49,7 +55,7 @@ fn main() -> Result<()> {
 
     info!(dir = ?src_dir, "building nginx source");
 
-    let build_dir = out_dir.join(&"build");
+    let build_dir = out_dir.join("build");
     let dist_dir = out_dir.join("dist");
 
     #[cfg(feature = "build")]
@@ -126,7 +132,7 @@ mod fetch {
                 code = res.status().as_u16(),
                 "saved source file");
 
-            let mut f = File::create(&filename)?;
+            let mut f = File::create(filename)?;
 
             res.copy_to(&mut f)?;
 
@@ -159,7 +165,7 @@ mod extract {
         if dir.is_dir() {
             info!(path = ?dir, "use extracted source dir");
         } else {
-            let f = File::open(&file)?;
+            let f = File::open(file)?;
             let mut ar = tar::Archive::new(libflate::gzip::Decoder::new(f)?);
 
             ar.unpack(to)?;
@@ -250,9 +256,9 @@ mod build {
             builder.with_file_aio();
 
             builder
-                .src_dir(&src_dir)
-                .build_dir(&build_dir)
-                .out_dir(&dist_dir)
+                .src_dir(src_dir)
+                .build_dir(build_dir)
+                .out_dir(dist_dir)
                 .with_modules(MODULES);
 
             let configure = builder.configure()?;

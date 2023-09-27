@@ -1,5 +1,6 @@
 use std::{ffi::c_char, ptr};
 
+#[allow(clippy::module_inception)]
 mod conf;
 mod file;
 mod log;

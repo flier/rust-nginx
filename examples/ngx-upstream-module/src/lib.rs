@@ -103,8 +103,8 @@ impl Setter for SrvConfig {
 
 #[no_mangle]
 unsafe extern "C" fn ngx_http_upstream_init_custom(
-    cf: *mut ffi::ngx_conf_t,
-    us: *mut ffi::ngx_http_upstream_srv_conf_t,
+    _cf: *mut ffi::ngx_conf_t,
+    _us: *mut ffi::ngx_http_upstream_srv_conf_t,
 ) -> ffi::ngx_int_t {
     0
 }

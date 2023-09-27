@@ -1,7 +1,16 @@
+use std::env;
+
 use anyhow::Result;
+use tracing::info;
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
+
+    if env::var("DOCS_RS").is_ok() || cfg!(feature = "cargo-clippy") {
+        info!("skip gen binding for clippy and docs");
+
+        return Ok(());
+    }
 
     #[cfg(feature = "gen")]
     gen::nginx_binding()?;

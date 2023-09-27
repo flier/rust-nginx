@@ -10,8 +10,18 @@ use ngx_rt::core::{CycleRef, NGX_CONF_ERROR, NGX_CONF_OK};
 use crate::{ffi, Merge};
 
 pub trait UnsafeModule {
+    /// Create the configuration.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn create_conf(cycle: *mut ffi::ngx_cycle_t) -> *mut c_void;
 
+    /// Initialize the configuration.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
     unsafe extern "C" fn init_conf(cycle: *mut ffi::ngx_cycle_t, conf: *mut c_void) -> *mut c_char;
 }
 

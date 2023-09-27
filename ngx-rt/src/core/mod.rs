@@ -1,5 +1,5 @@
-mod array;
-mod buf;
+pub mod array;
+pub mod buf;
 mod cmd;
 mod conf;
 mod cycle;

@@ -1,6 +1,12 @@
-#![allow(non_upper_case_globals)]
-#![allow(non_camel_case_types)]
-#![allow(non_snake_case)]
+#![allow(
+    non_upper_case_globals,
+    non_camel_case_types,
+    non_snake_case,
+    clippy::useless_transmute,
+    clippy::missing_safety_doc,
+    clippy::len_without_is_empty,
+    clippy::too_many_arguments
+)]
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "gen")] {
