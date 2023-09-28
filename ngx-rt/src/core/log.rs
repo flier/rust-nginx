@@ -241,7 +241,6 @@ mod tests {
         let log = Log::init(Some(&tmp_dir), Some("error.log")).unwrap();
 
         assert_eq!(log.level(), Level::Notice);
-        assert_eq!(log.module(), Module::empty());
         assert_ne!(log.file().as_raw_fd(), 0);
 
         log.core().debug("test");

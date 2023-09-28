@@ -15,6 +15,14 @@ foreign_type! {
     }
 }
 
+impl Buf {
+    /// Creates a buffer of the specified size in the memory pool.
+    pub fn new(p: &PoolRef, len: usize) -> Option<&BufRef> {
+        NonNull::new(unsafe { ffi::ngx_create_temp_buf(p.as_ptr(), len) })
+            .map(|p| unsafe { BufRef::from_ptr(p.as_ptr()) })
+    }
+}
+
 impl BufRef {
     pub fn in_memory(&self) -> bool {
         let r = unsafe { self.as_raw() };
@@ -61,10 +69,4 @@ impl BufRef {
             slice::from_raw_parts_mut(r.pos, self.len() as usize)
         }
     }
-}
-
-/// Creates a buffer of the specified size in the memory pool.
-pub fn new(p: &PoolRef, len: usize) -> Option<&BufRef> {
-    NonNull::new(unsafe { ffi::ngx_create_temp_buf(p.as_ptr(), len) })
-        .map(|p| unsafe { BufRef::from_ptr(p.as_ptr()) })
 }

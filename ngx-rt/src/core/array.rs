@@ -19,6 +19,18 @@ foreign_type! {
     }
 }
 
+impl<T: Sized> Array<T> {
+    pub fn new(p: &PoolRef, n: usize) -> Option<Self> {
+        let p = unsafe { ffi::ngx_array_create(p.as_ptr(), n, mem::size_of::<T>()) };
+
+        if p.is_null() {
+            None
+        } else {
+            Some(unsafe { Array::from_ptr(p) })
+        }
+    }
+}
+
 impl<T: Sized> ArrayRef<T> {
     pub fn len(&self) -> usize {
         unsafe { self.as_raw().nelts }
@@ -148,16 +160,6 @@ impl<T: Sized> Extend<T> for ArrayRef<T> {
     }
 }
 
-pub fn new<T: Sized>(p: &PoolRef, n: usize) -> Option<Array<T>> {
-    let p = unsafe { ffi::ngx_array_create(p.as_ptr(), n, mem::size_of::<T>()) };
-
-    if p.is_null() {
-        None
-    } else {
-        Some(unsafe { Array::from_ptr(p) })
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::core::{Log, Pool};
@@ -167,7 +169,7 @@ mod tests {
     #[test]
     fn array() {
         let p = Pool::new(4096, Log::stderr()).unwrap();
-        let mut a = new::<usize>(&p, 4).unwrap();
+        let mut a = Array::<usize>::new(&p, 4).unwrap();
 
         assert_eq!(a.len(), 0);
         assert_eq!(a.cap(), 4);

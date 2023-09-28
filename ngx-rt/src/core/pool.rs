@@ -182,7 +182,7 @@ mod tests {
 
         let v = p.calloc::<usize>();
         assert!(v.is_some());
-        assert!(!unsafe { p.pfree(v.unwrap().as_ptr()) });
+        assert!(!unsafe { p.pfree(v.unwrap()) });
 
         let v1: Option<&mut MaybeUninit<[u8; 4096]>> = p.alloc::<[u8; 4096]>();
         assert!(v1.is_some());
