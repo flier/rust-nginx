@@ -1,6 +1,6 @@
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{fake_drop, ffi, AsRaw};
+use crate::{ffi, never_drop, AsRaw};
 
 use super::{conf::OpenFile, shm, ListRef, LogRef, ModuleRef, PoolRef, Str};
 
@@ -8,7 +8,7 @@ foreign_type! {
     pub unsafe type Cycle: Send {
         type CType = ffi::ngx_cycle_t;
 
-        fn drop = fake_drop::<ffi::ngx_cycle_t>;
+        fn drop = never_drop::<ffi::ngx_cycle_t>;
     }
 }
 

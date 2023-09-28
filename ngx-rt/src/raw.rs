@@ -1,6 +1,6 @@
 use foreign_types::ForeignTypeRef;
 
-pub(crate) fn fake_drop<T>(_: *mut T) {
+pub(crate) fn never_drop<T>(_: *mut T) {
     unreachable!()
 }
 

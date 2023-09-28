@@ -1,13 +1,13 @@
 use bitflags::bitflags;
 use foreign_types::foreign_type;
 
-use crate::{core::Str, fake_drop, ffi, AsRaw};
+use crate::{core::Str, ffi, never_drop, AsRaw};
 
 foreign_type! {
     pub unsafe type Cmd: Send {
         type CType = ffi::ngx_command_t;
 
-        fn drop = fake_drop::<ffi::ngx_command_t>;
+        fn drop = never_drop::<ffi::ngx_command_t>;
     }
 }
 

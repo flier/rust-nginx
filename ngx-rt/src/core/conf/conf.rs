@@ -4,14 +4,14 @@ use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{
     core::{ArrayRef, CycleRef, ModuleType, PoolRef, Str},
-    fake_drop, ffi, http, AsRaw,
+    ffi, http, never_drop, AsRaw,
 };
 
 foreign_type! {
     pub unsafe type Conf: Send {
         type CType = ffi::ngx_conf_t;
 
-        fn drop = fake_drop::<ffi::ngx_conf_t>;
+        fn drop = never_drop::<ffi::ngx_conf_t>;
     }
 }
 

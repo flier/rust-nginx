@@ -5,7 +5,7 @@ use std::{
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{fake_drop, ffi, AsRaw};
+use crate::{ffi, never_drop, AsRaw};
 
 use super::PoolRef;
 
@@ -14,7 +14,7 @@ foreign_type! {
         type CType = ffi::ngx_list_t;
         type PhantomData = T;
 
-        fn drop = fake_drop::<ffi::ngx_list_t>;
+        fn drop = never_drop::<ffi::ngx_list_t>;
     }
 }
 
@@ -139,7 +139,7 @@ foreign_type! {
         type CType = ffi::ngx_list_part_t;
         type PhantomData = T;
 
-        fn drop = fake_drop::<ffi::ngx_list_part_t>;
+        fn drop = never_drop::<ffi::ngx_list_part_t>;
     }
 }
 

@@ -3,7 +3,7 @@ use std::slice;
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{fake_drop, ffi, AsRaw};
+use crate::{ffi, never_drop, AsRaw};
 
 use super::PoolRef;
 
@@ -11,7 +11,7 @@ foreign_type! {
     pub unsafe type Buf: Send {
         type CType = ffi::ngx_buf_t;
 
-        fn drop = fake_drop::<ffi::ngx_buf_t>;
+        fn drop = never_drop::<ffi::ngx_buf_t>;
     }
 }
 

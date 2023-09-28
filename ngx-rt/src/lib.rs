@@ -6,5 +6,5 @@ pub mod http;
 mod raw;
 
 pub use self::error::{Error, Result};
-pub(crate) use self::raw::fake_drop;
+pub(crate) use self::raw::never_drop;
 pub use self::raw::AsRaw;

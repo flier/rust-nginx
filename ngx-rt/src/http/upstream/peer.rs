@@ -2,13 +2,13 @@ use std::ops::{Deref, DerefMut};
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{fake_drop, ffi, AsRaw};
+use crate::{ffi, never_drop, AsRaw};
 
 foreign_type! {
     pub unsafe type Peer: Send {
         type CType = ffi::ngx_http_upstream_peer_t;
 
-        fn drop = fake_drop::<ffi::ngx_http_upstream_peer_t>;
+        fn drop = never_drop::<ffi::ngx_http_upstream_peer_t>;
     }
 }
 

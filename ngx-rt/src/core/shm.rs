@@ -5,7 +5,7 @@ use std::{
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{fake_drop, ffi, AsRaw};
+use crate::{ffi, never_drop, AsRaw};
 
 use super::{LogRef, Str};
 
@@ -95,7 +95,7 @@ foreign_type! {
     pub unsafe type Zone: Send {
         type CType = ffi::ngx_shm_zone_t;
 
-        fn drop = fake_drop::<ffi::ngx_shm_zone_t>;
+        fn drop = never_drop::<ffi::ngx_shm_zone_t>;
     }
 }
 

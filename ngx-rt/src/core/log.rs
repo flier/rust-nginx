@@ -3,7 +3,7 @@ use std::{ffi::CString, mem, path::Path, ptr};
 use bitflags::bitflags;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{core::time, fake_drop, ffi, AsRaw, Error, Result};
+use crate::{core::time, ffi, never_drop, AsRaw, Error, Result};
 
 use super::conf::OpenFileRef;
 
@@ -11,7 +11,7 @@ foreign_type! {
     pub unsafe type Log: Send {
         type CType = ffi::ngx_log_t;
 
-        fn drop = fake_drop::<ffi::ngx_log_t>;
+        fn drop = never_drop::<ffi::ngx_log_t>;
     }
 }
 
