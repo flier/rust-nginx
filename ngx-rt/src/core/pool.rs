@@ -1,3 +1,4 @@
+use std::mem::MaybeUninit;
 use std::ptr::{self, NonNull};
 use std::{ffi::c_void, mem};
 
@@ -24,6 +25,7 @@ impl Pool {
 }
 
 impl PoolRef {
+    #[inline(always)]
     pub fn reset(&self) {
         unsafe {
             ffi::ngx_reset_pool(self.as_ptr());
@@ -37,6 +39,7 @@ impl PoolRef {
     /// # Safety
     ///
     /// This function is marked as unsafe due to the raw pointer manipulation.
+    #[inline(always)]
     pub unsafe fn palloc(&self, size: usize) -> *mut c_void {
         ffi::ngx_palloc(self.as_ptr(), size)
     }
@@ -48,6 +51,7 @@ impl PoolRef {
     /// # Safety
     ///
     /// This function is marked as unsafe due to the raw pointer manipulation.
+    #[inline(always)]
     pub unsafe fn pnalloc(&self, size: usize) -> *mut c_void {
         ffi::ngx_pnalloc(self.as_ptr(), size)
     }
@@ -59,6 +63,7 @@ impl PoolRef {
     /// # Safety
     ///
     /// This function is marked as unsafe due to the raw pointer manipulation.
+    #[inline(always)]
     pub unsafe fn pcalloc(&self, size: usize) -> *mut c_void {
         ffi::ngx_pcalloc(self.as_ptr(), size)
     }
@@ -70,6 +75,7 @@ impl PoolRef {
     /// # Safety
     ///
     /// This function is marked as unsafe due to the raw pointer manipulation.
+    #[inline(always)]
     pub unsafe fn pmemalign(&self, size: usize, alignment: usize) -> *mut c_void {
         ffi::ngx_pmemalign(self.as_ptr(), size, alignment)
     }
@@ -81,27 +87,43 @@ impl PoolRef {
     /// # Safety
     ///
     /// This function is marked as unsafe due to the raw pointer manipulation.
-    pub unsafe fn pfree<T>(&self, p: NonNull<T>) -> bool {
-        ffi::ngx_pfree(self.as_ptr(), p.as_ptr().cast()) == ffi::NGX_OK as isize
+    #[inline(always)]
+    pub unsafe fn pfree<T>(&self, p: *mut T) -> bool {
+        ffi::ngx_pfree(self.as_ptr(), p.cast()) == ffi::NGX_OK as isize
     }
 
     /// Allocates memory for a type from the pool.
     ///
     /// Returns a typed pointer to the allocated memory.
-    pub fn alloc<T: Copy>(&self) -> Option<NonNull<T>> {
-        NonNull::new(unsafe { self.palloc(mem::size_of::<T>()).cast() })
+    pub fn alloc<T: Copy>(&self) -> Option<&mut MaybeUninit<T>> {
+        unsafe {
+            let p = self.palloc(mem::size_of::<T>());
+            if p.is_null() {
+                None
+            } else {
+                Some(&mut *p.cast())
+            }
+        }
     }
 
     /// Allocates zeroed memory for a type from the pool.
     ///
     /// Returns a typed pointer to the allocated memory.
-    pub fn calloc<T: Copy>(&self) -> Option<NonNull<T>> {
-        NonNull::new(unsafe { self.pcalloc(mem::size_of::<T>()).cast() })
+    pub fn calloc<T: Copy>(&self) -> Option<&mut MaybeUninit<T>> {
+        unsafe {
+            let p = self.pcalloc(mem::size_of::<T>());
+            if p.is_null() {
+                None
+            } else {
+                Some(&mut *p.cast())
+            }
+        }
     }
 
     /// Allocates memory for a value of a specified type and adds a cleanup handler to the memory pool.
     ///
-    /// Returns a typed pointer to the allocated memory if successful, or a null pointer if allocation or cleanup handler addition fails.
+    /// Returns a typed pointer to the allocated memory if successful,
+    /// or `None` if allocation or cleanup handler addition fails.
     ///
     /// # Safety
     /// This function is marked as unsafe because it involves raw pointer manipulation.
@@ -160,10 +182,10 @@ mod tests {
 
         let v = p.calloc::<usize>();
         assert!(v.is_some());
-        assert!(!unsafe { p.pfree(v.unwrap()) });
+        assert!(!unsafe { p.pfree(v.unwrap().as_ptr()) });
 
-        let v1 = p.alloc::<[u8; 4096]>();
+        let v1: Option<&mut MaybeUninit<[u8; 4096]>> = p.alloc::<[u8; 4096]>();
         assert!(v1.is_some());
-        assert!(unsafe { p.pfree(v1.unwrap()) });
+        assert!(unsafe { p.pfree(v1.unwrap().as_mut_ptr()) });
     }
 }
