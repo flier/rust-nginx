@@ -6,16 +6,225 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = []
-debug_log = []
+default = ["stable", "base"]
+
+# nginx version
+
+mainline = ["ngx-sys/mainline"]
+stable = ["ngx-sys/stable"]
+legacy = ["ngx-sys/legacy"]
+
+v1_25 = ["ngx-sys/v1_25"]
+v1_24 = ["ngx-sys/v1_24"]
+v1_22 = ["ngx-sys/v1_22"]
+
+# core modules
+
+event = ["ngx-sys/event"]
+http = [
+    "ngx-sys/http",
+
+    "http_cache",
+    "http_charset",
+    "http_gzip",
+    "http_ssi",
+    "http_userid",
+    "http_access",
+    "http_auth_basic",
+    "http_mirror",
+    "http_autoindex",
+    "http_geo",
+    "http_map",
+    "http_split_clients",
+    "http_referer",
+    "http_rewrite",
+    "http_proxy",
+    "http_fastcgi",
+    "http_uwsgi",
+    "http_scgi",
+    "http_grpc",
+    "http_memcached",
+    "http_limit_conn",
+    "http_limit_req",
+    "http_empty_gif",
+    "http_browser",
+    "http_upstream_hash",
+    "http_upstream_ip_hash",
+    "http_upstream_least_conn",
+    "http_upstream_random",
+    "http_upstream_keepalive",
+    "http_upstream_zone",
+]
+mail = ["ngx-sys/mail", "mail_pop3", "mail_imap", "mail_smtp"]
+stream = [
+    "ngx-sys/stream",
+
+    "stream_limit_conn",
+    "stream_access",
+    "stream_geo",
+    "stream_map",
+    "stream_split_clients",
+    "stream_return",
+    "stream_set",
+    "stream_upstream_hash",
+    "stream_upstream_least_conn",
+    "stream_upstream_random",
+    "stream_upstream_zone",
+]
+
+# build-in modules
+
+http_cache = ["ngx-sys/http_cache"]
+http_charset = ["ngx-sys/http_charset"]
+http_gzip = ["ngx-sys/http_gzip"]
+http_ssi = ["ngx-sys/http_ssi"]
+http_userid = ["ngx-sys/http_userid"]
+http_access = ["ngx-sys/http_access"]
+http_auth_basic = ["ngx-sys/http_auth_basic"]
+http_mirror = ["ngx-sys/http_mirror"]
+http_autoindex = ["ngx-sys/http_autoindex"]
+http_geo = ["ngx-sys/http_geo", "http_x_forwarded_for"]
+http_map = ["ngx-sys/http_map"]
+http_split_clients = ["ngx-sys/http_split_clients"]
+http_referer = ["ngx-sys/http_referer"]
+http_rewrite = ["ngx-sys/http_rewrite"]
+http_proxy = ["ngx-sys/http_proxy", "http_x_forwarded_for"]
+http_fastcgi = ["ngx-sys/http_fastcgi"]
+http_uwsgi = ["ngx-sys/http_uwsgi"]
+http_scgi = ["ngx-sys/http_scgi"]
+http_grpc = ["ngx-sys/http_grpc"]
+http_memcached = ["ngx-sys/http_memcached"]
+http_limit_conn = ["ngx-sys/http_limit_conn"]
+http_limit_req = ["ngx-sys/http_limit_req"]
+http_empty_gif = ["ngx-sys/http_empty_gif"]
+http_browser = ["ngx-sys/http_browser"]
+http_upstream_hash = ["ngx-sys/http_upstream_hash"]
+http_upstream_ip_hash = ["ngx-sys/http_upstream_ip_hash"]
+http_upstream_least_conn = ["ngx-sys/http_upstream_least_conn"]
+http_upstream_random = ["ngx-sys/http_upstream_random"]
+http_upstream_keepalive = ["ngx-sys/http_upstream_keepalive"]
+http_upstream_zone = ["ngx-sys/http_upstream_zone"]
+
+mail_pop3 = ["ngx-sys/mail_pop3"]
+mail_imap = ["ngx-sys/mail_imap"]
+mail_smtp = ["ngx-sys/mail_smtp"]
+
+stream_limit_conn = ["ngx-sys/stream_limit_conn"]
+stream_access = ["ngx-sys/stream_access"]
+stream_geo = ["ngx-sys/stream_geo"]
+stream_map = ["ngx-sys/stream_map"]
+stream_split_clients = ["ngx-sys/stream_split_clients"]
+stream_return = ["ngx-sys/stream_return"]
+stream_set = ["ngx-sys/stream_set"]
+stream_upstream_hash = ["ngx-sys/stream_upstream_hash"]
+stream_upstream_least_conn = ["ngx-sys/stream_upstream_least_conn"]
+stream_upstream_random = ["ngx-sys/stream_upstream_random"]
+stream_upstream_zone = ["ngx-sys/stream_upstream_zone"]
+
+# Optional modules
+
+http_ssl = ["http", "ngx-sys/http_ssl"]
+http_v2 = ["http", "ngx-sys/http_v2"]
+http_v3 = ["http", "ngx-sys/http_v3"]
+http_realip = ["http", "ngx-sys/http_realip", "http_x_forwarded_for"]
+http_addition = ["http", "ngx-sys/http_addition"]
+http_xslt = ["http", "ngx-sys/http_xslt"]
+http_image_filter = ["http", "ngx-sys/http_image_filter"]
+http_geoip = ["http", "ngx-sys/http_geoip", "http_x_forwarded_for"]
+http_sub = ["http", "ngx-sys/http_sub"]
+http_dav = ["http", "ngx-sys/http_dav"]
+http_flv = ["http", "ngx-sys/http_flv"]
+http_mp4 = ["http", "ngx-sys/http_mp4"]
+http_gunzip = ["http", "ngx-sys/http_gunzip", "http_gzip"]
+http_gzip_static = ["http", "ngx-sys/http_gzip_static", "http_gzip"]
+http_auth_request = ["http", "ngx-sys/http_auth_request"]
+http_random_index = ["http", "ngx-sys/http_random_index"]
+http_secure_link = ["http", "ngx-sys/http_secure_link"]
+http_degradation = ["http", "ngx-sys/http_degradation"]
+http_slice = ["http", "ngx-sys/http_slice"]
+http_stub_status = ["http", "ngx-sys/http_stub_status"]
+
+mail_ssl = ["mail", "ngx-sys/mail_ssl"]
+
+stream_ssl = ["stream", "ngx-sys/stream_ssl"]
+stream_realip = ["stream", "ngx-sys/stream_realip"]
+stream_geoip = ["stream", "ngx-sys/stream_geoip"]
+stream_ssl_preread = ["stream", "ngx-sys/stream_ssl_preread"]
+
+# profile
+
+compat = [
+    "ngx-sys/compat",
+
+    "http_gzip",
+    "http_dav",
+    "http_realip",
+    "http_x_forwarded_for",
+    "http_headers",
+    "http_upstream_zone",
+
+    "stream_upstream_zone",
+]
+
+minimal = ["ngx-sys/minimal", "event", "http", "compat", "threads"]
+
+base = [
+    "ngx-sys/base",
+
+    "minimal",
+
+    "http_addition",
+    "http_auth_request",
+    "http_flv",
+    "http_gunzip",
+    "http_gzip_static",
+    "http_random_index",
+    "http_realip",
+    "http_secure_link",
+    "http_slice",
+    "http_ssl",
+    "http_stub_status",
+    "http_sub",
+    "http_v2",
+
+    "stream_realip",
+    "stream_ssl_preread",
+    "stream_ssl",
+]
+full = [
+    "ngx-sys/full",
+
+    "base",
+
+    "http_dav",
+    "http_degradation",
+    "http_image_filter",
+    "http_mp4",
+    "http_v3",
+    "http_xslt",
+
+    "mail_ssl",
+]
+
+# optional features
+
+http_headers = []
+http_x_forwarded_for = []
+
+# platform supports
+
+threads = ["ngx-sys/threads"]
+file-aio = ["ngx-sys/file-aio"]
+debug-log = ["ngx-sys/debug-log"]
+
+# optional features for build
+
 static-link = ["ngx-sys/static-link"]
 
 [dependencies]
 bitflags = "2.4"
+cfg-if = "1.0"
 foreign-types = "0.5"
 thiserror = "1.0"
 
 ngx-sys = { version = "0.1", path = "../ngx-sys" }
-
-[dev-dependencies]
-assert_matches = "1.5"

@@ -3,7 +3,10 @@ use std::ops::{Deref, DerefMut};
 use bitflags::bitflags;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{core::Str, ffi, never_drop, AsRawMut, AsRawRef, FromRawRef};
+use crate::{
+    core::{hash, Str},
+    ffi, never_drop, AsRawMut, AsRawRef, FromRawRef,
+};
 
 bitflags! {
     pub struct Method : u32 {
@@ -121,6 +124,69 @@ foreign_type! {
 
         fn drop = never_drop::<ffi::ngx_http_headers_in_t>;
     }
+}
+
+macro_rules! header {
+    ($name:ident) => {
+        pub fn $name(&self) -> Option<&hash::TableEltRef> {
+            unsafe { hash::TableEltRef::from_raw(self.as_raw().$name) }
+        }
+    };
+}
+
+impl HeadersInRef {
+    header!(host);
+    header!(connection);
+    header!(if_modified_since);
+    header!(if_unmodified_since);
+    header!(if_match);
+    header!(if_none_match);
+    header!(user_agent);
+    header!(referer);
+    header!(content_length);
+    header!(content_range);
+    header!(content_type);
+
+    header!(range);
+    header!(if_range);
+
+    header!(transfer_encoding);
+    header!(te);
+    header!(expect);
+    header!(upgrade);
+
+    cfg_if::cfg_if! {
+        if #[cfg(any(feature = "http_gzip", feature = "http_headers"))] {
+            header!(accept_encoding);
+            header!(via);
+        }
+    }
+
+    header!(authorization);
+
+    header!(keep_alive);
+
+    #[cfg(feature = "http_x_forwarded_for")]
+    header!(x_forwarded_for);
+
+    #[cfg(feature = "http_realip")]
+    header!(x_real_ip);
+
+    #[cfg(feature = "http_headers")]
+    header!(accept);
+    #[cfg(feature = "http_headers")]
+    header!(accept_language);
+
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "http_dav")] {
+            header!(depth);
+            header!(destination);
+            header!(overwrite);
+            header!(date);
+        }
+    }
+
+    header!(cookie);
 }
 
 foreign_type! {

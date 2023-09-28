@@ -127,15 +127,14 @@ impl<T> CombinedRef<T> {
 }
 
 foreign_type! {
-    pub unsafe type TableElt<T>: Send {
+    pub unsafe type TableElt: Send {
         type CType = ffi::ngx_table_elt_t;
-        type PhantomData = T;
 
         fn drop = never_drop::<ffi::ngx_table_elt_t>;
     }
 }
 
-impl<T> TableEltRef<T> {
+impl TableEltRef {
     pub fn hash(&self) -> usize {
         unsafe { self.as_raw().hash }
     }

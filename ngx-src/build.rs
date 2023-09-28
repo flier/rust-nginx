@@ -183,57 +183,158 @@ mod build {
     use ngx_build::CommandExt;
     use tracing::{info, instrument};
 
-    const MODULES: &[&str] = &[
+    const OPTIONAL_HTTP_MODULES: &[&str] = &[
+        #[cfg(feature = "http_ssl")]
+        "http_ssl",
+        #[cfg(feature = "http_v2")]
+        "http_v2",
+        #[cfg(feature = "http_v3")]
+        "http_v3",
+        #[cfg(feature = "http_realip")]
+        "http_realip",
         #[cfg(feature = "http_addition")]
         "http_addition",
-        #[cfg(feature = "http_auth_request")]
-        "http_auth_request",
+        #[cfg(feature = "http_xslt")]
+        "http_xslt",
+        #[cfg(feature = "http_image_filter")]
+        "http_image_filter",
+        #[cfg(feature = "http_geoip")]
+        "http_geoip",
+        #[cfg(feature = "http_sub")]
+        "http_sub",
+        #[cfg(feature = "http_dav")]
+        "http_dav",
         #[cfg(feature = "http_flv")]
         "http_flv",
+        #[cfg(feature = "http_mp4")]
+        "http_mp4",
         #[cfg(feature = "http_gunzip")]
         "http_gunzip",
         #[cfg(feature = "http_gzip_static")]
         "http_gzip_static",
+        #[cfg(feature = "http_auth_request")]
+        "http_auth_request",
         #[cfg(feature = "http_random_index")]
         "http_random_index",
-        #[cfg(feature = "http_realip")]
-        "http_realip",
         #[cfg(feature = "http_secure_link")]
         "http_secure_link",
-        #[cfg(feature = "http_slice")]
-        "http_slice",
-        #[cfg(feature = "http_ssl")]
-        "http_ssl",
-        #[cfg(feature = "http_stub_status")]
-        "http_stub_status",
-        #[cfg(feature = "http_sub")]
-        "http_sub",
-        #[cfg(feature = "http_v2")]
-        "http_v2",
-        #[cfg(feature = "stream_realip")]
-        "stream_realip",
-        #[cfg(feature = "stream_ssl")]
-        "stream_ssl",
-        #[cfg(feature = "stream_ssl_preread")]
-        "stream_ssl_preread",
-        #[cfg(feature = "http_geoip")]
-        "http_geoip",
-        #[cfg(feature = "stream_geoip")]
-        "stream_geoip",
-        #[cfg(feature = "http_dav")]
-        "http_dav",
         #[cfg(feature = "http_degradation")]
         "http_degradation",
-        #[cfg(feature = "http_image_filter")]
-        "http_image_filter",
-        #[cfg(feature = "http_mp4")]
-        "http_mp4",
-        #[cfg(feature = "http_perl")]
-        "http_perl",
-        #[cfg(feature = "http_v3")]
-        "http_v3",
-        #[cfg(feature = "http_xslt")]
-        "http_xslt",
+        #[cfg(feature = "http_slice")]
+        "http_slice",
+        #[cfg(feature = "http_stub_status")]
+        "http_stub_status",
+    ];
+
+    const OPTIONAL_MAIL_MODULES: &[&str] = &[
+        #[cfg(feature = "mail_ssl")]
+        "mail_ssl",
+    ];
+
+    const OPTIONAL_STREAM_MODULES: &[&str] = &[
+        #[cfg(feature = "stream_ssl")]
+        "stream_ssl",
+        #[cfg(feature = "stream_realip")]
+        "stream_realip",
+        #[cfg(feature = "stream_geoip")]
+        "stream_geoip",
+        #[cfg(feature = "stream_ssl_preread")]
+        "stream_ssl_preread",
+    ];
+
+    const BUILD_IN_HTTP_MODULES: &[&str] = &[
+        #[cfg(not(feature = "http_charset"))]
+        "http_charset",
+        #[cfg(not(feature = "http_gzip"))]
+        "http_gzip",
+        #[cfg(not(feature = "http_ssi"))]
+        "http_ssi",
+        #[cfg(not(feature = "http_userid"))]
+        "http_userid",
+        #[cfg(not(feature = "http_access"))]
+        "http_access",
+        #[cfg(not(feature = "http_auth_basic"))]
+        "http_auth_basic",
+        #[cfg(not(feature = "http_mirror"))]
+        "http_mirror",
+        #[cfg(not(feature = "http_autoindex"))]
+        "http_autoindex",
+        #[cfg(not(feature = "http_geo"))]
+        "http_geo",
+        #[cfg(not(feature = "http_map"))]
+        "http_map",
+        #[cfg(not(feature = "http_split_clients"))]
+        "http_split_clients",
+        #[cfg(not(feature = "http_referer"))]
+        "http_referer",
+        #[cfg(not(feature = "http_rewrite"))]
+        "http_rewrite",
+        #[cfg(not(feature = "http_proxy"))]
+        "http_proxy",
+        #[cfg(not(feature = "http_fastcgi"))]
+        "http_fastcgi",
+        #[cfg(not(feature = "http_uwsgi"))]
+        "http_uwsgi",
+        #[cfg(not(feature = "http_scgi"))]
+        "http_scgi",
+        #[cfg(not(feature = "http_grpc"))]
+        "http_grpc",
+        #[cfg(not(feature = "http_memcached"))]
+        "http_memcached",
+        #[cfg(not(feature = "http_limit_conn"))]
+        "http_limit_conn",
+        #[cfg(not(feature = "http_limit_req"))]
+        "http_limit_req",
+        #[cfg(not(feature = "http_empty_gif"))]
+        "http_empty_gif",
+        #[cfg(not(feature = "http_browser"))]
+        "http_browser",
+        #[cfg(not(feature = "http_upstream_hash"))]
+        "http_upstream_hash",
+        #[cfg(not(feature = "http_upstream_ip_hash"))]
+        "http_upstream_ip_hash",
+        #[cfg(not(feature = "http_upstream_least_conn"))]
+        "http_upstream_least_conn",
+        #[cfg(not(feature = "http_upstream_random"))]
+        "http_upstream_random",
+        #[cfg(not(feature = "http_upstream_keepalive"))]
+        "http_upstream_keepalive",
+        #[cfg(not(feature = "http_upstream_zone"))]
+        "http_upstream_zone",
+    ];
+
+    const BUILD_IN_MAIL_MODULES: &[&str] = &[
+        #[cfg(not(feature = "mail_pop3"))]
+        "mail_pop3",
+        #[cfg(not(feature = "mail_imap"))]
+        "mail_imap",
+        #[cfg(not(feature = "mail_smtp"))]
+        "mail_smtp",
+    ];
+
+    const BUILD_IN_STREAM_MODULES: &[&str] = &[
+        #[cfg(not(feature = "stream_limit_conn"))]
+        "stream_limit_conn",
+        #[cfg(not(feature = "stream_access"))]
+        "stream_access",
+        #[cfg(not(feature = "stream_geo"))]
+        "stream_geo",
+        #[cfg(not(feature = "stream_map"))]
+        "stream_map",
+        #[cfg(not(feature = "stream_split_clients"))]
+        "stream_split_clients",
+        #[cfg(not(feature = "stream_return"))]
+        "stream_return",
+        #[cfg(not(feature = "stream_set"))]
+        "stream_set",
+        #[cfg(not(feature = "stream_upstream_hash"))]
+        "stream_upstream_hash",
+        #[cfg(not(feature = "stream_upstream_least_conn"))]
+        "stream_upstream_least_conn",
+        #[cfg(not(feature = "stream_upstream_random"))]
+        "stream_upstream_random",
+        #[cfg(not(feature = "stream_upstream_zone"))]
+        "stream_upstream_zone",
     ];
 
     #[instrument]
@@ -243,14 +344,17 @@ mod build {
         } else {
             let mut builder = ngx_build::Builder::default();
 
-            #[cfg(feature = "compat")]
-            builder.with_compat();
+            if cfg!(feature = "debug-log") {
+                builder.with_debug();
+            }
 
-            #[cfg(feature = "stream")]
-            builder.with_stream();
+            if cfg!(feature = "compat") {
+                builder.with_compat();
+            }
 
-            #[cfg(feature = "threads")]
-            builder.with_threads();
+            if cfg!(feature = "threads") {
+                builder.with_threads();
+            }
 
             #[cfg(all(feature = "file_aio", any(target_os = "linux", target_os = "freebsd")))]
             builder.with_file_aio();
@@ -258,10 +362,35 @@ mod build {
             builder
                 .src_dir(src_dir)
                 .build_dir(build_dir)
-                .out_dir(dist_dir)
-                .with_modules(MODULES);
+                .out_dir(dist_dir);
 
-            let configure = builder.configure()?;
+            if cfg!(feature = "http") {
+                builder
+                    .with_modules(OPTIONAL_HTTP_MODULES)
+                    .without_modules(BUILD_IN_HTTP_MODULES);
+
+                if cfg!(not(feature = "http_cache")) {
+                    builder.without_http_cache();
+                }
+            } else {
+                builder.without_http();
+            }
+
+            if cfg!(feature = "mail") {
+                builder
+                    .with_mail()
+                    .with_modules(OPTIONAL_MAIL_MODULES)
+                    .without_modules(BUILD_IN_MAIL_MODULES);
+            }
+
+            if cfg!(feature = "stream") {
+                builder
+                    .with_stream()
+                    .with_modules(OPTIONAL_STREAM_MODULES)
+                    .without_modules(BUILD_IN_STREAM_MODULES);
+            }
+
+            let configure: ngx_build::Configure = builder.configure()?;
             let make = configure.run()?;
 
             make.build()?;

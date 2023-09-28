@@ -6,11 +6,15 @@ use crate::{Configure, Error, Result};
 pub struct Builder {
     debug: bool,
     compat: bool,
+    without_http: bool,
+    without_http_cache: bool,
+    mail: bool,
     stream: bool,
     threads: bool,
     #[cfg(any(target_os = "freebsd", target_os = "linux"))]
     file_aio: bool,
     modules: Vec<String>,
+    without_modules: Vec<String>,
     src_dir: Option<PathBuf>,
     build_dir: Option<PathBuf>,
     out_dir: Option<PathBuf>,
@@ -24,7 +28,7 @@ pub struct Builder {
 
 impl Builder {
     /// enables the debugging log.
-    pub fn debug(&mut self) -> &mut Self {
+    pub fn with_debug(&mut self) -> &mut Self {
         self.debug = true;
         self
     }
@@ -48,6 +52,16 @@ impl Builder {
     /// disables a module
     pub fn without_module<S: AsRef<str>>(&mut self, name: S) -> &mut Self {
         self.modules.retain(|m| m != name.as_ref());
+        self
+    }
+
+    /// disables multiple modules
+    pub fn without_modules<I: IntoIterator<Item = S>, S: AsRef<str>>(
+        &mut self,
+        modules: I,
+    ) -> &mut Self {
+        self.without_modules
+            .extend(modules.into_iter().map(|s| s.as_ref().to_string()));
         self
     }
 
@@ -111,6 +125,24 @@ impl Builder {
         self
     }
 
+    /// disable HTTP server
+    pub fn without_http(&mut self) -> &mut Self {
+        self.without_http = true;
+        self
+    }
+
+    /// disable HTTP cache
+    pub fn without_http_cache(&mut self) -> &mut Self {
+        self.without_http_cache = true;
+        self
+    }
+
+    /// enables building the mail module.
+    pub fn with_mail(&mut self) -> &mut Self {
+        self.mail = true;
+        self
+    }
+
     /// enables building the stream module for generic TCP/UDP proxying and load balancing.
     pub fn with_stream(&mut self) -> &mut Self {
         self.stream = true;
@@ -134,11 +166,15 @@ impl Builder {
         Ok(Configure {
             debug: self.debug,
             compat: self.compat,
+            without_http: self.without_http,
+            without_http_cache: self.without_http_cache,
+            mail: self.mail,
             stream: self.stream,
             threads: self.threads,
             #[cfg(any(target_os = "freebsd", target_os = "linux"))]
             file_aio: self.file_aio,
             modules: self.modules,
+            without_modules: self.without_modules,
             src_dir: self
                 .src_dir
                 .ok_or_else(|| Error::MissingArgument("src_dir"))?,

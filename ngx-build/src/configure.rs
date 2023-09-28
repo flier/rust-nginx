@@ -8,11 +8,15 @@ use crate::{CommandExt, Make, Result};
 pub struct Configure {
     pub debug: bool,
     pub compat: bool,
+    pub without_http: bool,
+    pub without_http_cache: bool,
+    pub mail: bool,
     pub stream: bool,
     pub threads: bool,
     #[cfg(any(target_os = "freebsd", target_os = "linux"))]
     pub file_aio: bool,
     pub modules: Vec<String>,
+    pub without_modules: Vec<String>,
     pub src_dir: PathBuf,
     pub build_dir: PathBuf,
     pub out_dir: PathBuf,
@@ -37,6 +41,15 @@ impl Configure {
         }
         if self.compat {
             args.push("--with-compat".to_string());
+        }
+        if self.without_http {
+            args.push("--without-http".to_string());
+        }
+        if self.without_http_cache {
+            args.push("--without-http-cache".to_string());
+        }
+        if self.mail {
+            args.push("--with-mail".to_string());
         }
         if self.stream {
             args.push("--with-stream".to_string());
@@ -72,6 +85,11 @@ impl Configure {
             self.modules
                 .into_iter()
                 .map(|m| format!("--with-{}_module", m)),
+        );
+        args.extend(
+            self.without_modules
+                .into_iter()
+                .map(|m| format!("--without-{}_module", m)),
         );
 
         fs::create_dir_all(&self.build_dir)?;

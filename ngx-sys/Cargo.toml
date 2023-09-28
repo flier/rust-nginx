@@ -6,9 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["stable", "vendored", "base"]
-gen = ["bindgen"]
+default = ["stable", "base", "vendored"]
+
 vendored = ['ngx-src']
+
+# nginx version
 
 mainline = ["v1_25"]
 stable = ["v1_24"]
@@ -18,16 +20,203 @@ v1_25 = ["ngx-src/v1_25"]
 v1_24 = ["ngx-src/v1_24"]
 v1_22 = ["ngx-src/v1_22"]
 
-minimal = ["ngx-src/minimal"]
-base = ["minimal", "ngx-src/base", "module", "event", "http", "stream"]
-full = ["base", "ngx-src/full", "mail"]
+# core modules
+
+event = ["ngx-src/event"]
+http = [
+    "ngx-src/http",
+
+    "http_cache",
+    "http_charset",
+    "http_gzip",
+    "http_ssi",
+    "http_userid",
+    "http_access",
+    "http_auth_basic",
+    "http_mirror",
+    "http_autoindex",
+    "http_geo",
+    "http_map",
+    "http_split_clients",
+    "http_referer",
+    "http_rewrite",
+    "http_proxy",
+    "http_fastcgi",
+    "http_uwsgi",
+    "http_scgi",
+    "http_grpc",
+    "http_memcached",
+    "http_limit_conn",
+    "http_limit_req",
+    "http_empty_gif",
+    "http_browser",
+    "http_upstream_hash",
+    "http_upstream_ip_hash",
+    "http_upstream_least_conn",
+    "http_upstream_random",
+    "http_upstream_keepalive",
+    "http_upstream_zone",
+]
+mail = ["ngx-src/mail", "mail_pop3", "mail_imap", "mail_smtp"]
+stream = [
+    "ngx-src/stream",
+
+    "stream_limit_conn",
+    "stream_access",
+    "stream_geo",
+    "stream_map",
+    "stream_split_clients",
+    "stream_return",
+    "stream_set",
+    "stream_upstream_hash",
+    "stream_upstream_least_conn",
+    "stream_upstream_random",
+    "stream_upstream_zone",
+]
+
+# build-in modules
+
+http_cache = ["ngx-src/http_cache"]
+http_charset = ["ngx-src/http_charset"]
+http_gzip = ["ngx-src/http_gzip"]
+http_ssi = ["ngx-src/http_ssi"]
+http_userid = ["ngx-src/http_userid"]
+http_access = ["ngx-src/http_access"]
+http_auth_basic = ["ngx-src/http_auth_basic"]
+http_mirror = ["ngx-src/http_mirror"]
+http_autoindex = ["ngx-src/http_autoindex"]
+http_geo = ["ngx-src/http_geo"]
+http_map = ["ngx-src/http_map"]
+http_split_clients = ["ngx-src/http_split_clients"]
+http_referer = ["ngx-src/http_referer"]
+http_rewrite = ["ngx-src/http_rewrite"]
+http_proxy = ["ngx-src/http_proxy"]
+http_fastcgi = ["ngx-src/http_fastcgi"]
+http_uwsgi = ["ngx-src/http_uwsgi"]
+http_scgi = ["ngx-src/http_scgi"]
+http_grpc = ["ngx-src/http_grpc"]
+http_memcached = ["ngx-src/http_memcached"]
+http_limit_conn = ["ngx-src/http_limit_conn"]
+http_limit_req = ["ngx-src/http_limit_req"]
+http_empty_gif = ["ngx-src/http_empty_gif"]
+http_browser = ["ngx-src/http_browser"]
+http_upstream_hash = ["ngx-src/http_upstream_hash"]
+http_upstream_ip_hash = ["ngx-src/http_upstream_ip_hash"]
+http_upstream_least_conn = ["ngx-src/http_upstream_least_conn"]
+http_upstream_random = ["ngx-src/http_upstream_random"]
+http_upstream_keepalive = ["ngx-src/http_upstream_keepalive"]
+http_upstream_zone = ["ngx-src/http_upstream_zone"]
+
+mail_pop3 = ["ngx-src/mail_pop3"]
+mail_imap = ["ngx-src/mail_imap"]
+mail_smtp = ["ngx-src/mail_smtp"]
+
+stream_limit_conn = ["ngx-src/stream_limit_conn"]
+stream_access = ["ngx-src/stream_access"]
+stream_geo = ["ngx-src/stream_geo"]
+stream_map = ["ngx-src/stream_map"]
+stream_split_clients = ["ngx-src/stream_split_clients"]
+stream_return = ["ngx-src/stream_return"]
+stream_set = ["ngx-src/stream_set"]
+stream_upstream_hash = ["ngx-src/stream_upstream_hash"]
+stream_upstream_least_conn = ["ngx-src/stream_upstream_least_conn"]
+stream_upstream_random = ["ngx-src/stream_upstream_random"]
+stream_upstream_zone = ["ngx-src/stream_upstream_zone"]
+
+# Optional modules
+
+http_ssl = ["http", "ngx-src/http_ssl"]
+http_v2 = ["http", "ngx-src/http_v2"]
+http_v3 = ["http", "ngx-src/http_v3"]
+http_realip = ["http", "ngx-src/http_realip"]
+http_addition = ["http", "ngx-src/http_addition"]
+http_xslt = ["http", "ngx-src/http_xslt"]
+http_image_filter = ["http", "ngx-src/http_image_filter"]
+http_geoip = ["http", "ngx-src/http_geoip"]
+http_sub = ["http", "ngx-src/http_sub"]
+http_dav = ["http", "ngx-src/http_dav"]
+http_flv = ["http", "ngx-src/http_flv"]
+http_mp4 = ["http", "ngx-src/http_mp4"]
+http_gunzip = ["http", "ngx-src/http_gunzip"]
+http_gzip_static = ["http", "ngx-src/http_gzip_static"]
+http_auth_request = ["http", "ngx-src/http_auth_request"]
+http_random_index = ["http", "ngx-src/http_random_index"]
+http_secure_link = ["http", "ngx-src/http_secure_link"]
+http_degradation = ["http", "ngx-src/http_degradation"]
+http_slice = ["http", "ngx-src/http_slice"]
+http_stub_status = ["http", "ngx-src/http_stub_status"]
+
+mail_ssl = ["mail", "ngx-src/mail_ssl"]
+
+stream_ssl = ["stream", "ngx-src/stream_ssl"]
+stream_realip = ["stream", "ngx-src/stream_realip"]
+stream_geoip = ["stream", "ngx-src/stream_geoip"]
+stream_ssl_preread = ["stream", "ngx-src/stream_ssl_preread"]
+
+# profile
+
+compat = [
+    "ngx-src/compat",
+
+    "http_gzip",
+    "http_dav",
+    "http_realip",
+    "http_upstream_zone",
+
+    "stream_upstream_zone",
+]
+
+minimal = ["ngx-src/minimal", "event", "http", "compat", "threads"]
+
+base = [
+    "ngx-src/base",
+
+    "minimal",
+
+    "http_addition",
+    "http_auth_request",
+    "http_flv",
+    "http_gunzip",
+    "http_gzip_static",
+    "http_random_index",
+    "http_realip",
+    "http_secure_link",
+    "http_slice",
+    "http_ssl",
+    "http_stub_status",
+    "http_sub",
+    "http_v2",
+
+    "stream_realip",
+    "stream_ssl_preread",
+    "stream_ssl",
+]
+full = [
+    "ngx-src/full",
+
+    "base",
+
+    "http_dav",
+    "http_degradation",
+    "http_image_filter",
+    "http_mp4",
+    "http_v3",
+    "http_xslt",
+
+    "mail_ssl",
+]
 
 module = []
-event = []
-http = []
-mail = ["ngx-src/mail"]
-stream = ["ngx-src/stream"]
 
+# platform supports
+
+threads = ["ngx-src/threads"]
+file-aio = ["ngx-src/file-aio"]
+debug-log = ["ngx-src/debug-log"]
+
+# optional features for build
+
+gen = ["bindgen"]
 static-link = ["ngx-src/static-lib"]
 
 [dependencies]

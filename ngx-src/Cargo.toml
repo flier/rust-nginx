@@ -6,7 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["stable", "fetch", "build", "base"]
+default = ["stable", "base", "fetch", "build"]
+
+# nginx version
 
 mainline = ["v1_25"]
 stable = ["v1_24"]
@@ -16,7 +18,146 @@ v1_25 = []
 v1_24 = []
 v1_22 = []
 
-minimal = ["compat", "event", "threads"]
+# core modules
+
+event = []
+http = [
+    "http_cache",
+    "http_charset",
+    "http_gzip",
+    "http_ssi",
+    "http_userid",
+    "http_access",
+    "http_auth_basic",
+    "http_mirror",
+    "http_autoindex",
+    "http_geo",
+    "http_map",
+    "http_split_clients",
+    "http_referer",
+    "http_rewrite",
+    "http_proxy",
+    "http_fastcgi",
+    "http_uwsgi",
+    "http_scgi",
+    "http_grpc",
+    "http_memcached",
+    "http_limit_conn",
+    "http_limit_req",
+    "http_empty_gif",
+    "http_browser",
+    "http_upstream_hash",
+    "http_upstream_ip_hash",
+    "http_upstream_least_conn",
+    "http_upstream_random",
+    "http_upstream_keepalive",
+    "http_upstream_zone",
+]
+mail = ["mail_pop3", "mail_imap", "mail_smtp"]
+stream = [
+    "stream_limit_conn",
+    "stream_access",
+    "stream_geo",
+    "stream_map",
+    "stream_split_clients",
+    "stream_return",
+    "stream_set",
+    "stream_upstream_hash",
+    "stream_upstream_least_conn",
+    "stream_upstream_random",
+    "stream_upstream_zone",
+]
+
+# Build-in modules
+
+http_cache = []
+http_charset = []
+http_gzip = []
+http_ssi = []
+http_userid = []
+http_access = []
+http_auth_basic = []
+http_mirror = []
+http_autoindex = []
+http_geo = []
+http_map = []
+http_split_clients = []
+http_referer = []
+http_rewrite = []
+http_proxy = []
+http_fastcgi = []
+http_uwsgi = []
+http_scgi = []
+http_grpc = []
+http_memcached = []
+http_limit_conn = []
+http_limit_req = []
+http_empty_gif = []
+http_browser = []
+http_upstream_hash = []
+http_upstream_ip_hash = []
+http_upstream_least_conn = []
+http_upstream_random = []
+http_upstream_keepalive = []
+http_upstream_zone = []
+
+mail_pop3 = []
+mail_imap = []
+mail_smtp = []
+
+stream_limit_conn = []
+stream_access = []
+stream_geo = []
+stream_map = []
+stream_split_clients = []
+stream_return = []
+stream_set = []
+stream_upstream_hash = []
+stream_upstream_least_conn = []
+stream_upstream_random = []
+stream_upstream_zone = []
+
+# Optional modules
+
+http_ssl = ["http"]
+http_v2 = ["http"]
+http_v3 = ["http"]
+http_realip = ["http"]
+http_addition = ["http"]
+http_xslt = ["http"]
+http_image_filter = ["http"]
+http_geoip = ["http"]
+http_sub = ["http"]
+http_dav = ["http"]
+http_flv = ["http"]
+http_mp4 = ["http"]
+http_gunzip = ["http"]
+http_gzip_static = ["http"]
+http_auth_request = ["http"]
+http_random_index = ["http"]
+http_secure_link = ["http"]
+http_degradation = ["http"]
+http_slice = ["http"]
+http_stub_status = ["http"]
+
+mail_ssl = ["mail"]
+
+stream_ssl = ["stream"]
+stream_realip = ["stream"]
+stream_geoip = ["stream"]
+stream_ssl_preread = ["stream"]
+
+# profile
+
+compat = [
+    "http_gzip",
+    "http_dav",
+    "http_realip",
+    "http_upstream_zone",
+    "stream_upstream_zone",
+]
+
+minimal = ["event", "http", "compat", "threads"]
 
 base = [
     "minimal",
@@ -40,59 +181,26 @@ base = [
     "stream_ssl",
 ]
 
-compat = []
-threads = []
-file-aio = []
-
-event = []
-http = []
-mail = []
-stream = []
-
-http_addition = ["http"]
-http_auth_request = ["http"]
-http_flv = ["http"]
-http_gunzip = ["http"]
-http_gzip_static = ["http"]
-http_random_index = ["http"]
-http_realip = ["http"]
-http_secure_link = ["http"]
-http_slice = ["http"]
-http_ssl = ["http"]
-http_stub_status = ["http"]
-http_sub = ["http"]
-http_v2 = ["http"]
-stream_realip = ["stream"]
-stream_ssl = ["stream"]
-stream_ssl_preread = ["stream"]
-
-geoip = ["http_geoip", "stream_geoip"]
-
-http_geoip = []
-stream_geoip = []
-
 full = [
     "base",
-    "geoip",
 
     "http_dav",
     "http_degradation",
     "http_image_filter",
     "http_mp4",
-    "http_perl",
     "http_v3",
     "http_xslt",
 
-    "mail",
+    "mail_ssl",
 ]
 
-http_dav = ["http"]
-http_degradation = ["http"]
-http_image_filter = ["http"]
-http_mp4 = ["http"]
-http_perl = ["http"]
-http_v3 = ["http"]
-http_xslt = ["http"]
+# platform supports
+
+threads = []
+file-aio = []
+debug-log = []
+
+# optional features for build
 
 fetch = ["reqwest"]
 build = ["ngx-build"]
