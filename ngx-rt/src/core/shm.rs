@@ -22,28 +22,28 @@ impl ShmRef {
     const EXISTS_BIT: usize = 0x0001;
 
     pub fn exists(&self) -> bool {
-        unsafe { self.as_raw_ref().exists & Self::EXISTS_BIT != 0 }
+        unsafe { self.as_raw().exists & Self::EXISTS_BIT != 0 }
     }
 
     pub fn addr(&self) -> Option<NonNull<u8>> {
-        NonNull::new(unsafe { self.as_raw_ref().addr.cast() })
+        NonNull::new(unsafe { self.as_raw().addr.cast() })
     }
 
     pub fn size(&self) -> usize {
-        unsafe { self.as_raw_ref().size }
+        unsafe { self.as_raw().size }
     }
 
     pub fn name(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw_ref().name) }
+        unsafe { Str::from_raw(self.as_raw().name) }
     }
 
     pub fn log(&self) -> &LogRef {
-        unsafe { LogRef::from_ptr(self.as_raw_ref().log) }
+        unsafe { LogRef::from_ptr(self.as_raw().log) }
     }
 
     pub fn as_slice(&self) -> Option<&[u8]> {
         unsafe {
-            let r = self.as_raw_ref();
+            let r = self.as_raw();
 
             NonNull::new(r.addr).map(|p| slice::from_raw_parts(p.cast().as_ptr(), r.size))
         }
@@ -51,7 +51,7 @@ impl ShmRef {
 
     pub fn as_slice_mut(&mut self) -> Option<&mut [u8]> {
         unsafe {
-            let r = self.as_raw_ref();
+            let r = self.as_raw();
 
             NonNull::new(r.addr).map(|p| slice::from_raw_parts_mut(p.cast().as_ptr(), r.size))
         }
@@ -98,7 +98,7 @@ impl Deref for ZoneRef {
     type Target = ShmRef;
 
     fn deref(&self) -> &Self::Target {
-        unsafe { ShmRef::from_ptr(&self.as_raw_ref().shm as *const _ as *mut _) }
+        unsafe { ShmRef::from_ptr(&self.as_raw().shm as *const _ as *mut _) }
     }
 }
 

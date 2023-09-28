@@ -63,11 +63,11 @@ pub trait AsRawRef: ForeignTypeRef {
     /// # Safety
     ///
     /// This function is unsafe because it dereferences raw pointers.
-    unsafe fn as_raw_ref(&self) -> &Self::CType;
+    unsafe fn as_raw(&self) -> &Self::CType;
 }
 
 impl<T: ForeignTypeRef> AsRawRef for T {
-    unsafe fn as_raw_ref(&self) -> &Self::CType {
+    unsafe fn as_raw(&self) -> &Self::CType {
         &*self.as_ptr()
     }
 }

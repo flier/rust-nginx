@@ -14,15 +14,15 @@ foreign_type! {
 
 impl ModuleRef {
     pub fn context_index(&self) -> usize {
-        unsafe { self.as_raw_ref().ctx_index }
+        unsafe { self.as_raw().ctx_index }
     }
 
     pub fn index(&self) -> usize {
-        unsafe { self.as_raw_ref().index }
+        unsafe { self.as_raw().index }
     }
 
     pub fn name(&self) -> &CStr {
-        unsafe { CStr::from_ptr(self.as_raw_ref().name) }
+        unsafe { CStr::from_ptr(self.as_raw().name) }
     }
 }
 

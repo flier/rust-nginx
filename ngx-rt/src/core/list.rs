@@ -28,7 +28,7 @@ impl<T: Sized> List<T> {
 impl<T: Sized> ListRef<T> {
     pub fn is_empty(&self) -> bool {
         unsafe {
-            let r = self.as_raw_ref();
+            let r = self.as_raw();
 
             r.part.next.is_null() && r.part.nelts == 0
         }
@@ -39,7 +39,7 @@ impl<T: Sized> ListRef<T> {
     }
 
     pub fn pool(&self) -> &PoolRef {
-        unsafe { PoolRef::from_ptr(self.as_raw_ref().pool) }
+        unsafe { PoolRef::from_ptr(self.as_raw().pool) }
     }
 
     pub fn push(&mut self, value: T) -> Option<&mut T> {
@@ -52,13 +52,13 @@ impl<T: Sized> ListRef<T> {
 
     pub fn parts(&self) -> Parts<T> {
         Parts(Some(unsafe {
-            PartRef::from_ptr(&self.as_raw_ref().part as *const _ as *mut _)
+            PartRef::from_ptr(&self.as_raw().part as *const _ as *mut _)
         }))
     }
 
     pub fn iter(&self) -> Iter<T> {
         Iter(
-            Some(unsafe { PartRef::from_ptr(&self.as_raw_ref().part as *const _ as *mut _) }),
+            Some(unsafe { PartRef::from_ptr(&self.as_raw().part as *const _ as *mut _) }),
             0,
         )
     }
@@ -130,7 +130,7 @@ foreign_type! {
 
 impl<T> PartRef<T> {
     pub fn len(&self) -> usize {
-        unsafe { self.as_raw_ref().nelts }
+        unsafe { self.as_raw().nelts }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -139,7 +139,7 @@ impl<T> PartRef<T> {
 
     pub fn get(&self, idx: usize) -> Option<&T> {
         unsafe {
-            let r = self.as_raw_ref();
+            let r = self.as_raw();
 
             if idx >= r.nelts {
                 None
@@ -150,12 +150,12 @@ impl<T> PartRef<T> {
     }
 
     pub fn next(&self) -> Option<&Self> {
-        unsafe { Self::from_raw(self.as_raw_ref().next.cast()) }
+        unsafe { Self::from_raw(self.as_raw().next.cast()) }
     }
 
     pub fn as_slice(&self) -> &[T] {
         unsafe {
-            let r = self.as_raw_ref();
+            let r = self.as_raw();
 
             slice::from_raw_parts(r.elts as *const _ as *const _, r.nelts)
         }
@@ -163,7 +163,7 @@ impl<T> PartRef<T> {
 
     pub fn as_mut_slice(&mut self) -> &mut [T] {
         unsafe {
-            let r = self.as_raw_ref();
+            let r = self.as_raw();
 
             slice::from_raw_parts_mut(r.elts.cast(), r.nelts)
         }

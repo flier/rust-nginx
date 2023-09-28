@@ -65,14 +65,14 @@ foreign_type! {
 impl<T> EltRef<T> {
     pub fn name(&self) -> &str {
         unsafe {
-            let r = self.as_raw_ref();
+            let r = self.as_raw();
 
             str::from_utf8_unchecked(slice::from_raw_parts(r.name.as_ptr(), r.len as usize))
         }
     }
 
     pub fn value(&self) -> Option<NonNull<T>> {
-        NonNull::new(unsafe { self.as_raw_ref().value.cast() })
+        NonNull::new(unsafe { self.as_raw().value.cast() })
     }
 }
 
@@ -137,20 +137,20 @@ foreign_type! {
 
 impl<T> TableEltRef<T> {
     pub fn hash(&self) -> usize {
-        unsafe { self.as_raw_ref().hash }
+        unsafe { self.as_raw().hash }
     }
 
     pub fn key(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw_ref().key) }
+        unsafe { Str::from_raw(self.as_raw().key) }
     }
 
     pub fn value(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw_ref().value) }
+        unsafe { Str::from_raw(self.as_raw().value) }
     }
 
     pub fn lowcase_key(&self) -> Option<&str> {
         unsafe {
-            let r = self.as_raw_ref();
+            let r = self.as_raw();
 
             NonNull::new(r.lowcase_key)
                 .map(|p| str::from_utf8_unchecked(slice::from_raw_parts(p.as_ptr(), r.key.len)))
@@ -158,6 +158,6 @@ impl<T> TableEltRef<T> {
     }
 
     pub fn next(&self) -> Option<&Self> {
-        unsafe { Self::from_raw(self.as_raw_ref().next.cast()) }
+        unsafe { Self::from_raw(self.as_raw().next.cast()) }
     }
 }

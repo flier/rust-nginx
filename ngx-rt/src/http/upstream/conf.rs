@@ -22,7 +22,7 @@ foreign_type! {
 
 impl SrvConfRef {
     pub fn peer(&self) -> &PeerRef {
-        unsafe { PeerRef::from_ptr(&self.as_raw_ref().peer as *const _ as *mut _) }
+        unsafe { PeerRef::from_ptr(&self.as_raw().peer as *const _ as *mut _) }
     }
 
     pub fn peer_mut(&mut self) -> &mut PeerRef {

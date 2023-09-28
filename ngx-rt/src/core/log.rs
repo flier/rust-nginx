@@ -56,7 +56,7 @@ impl LogRef {
 
     pub fn level(&self) -> Level {
         unsafe {
-            let level = self.as_raw_ref().log_level as u32;
+            let level = self.as_raw().log_level as u32;
 
             mem::transmute(level & Self::LOG_LEVEL_MASK)
         }
@@ -64,7 +64,7 @@ impl LogRef {
 
     pub fn module(&self) -> Module {
         Module::from_bits_truncate(unsafe {
-            self.as_raw_ref().log_level as u32 & Self::LOG_MODULE_MASK
+            self.as_raw().log_level as u32 & Self::LOG_MODULE_MASK
         })
     }
 
@@ -73,7 +73,7 @@ impl LogRef {
     }
 
     pub fn file(&self) -> &OpenFileRef {
-        unsafe { OpenFileRef::from_ptr(self.as_raw_ref().file) }
+        unsafe { OpenFileRef::from_ptr(self.as_raw().file) }
     }
 
     pub fn core(&self) -> WithModule {

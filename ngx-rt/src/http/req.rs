@@ -39,7 +39,7 @@ impl Deref for RequestRef {
     type Target = <Self as ForeignTypeRef>::CType;
 
     fn deref(&self) -> &Self::Target {
-        unsafe { self.as_raw_ref() }
+        unsafe { self.as_raw() }
     }
 }
 
@@ -51,67 +51,67 @@ impl DerefMut for RequestRef {
 
 impl RequestRef {
     pub fn headers_in(&self) -> &HeadersInRef {
-        unsafe { HeadersInRef::from_ptr(&self.as_raw_ref().headers_in as *const _ as *mut _) }
+        unsafe { HeadersInRef::from_ptr(&self.as_raw().headers_in as *const _ as *mut _) }
     }
 
     pub fn headers_out(&self) -> &HeadersOutRef {
-        unsafe { HeadersOutRef::from_ptr(&self.as_raw_ref().headers_out as *const _ as *mut _) }
+        unsafe { HeadersOutRef::from_ptr(&self.as_raw().headers_out as *const _ as *mut _) }
     }
 
     pub fn body(&self) -> Option<&BodyRef> {
-        unsafe { BodyRef::from_raw(self.as_raw_ref().request_body) }
+        unsafe { BodyRef::from_raw(self.as_raw().request_body) }
     }
 
     pub fn method(&self) -> Method {
-        Method::from_bits_truncate(unsafe { self.as_raw_ref().method as u32 })
+        Method::from_bits_truncate(unsafe { self.as_raw().method as u32 })
     }
 
     pub fn version(&self) -> (u32, u32) {
         unsafe {
-            let v = self.as_raw_ref().http_version;
+            let v = self.as_raw().http_version;
 
             ((v >> 16) as u32, (v & 0xFFFF) as u32)
         }
     }
 
     pub fn request_line(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw_ref().request_line) }
+        unsafe { Str::from_raw(self.as_raw().request_line) }
     }
 
     pub fn uri(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw_ref().uri) }
+        unsafe { Str::from_raw(self.as_raw().uri) }
     }
 
     pub fn args(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw_ref().args) }
+        unsafe { Str::from_raw(self.as_raw().args) }
     }
 
     pub fn exten(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw_ref().exten) }
+        unsafe { Str::from_raw(self.as_raw().exten) }
     }
 
     pub fn unparsed_uri(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw_ref().unparsed_uri) }
+        unsafe { Str::from_raw(self.as_raw().unparsed_uri) }
     }
 
     pub fn method_name(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw_ref().method_name) }
+        unsafe { Str::from_raw(self.as_raw().method_name) }
     }
 
     pub fn http_protocol(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw_ref().http_protocol) }
+        unsafe { Str::from_raw(self.as_raw().http_protocol) }
     }
 
     pub fn schema(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw_ref().schema) }
+        unsafe { Str::from_raw(self.as_raw().schema) }
     }
 
     pub fn main(&self) -> Option<&Self> {
-        unsafe { Self::from_raw(self.as_raw_ref().main) }
+        unsafe { Self::from_raw(self.as_raw().main) }
     }
 
     pub fn parent(&self) -> Option<&Self> {
-        unsafe { Self::from_raw(self.as_raw_ref().parent) }
+        unsafe { Self::from_raw(self.as_raw().parent) }
     }
 }
 

@@ -16,7 +16,7 @@ impl Deref for PeerRef {
     type Target = <Self as ForeignTypeRef>::CType;
 
     fn deref(&self) -> &Self::Target {
-        unsafe { self.as_raw_ref() }
+        unsafe { self.as_raw() }
     }
 }
 

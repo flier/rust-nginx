@@ -14,20 +14,20 @@ foreign_type! {
 
 impl ConfFileRef {
     pub fn buffer(&self) -> &BufRef {
-        unsafe { BufRef::from_ptr(self.as_raw_ref().buffer) }
+        unsafe { BufRef::from_ptr(self.as_raw().buffer) }
     }
 
     pub fn dump(&self) -> &BufRef {
-        unsafe { BufRef::from_ptr(self.as_raw_ref().dump) }
+        unsafe { BufRef::from_ptr(self.as_raw().dump) }
     }
 
     pub fn line(&self) -> usize {
-        unsafe { self.as_raw_ref().line }
+        unsafe { self.as_raw().line }
     }
 }
 
 impl ConfRef {
     pub fn conf_file(&self) -> &ConfFileRef {
-        unsafe { ConfFileRef::from_ptr(self.as_raw_ref().conf_file) }
+        unsafe { ConfFileRef::from_ptr(self.as_raw().conf_file) }
     }
 }

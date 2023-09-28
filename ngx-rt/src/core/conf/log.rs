@@ -9,7 +9,7 @@ use crate::{
 
 impl ConfRef {
     pub fn log(&self) -> &LogRef {
-        unsafe { LogRef::from_ptr(self.as_raw_ref().log) }
+        unsafe { LogRef::from_ptr(self.as_raw().log) }
     }
 
     pub fn stderr<S: Into<Vec<u8>>>(&self, msg: S) {

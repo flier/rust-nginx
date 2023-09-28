@@ -28,11 +28,11 @@ impl<T: Sized> Array<T> {
 
 impl<T: Sized> ArrayRef<T> {
     pub fn len(&self) -> usize {
-        unsafe { self.as_raw_ref().nelts }
+        unsafe { self.as_raw().nelts }
     }
 
     pub fn cap(&self) -> usize {
-        unsafe { self.as_raw_ref().nalloc }
+        unsafe { self.as_raw().nalloc }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -44,11 +44,11 @@ impl<T: Sized> ArrayRef<T> {
     }
 
     pub fn pool(&self) -> &PoolRef {
-        unsafe { PoolRef::from_ptr(self.as_raw_ref().pool) }
+        unsafe { PoolRef::from_ptr(self.as_raw().pool) }
     }
 
     pub fn as_slice(&self) -> &[T] {
-        unsafe { slice::from_raw_parts(self.as_raw_ref().elts as *const _ as *const _, self.len()) }
+        unsafe { slice::from_raw_parts(self.as_raw().elts as *const _ as *const _, self.len()) }
     }
 
     pub fn as_mut_slice(&mut self) -> &mut [T] {
@@ -73,7 +73,7 @@ impl<T: Sized> ArrayRef<T> {
 
 impl<T: Sized> AsRef<ffi::ngx_array_t> for ArrayRef<T> {
     fn as_ref(&self) -> &ffi::ngx_array_t {
-        unsafe { self.as_raw_ref() }
+        unsafe { self.as_raw() }
     }
 }
 
