@@ -2,7 +2,7 @@ use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{fake_drop, ffi, AsRaw};
 
-use super::{LogRef, PoolRef, Str};
+use super::{conf::OpenFile, shm, ListRef, LogRef, ModuleRef, PoolRef, Str};
 
 foreign_type! {
     pub unsafe type Cycle: Send {
@@ -19,6 +19,22 @@ impl CycleRef {
 
     pub fn log(&self) -> &LogRef {
         unsafe { LogRef::from_ptr(self.as_raw().log) }
+    }
+
+    pub fn modules(&self) -> &[&ModuleRef] {
+        unsafe {
+            let r = self.as_raw();
+
+            std::slice::from_raw_parts(r.modules.cast(), r.modules_n)
+        }
+    }
+
+    pub fn open_files(&self) -> &ListRef<OpenFile> {
+        unsafe { ListRef::from_ptr(&self.as_raw().open_files as *const _ as *mut _) }
+    }
+
+    pub fn shared_memory(&self) -> &ListRef<shm::Zone> {
+        unsafe { ListRef::from_ptr(&self.as_raw().shared_memory as *const _ as *mut _) }
     }
 
     pub fn conf_file(&self) -> Option<&Str> {
