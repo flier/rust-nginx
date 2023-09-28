@@ -3,7 +3,7 @@ use std::{ffi::CString, mem, path::Path, ptr};
 use bitflags::bitflags;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{core::time, ffi, never_drop, AsRaw, Error, Result};
+use crate::{core::time, ffi, never_drop, AsRawMut, AsRawRef, Error, FromRawMut, Result};
 
 use super::conf::OpenFileRef;
 
@@ -31,7 +31,7 @@ impl Log {
         time::init();
 
         unsafe {
-            let p = ffi::ngx_log_init(
+            LogRef::from_raw_mut(ffi::ngx_log_init(
                 prefix
                     .map(|p| CString::new(p.to_string_lossy().to_string()))
                     .transpose()?
@@ -44,13 +44,8 @@ impl Log {
                     .as_ref()
                     .map(|s| s.as_ptr() as *mut _)
                     .unwrap_or_else(ptr::null_mut),
-            );
-
-            if p.is_null() {
-                Err(Error::OutOfMemory)
-            } else {
-                Ok(LogRef::from_ptr_mut(p))
-            }
+            ))
+            .ok_or(Error::OutOfMemory)
         }
     }
 }
@@ -61,7 +56,7 @@ impl LogRef {
 
     pub fn level(&self) -> Level {
         unsafe {
-            let level = self.as_raw().log_level as u32;
+            let level = self.as_raw_ref().log_level as u32;
 
             mem::transmute(level & Self::LOG_LEVEL_MASK)
         }
@@ -69,7 +64,7 @@ impl LogRef {
 
     pub fn module(&self) -> Module {
         Module::from_bits_truncate(unsafe {
-            self.as_raw().log_level as u32 & Self::LOG_MODULE_MASK
+            self.as_raw_ref().log_level as u32 & Self::LOG_MODULE_MASK
         })
     }
 
@@ -78,7 +73,7 @@ impl LogRef {
     }
 
     pub fn file(&self) -> &OpenFileRef {
-        unsafe { OpenFileRef::from_ptr(self.as_raw().file) }
+        unsafe { OpenFileRef::from_ptr(self.as_raw_ref().file) }
     }
 
     pub fn core(&self) -> WithModule {

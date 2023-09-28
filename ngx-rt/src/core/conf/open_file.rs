@@ -2,7 +2,7 @@ use std::os::fd::{AsRawFd, RawFd};
 
 use foreign_types::foreign_type;
 
-use crate::{core::Str, ffi, never_drop, AsRaw};
+use crate::{core::Str, ffi, never_drop, AsRawRef};
 
 foreign_type! {
     pub unsafe type OpenFile: Send {
@@ -14,12 +14,12 @@ foreign_type! {
 
 impl AsRawFd for OpenFileRef {
     fn as_raw_fd(&self) -> RawFd {
-        unsafe { self.as_raw().fd }
+        unsafe { self.as_raw_ref().fd }
     }
 }
 
 impl OpenFileRef {
     pub fn name(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw().name) }
+        unsafe { Str::from_raw(self.as_raw_ref().name) }
     }
 }

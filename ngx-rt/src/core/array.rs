@@ -4,9 +4,9 @@ use std::{
     slice,
 };
 
-use foreign_types::{foreign_type, ForeignType, ForeignTypeRef};
+use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{ffi, AsRaw};
+use crate::{ffi, AsRawMut, AsRawRef, FromRaw};
 
 use super::PoolRef;
 
@@ -21,23 +21,17 @@ foreign_type! {
 
 impl<T: Sized> Array<T> {
     pub fn new(p: &PoolRef, n: usize) -> Option<Self> {
-        let p = unsafe { ffi::ngx_array_create(p.as_ptr(), n, mem::size_of::<T>()) };
-
-        if p.is_null() {
-            None
-        } else {
-            Some(unsafe { Array::from_ptr(p) })
-        }
+        unsafe { Self::from_raw(ffi::ngx_array_create(p.as_ptr(), n, mem::size_of::<T>())) }
     }
 }
 
 impl<T: Sized> ArrayRef<T> {
     pub fn len(&self) -> usize {
-        unsafe { self.as_raw().nelts }
+        unsafe { self.as_raw_ref().nelts }
     }
 
     pub fn cap(&self) -> usize {
-        unsafe { self.as_raw().nalloc }
+        unsafe { self.as_raw_ref().nalloc }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -49,11 +43,11 @@ impl<T: Sized> ArrayRef<T> {
     }
 
     pub fn pool(&self) -> &PoolRef {
-        unsafe { PoolRef::from_ptr(self.as_raw().pool) }
+        unsafe { PoolRef::from_ptr(self.as_raw_ref().pool) }
     }
 
     pub fn as_slice(&self) -> &[T] {
-        unsafe { slice::from_raw_parts(self.as_raw().elts as *const _ as *const _, self.len()) }
+        unsafe { slice::from_raw_parts(self.as_raw_ref().elts as *const _ as *const _, self.len()) }
     }
 
     pub fn as_mut_slice(&mut self) -> &mut [T] {
@@ -91,7 +85,7 @@ impl<T: Sized> ArrayRef<T> {
 
 impl<T: Sized> AsRef<ffi::ngx_array_t> for ArrayRef<T> {
     fn as_ref(&self) -> &ffi::ngx_array_t {
-        unsafe { self.as_raw() }
+        unsafe { self.as_raw_ref() }
     }
 }
 

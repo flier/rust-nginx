@@ -5,7 +5,7 @@ use std::{
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{ffi, never_drop, AsRaw};
+use crate::{ffi, never_drop, raw::FromRawMut, AsRawRef, FromRawRef};
 
 use super::PoolRef;
 
@@ -19,23 +19,15 @@ foreign_type! {
 }
 
 impl<T: Sized> List<T> {
-    pub fn new(p: &PoolRef, n: usize) -> Option<&mut ListRef<T>> {
-        unsafe {
-            let p = ffi::ngx_list_create(p.as_ptr(), n, mem::size_of::<T>());
-
-            if p.is_null() {
-                None
-            } else {
-                Some(ListRef::from_ptr_mut(p))
-            }
-        }
+    pub fn create(p: &PoolRef, n: usize) -> Option<&mut ListRef<T>> {
+        unsafe { ListRef::from_raw_mut(ffi::ngx_list_create(p.as_ptr(), n, mem::size_of::<T>())) }
     }
 }
 
 impl<T: Sized> ListRef<T> {
     pub fn is_empty(&self) -> bool {
         unsafe {
-            let r = self.as_raw();
+            let r = self.as_raw_ref();
 
             r.part.next.is_null() && r.part.nelts == 0
         }
@@ -46,7 +38,7 @@ impl<T: Sized> ListRef<T> {
     }
 
     pub fn pool(&self) -> &PoolRef {
-        unsafe { PoolRef::from_ptr(self.as_raw().pool) }
+        unsafe { PoolRef::from_ptr(self.as_raw_ref().pool) }
     }
 
     pub fn push(&mut self, value: T) -> Option<&mut T> {
@@ -67,13 +59,13 @@ impl<T: Sized> ListRef<T> {
 
     pub fn parts(&self) -> Parts<T> {
         Parts(Some(unsafe {
-            PartRef::from_ptr(&self.as_raw().part as *const _ as *mut _)
+            PartRef::from_ptr(&self.as_raw_ref().part as *const _ as *mut _)
         }))
     }
 
     pub fn iter(&self) -> Iter<T> {
         Iter(
-            Some(unsafe { PartRef::from_ptr(&self.as_raw().part as *const _ as *mut _) }),
+            Some(unsafe { PartRef::from_ptr(&self.as_raw_ref().part as *const _ as *mut _) }),
             0,
         )
     }
@@ -145,7 +137,7 @@ foreign_type! {
 
 impl<T> PartRef<T> {
     pub fn len(&self) -> usize {
-        unsafe { self.as_raw().nelts }
+        unsafe { self.as_raw_ref().nelts }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -154,31 +146,23 @@ impl<T> PartRef<T> {
 
     pub fn get(&self, idx: usize) -> Option<&T> {
         unsafe {
-            let r = self.as_raw();
+            let r = self.as_raw_ref();
 
             if idx >= r.nelts {
                 None
             } else {
-                r.elts.cast::<T>().offset(idx as isize).as_ref()
+                r.elts.cast::<T>().add(idx).as_ref()
             }
         }
     }
 
     pub fn next(&self) -> Option<&Self> {
-        unsafe {
-            let r = self.as_raw();
-
-            if r.next.is_null() {
-                None
-            } else {
-                Some(PartRef::from_ptr(r.next.cast()))
-            }
-        }
+        unsafe { Self::from_raw(self.as_raw_ref().next.cast()) }
     }
 
     pub fn as_slice(&self) -> &[T] {
         unsafe {
-            let r = self.as_raw();
+            let r = self.as_raw_ref();
 
             slice::from_raw_parts(r.elts as *const _ as *const _, r.nelts)
         }
@@ -186,7 +170,7 @@ impl<T> PartRef<T> {
 
     pub fn as_mut_slice(&mut self) -> &mut [T] {
         unsafe {
-            let r = self.as_raw();
+            let r = self.as_raw_ref();
 
             slice::from_raw_parts_mut(r.elts.cast(), r.nelts)
         }
@@ -214,7 +198,7 @@ mod tests {
     #[test]
     fn list() {
         let p = Pool::new(4096, Log::stderr()).unwrap();
-        let l = List::new(&p, 4).unwrap();
+        let l = List::create(&p, 4).unwrap();
 
         assert!(l.is_empty());
         assert_eq!(l.len(), 0);

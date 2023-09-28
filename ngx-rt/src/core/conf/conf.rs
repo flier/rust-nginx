@@ -4,7 +4,7 @@ use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{
     core::{ArrayRef, CycleRef, ModuleType, PoolRef, Str},
-    ffi, http, never_drop, AsRaw,
+    ffi, http, never_drop, AsRawRef,
 };
 
 foreign_type! {
@@ -17,29 +17,29 @@ foreign_type! {
 
 impl ConfRef {
     pub fn name(&self) -> &CStr {
-        unsafe { CStr::from_ptr(self.as_raw().name) }
+        unsafe { CStr::from_ptr(self.as_raw_ref().name) }
     }
 
     pub fn args(&self) -> &ArrayRef<&Str> {
-        unsafe { ArrayRef::from_ptr(self.as_raw().args) }
+        unsafe { ArrayRef::from_ptr(self.as_raw_ref().args) }
     }
 
     pub fn cycle(&self) -> &CycleRef {
-        unsafe { CycleRef::from_ptr(self.as_raw().cycle) }
+        unsafe { CycleRef::from_ptr(self.as_raw_ref().cycle) }
     }
 
     pub fn pool(&self) -> &PoolRef {
-        unsafe { PoolRef::from_ptr(self.as_raw().pool) }
+        unsafe { PoolRef::from_ptr(self.as_raw_ref().pool) }
     }
 
     pub fn temp_pool(&self) -> &PoolRef {
-        unsafe { PoolRef::from_ptr(self.as_raw().temp_pool) }
+        unsafe { PoolRef::from_ptr(self.as_raw_ref().temp_pool) }
     }
 
     pub fn as_http_context(&self) -> Option<&http::ContextRef> {
         if self.module_type() == ModuleType::Http {
             unsafe {
-                NonNull::new(self.as_raw().ctx)
+                NonNull::new(self.as_raw_ref().ctx)
                     .map(|p| http::ContextRef::from_ptr(p.cast().as_ptr()))
             }
         } else {
@@ -48,6 +48,6 @@ impl ConfRef {
     }
 
     pub fn module_type(&self) -> ModuleType {
-        ModuleType::try_from(unsafe { self.as_raw().module_type as u32 }).expect("module_type")
+        ModuleType::try_from(unsafe { self.as_raw_ref().module_type as u32 }).expect("module_type")
     }
 }

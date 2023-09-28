@@ -1,7 +1,7 @@
 use bitflags::bitflags;
 use foreign_types::foreign_type;
 
-use crate::{core::Str, ffi, never_drop, AsRaw};
+use crate::{core::Str, ffi, never_drop, AsRawRef};
 
 foreign_type! {
     pub unsafe type Cmd: Send {
@@ -13,11 +13,11 @@ foreign_type! {
 
 impl CmdRef {
     pub fn name(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw().name) }
+        unsafe { Str::from_raw(self.as_raw_ref().name) }
     }
 
     pub fn ty(&self) -> Type {
-        unsafe { Type::from_bits_truncate(self.as_raw().type_ as u32) }
+        unsafe { Type::from_bits_truncate(self.as_raw_ref().type_ as u32) }
     }
 }
 

@@ -2,7 +2,7 @@ use std::ffi::CStr;
 
 use foreign_types::foreign_type;
 
-use crate::{ffi, never_drop, AsRaw};
+use crate::{ffi, never_drop, AsRawRef};
 
 foreign_type! {
     pub unsafe type Module: Send {
@@ -14,15 +14,15 @@ foreign_type! {
 
 impl ModuleRef {
     pub fn context_index(&self) -> usize {
-        unsafe { self.as_raw().ctx_index }
+        unsafe { self.as_raw_ref().ctx_index }
     }
 
     pub fn index(&self) -> usize {
-        unsafe { self.as_raw().index }
+        unsafe { self.as_raw_ref().index }
     }
 
     pub fn name(&self) -> &CStr {
-        unsafe { CStr::from_ptr(self.as_raw().name) }
+        unsafe { CStr::from_ptr(self.as_raw_ref().name) }
     }
 }
 

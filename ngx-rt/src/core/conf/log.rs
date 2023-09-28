@@ -4,12 +4,12 @@ use foreign_types::ForeignTypeRef;
 
 use crate::{
     core::{log, ConfRef, LogRef},
-    ffi, AsRaw,
+    ffi, AsRawRef,
 };
 
 impl ConfRef {
     pub fn log(&self) -> &LogRef {
-        unsafe { LogRef::from_ptr(self.as_raw().log) }
+        unsafe { LogRef::from_ptr(self.as_raw_ref().log) }
     }
 
     pub fn stderr<S: Into<Vec<u8>>>(&self, msg: S) {

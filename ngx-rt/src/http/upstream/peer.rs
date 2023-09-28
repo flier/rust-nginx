@@ -2,7 +2,7 @@ use std::ops::{Deref, DerefMut};
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{ffi, never_drop, AsRaw};
+use crate::{ffi, never_drop, AsRawMut, AsRawRef};
 
 foreign_type! {
     pub unsafe type Peer: Send {
@@ -16,7 +16,7 @@ impl Deref for PeerRef {
     type Target = <Self as ForeignTypeRef>::CType;
 
     fn deref(&self) -> &Self::Target {
-        unsafe { self.as_raw() }
+        unsafe { self.as_raw_ref() }
     }
 }
 

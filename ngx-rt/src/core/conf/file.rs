@@ -1,6 +1,6 @@
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{core::BufRef, ffi, never_drop, AsRaw};
+use crate::{core::BufRef, ffi, never_drop, AsRawRef};
 
 use super::ConfRef;
 
@@ -14,20 +14,20 @@ foreign_type! {
 
 impl ConfFileRef {
     pub fn buffer(&self) -> &BufRef {
-        unsafe { BufRef::from_ptr(self.as_raw().buffer) }
+        unsafe { BufRef::from_ptr(self.as_raw_ref().buffer) }
     }
 
     pub fn dump(&self) -> &BufRef {
-        unsafe { BufRef::from_ptr(self.as_raw().dump) }
+        unsafe { BufRef::from_ptr(self.as_raw_ref().dump) }
     }
 
     pub fn line(&self) -> usize {
-        unsafe { self.as_raw().line }
+        unsafe { self.as_raw_ref().line }
     }
 }
 
 impl ConfRef {
     pub fn conf_file(&self) -> &ConfFileRef {
-        unsafe { ConfFileRef::from_ptr(self.as_raw().conf_file) }
+        unsafe { ConfFileRef::from_ptr(self.as_raw_ref().conf_file) }
     }
 }
