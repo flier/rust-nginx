@@ -1,5 +1,6 @@
 use std::{
     mem::{self, MaybeUninit},
+    ptr::NonNull,
     slice,
 };
 
@@ -46,15 +47,7 @@ impl<T: Sized> ListRef<T> {
     }
 
     pub fn reserve(&mut self) -> Option<&mut MaybeUninit<T>> {
-        unsafe {
-            let p = ffi::ngx_list_push(self.as_ptr());
-
-            if p.is_null() {
-                None
-            } else {
-                Some(&mut *p.cast())
-            }
-        }
+        unsafe { NonNull::new(ffi::ngx_list_push(self.as_ptr())).map(|p| p.cast().as_mut()) }
     }
 
     pub fn parts(&self) -> Parts<T> {

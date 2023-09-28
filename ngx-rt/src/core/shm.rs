@@ -1,6 +1,7 @@
 use std::{
     ops::{Deref, DerefMut},
     ptr::NonNull,
+    slice,
 };
 
 use foreign_types::{foreign_type, ForeignTypeRef};
@@ -44,11 +45,7 @@ impl ShmRef {
         unsafe {
             let r = self.as_raw_ref();
 
-            if r.addr.is_null() {
-                None
-            } else {
-                Some(std::slice::from_raw_parts(r.addr.cast(), r.size))
-            }
+            NonNull::new(r.addr).map(|p| slice::from_raw_parts(p.cast().as_ptr(), r.size))
         }
     }
 
@@ -56,11 +53,7 @@ impl ShmRef {
         unsafe {
             let r = self.as_raw_ref();
 
-            if r.addr.is_null() {
-                None
-            } else {
-                Some(std::slice::from_raw_parts_mut(r.addr.cast(), r.size))
-            }
+            NonNull::new(r.addr).map(|p| slice::from_raw_parts_mut(p.cast().as_ptr(), r.size))
         }
     }
 }

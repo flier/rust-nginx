@@ -96,28 +96,14 @@ impl PoolRef {
     ///
     /// Returns a typed pointer to the allocated memory.
     pub fn alloc<T: Copy>(&self) -> Option<&mut MaybeUninit<T>> {
-        unsafe {
-            let p = self.palloc(mem::size_of::<T>());
-            if p.is_null() {
-                None
-            } else {
-                Some(&mut *p.cast())
-            }
-        }
+        unsafe { NonNull::new(self.palloc(mem::size_of::<T>())).map(|p| p.cast().as_mut()) }
     }
 
     /// Allocates zeroed memory for a type from the pool.
     ///
     /// Returns a typed pointer to the allocated memory.
     pub fn calloc<T: Copy>(&self) -> Option<&mut MaybeUninit<T>> {
-        unsafe {
-            let p = self.pcalloc(mem::size_of::<T>());
-            if p.is_null() {
-                None
-            } else {
-                Some(&mut *p.cast())
-            }
-        }
+        unsafe { NonNull::new(self.pcalloc(mem::size_of::<T>())).map(|p| p.cast().as_mut()) }
     }
 
     /// Allocates memory for a value of a specified type and adds a cleanup handler to the memory pool.

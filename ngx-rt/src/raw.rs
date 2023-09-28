@@ -1,3 +1,5 @@
+use std::ptr::NonNull;
+
 use foreign_types::{ForeignType, ForeignTypeRef};
 
 pub(crate) fn never_drop<T>(_: *mut T) {
@@ -17,11 +19,7 @@ pub trait FromRaw: ForeignType {
 
 impl<T: ForeignType> FromRaw for T {
     unsafe fn from_raw(ptr: *mut Self::CType) -> Option<Self> {
-        if ptr.is_null() {
-            None
-        } else {
-            Some(Self::from_ptr(ptr))
-        }
+        NonNull::new(ptr).map(|p| unsafe { Self::from_ptr(p.as_ptr()) })
     }
 }
 
@@ -38,11 +36,7 @@ pub trait FromRawRef<'a>: ForeignTypeRef {
 
 impl<'a, T: ForeignTypeRef> FromRawRef<'a> for T {
     unsafe fn from_raw(ptr: *mut Self::CType) -> Option<&'a Self> {
-        if ptr.is_null() {
-            None
-        } else {
-            Some(Self::from_ptr(ptr))
-        }
+        NonNull::new(ptr).map(|p| unsafe { Self::from_ptr(p.as_ptr()) })
     }
 }
 
@@ -59,11 +53,7 @@ pub trait FromRawMut<'a>: ForeignTypeRef {
 
 impl<'a, T: ForeignTypeRef> FromRawMut<'a> for T {
     unsafe fn from_raw_mut(ptr: *mut Self::CType) -> Option<&'a mut Self> {
-        if ptr.is_null() {
-            None
-        } else {
-            Some(Self::from_ptr_mut(ptr))
-        }
+        NonNull::new(ptr).map(|p| unsafe { Self::from_ptr_mut(p.as_ptr()) })
     }
 }
 

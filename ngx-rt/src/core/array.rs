@@ -1,6 +1,7 @@
 use std::{
     mem::{self, MaybeUninit},
     ops::{Deref, DerefMut},
+    ptr::NonNull,
     slice,
 };
 
@@ -55,26 +56,13 @@ impl<T: Sized> ArrayRef<T> {
     }
 
     pub fn reserve(&mut self) -> Option<&mut MaybeUninit<T>> {
-        unsafe {
-            let p = ffi::ngx_array_push(self.as_ptr());
-
-            if p.is_null() {
-                None
-            } else {
-                Some(&mut *p.cast())
-            }
-        }
+        unsafe { NonNull::new(ffi::ngx_array_push(self.as_ptr())).map(|p| p.cast().as_mut()) }
     }
 
     pub fn reserve_n(&mut self, n: usize) -> Option<&mut [MaybeUninit<T>]> {
         unsafe {
-            let p = ffi::ngx_array_push_n(self.as_ptr(), n);
-
-            if p.is_null() {
-                None
-            } else {
-                Some(slice::from_raw_parts_mut(p.cast(), n))
-            }
+            NonNull::new(ffi::ngx_array_push_n(self.as_ptr(), n))
+                .map(|p| slice::from_raw_parts_mut(p.cast().as_ptr(), n))
         }
     }
 

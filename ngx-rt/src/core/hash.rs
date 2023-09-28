@@ -152,14 +152,8 @@ impl<T> TableEltRef<T> {
         unsafe {
             let r = self.as_raw_ref();
 
-            if r.lowcase_key.is_null() {
-                None
-            } else {
-                Some(str::from_utf8_unchecked(slice::from_raw_parts(
-                    r.lowcase_key,
-                    r.key.len,
-                )))
-            }
+            NonNull::new(r.lowcase_key)
+                .map(|p| str::from_utf8_unchecked(slice::from_raw_parts(p.as_ptr(), r.key.len)))
         }
     }
 
