@@ -4,6 +4,20 @@ pub(crate) fn never_drop<T>(_: *mut T) {
     unreachable!()
 }
 
+pub trait FromRaw: ForeignTypeRef {
+    unsafe fn from_raw(ptr: *mut Self::CType) -> Option<&'static Self>;
+}
+
+impl<T: ForeignTypeRef> FromRaw for T {
+    unsafe fn from_raw(ptr: *mut Self::CType) -> Option<&'static Self> {
+        if ptr.is_null() {
+            None
+        } else {
+            Some(Self::from_ptr(ptr))
+        }
+    }
+}
+
 pub trait AsRaw: ForeignTypeRef {
     /// Get the raw reference to the type.
     ///
