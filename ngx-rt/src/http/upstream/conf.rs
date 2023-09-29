@@ -21,5 +21,5 @@ foreign_type! {
 }
 
 impl SrvConfRef {
-    get!(peer: &PeerRef);
+    get!(peer: &mut PeerRef);
 }

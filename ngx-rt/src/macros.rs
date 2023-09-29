@@ -3,24 +3,24 @@ macro_rules! get {
     ($name:ident () : bool) => {
         #[inline(always)]
         pub fn $name(&self) -> bool {
-            unsafe { crate::AsRawRef::as_raw(self).$name() != 0 }
+            unsafe { $crate::AsRawRef::as_raw(self).$name() != 0 }
         }
     };
     ($name:ident : bool) => {
         #[inline(always)]
         pub fn $name(&self) -> bool {
-            unsafe { crate::AsRawRef::as_raw(self).$name != 0 }
+            unsafe { $crate::AsRawRef::as_raw(self).$name != 0 }
         }
     };
     ($name:ident : Str) => {
         #[inline(always)]
         pub fn $name(&self) -> Option<&$crate::core::Str> {
-            unsafe { $crate::core::Str::from_raw(crate::AsRawRef::as_raw(self).$name) }
+            unsafe { $crate::core::Str::from_raw($crate::AsRawRef::as_raw(self).$name) }
         }
     };
     ($name:ident : Headers) => {
         #[inline(always)]
-        pub fn $name(&self) -> crate::http::Headers {
+        pub fn $name(&self) -> $crate::http::Headers {
             crate::http::Headers(
                 unsafe {
                     $crate::core::ListRef::from_ptr(
@@ -60,6 +60,20 @@ macro_rules! get {
         }
     };
     ($name:ident : &mut $ty:ty) => {
+        get!($name : & $ty);
+
+        ::paste::paste! {
+            #[inline(always)]
+            pub fn [< $name _mut >](&mut self) -> &mut $ty {
+                unsafe {
+                    <$ty as ::foreign_types::ForeignTypeRef>::from_ptr_mut(
+                        &mut crate::AsRawMut::as_raw_mut(self).$name as *mut _,
+                    )
+                }
+            }
+        }
+    };
+    ($name:ident : &mut $ty:ty) => {
         #[inline(always)]
         pub fn $name(&mut self) -> &mut $ty {
             unsafe {
@@ -80,13 +94,13 @@ macro_rules! get {
 #[macro_export]
 macro_rules! flag {
     ($name:ident ()) => {
-        crate::get!($name (): bool);
+        $crate::get!($name (): bool);
     };
 }
 
 #[macro_export]
 macro_rules! str {
     ($name:ident) => {
-        crate::get!($name: Str);
+        $crate::get!($name: Str);
     };
 }

@@ -142,8 +142,6 @@ impl PoolRef {
 mod tests {
     use crate::core::{Log, Pool};
 
-    use super::*;
-
     #[test]
     fn buf() {
         let mut p = Pool::new(4096, Log::stderr()).unwrap();
