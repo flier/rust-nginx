@@ -25,6 +25,19 @@ impl Str {
         NonNull::new(str.data).map(|p| slice::from_raw_parts(p.as_ptr(), str.len).into())
     }
 
+    /// Create an [`Str`] from an pointer of [`ngx_str_t`].
+    ///
+    /// [`ngx_str_t`]: https://nginx.org/en/docs/dev/development_guide.html#string_overview
+    ///
+    /// # Safety
+    ///
+    /// The caller has provided a valid `ngx_str_t` with a `data` pointer that points
+    /// to range of bytes of at least `len` bytes, whose content remains valid and doesn't
+    /// change for the lifetime of the returned `Str`.
+    pub unsafe fn from_ptr<'a>(str: *mut ngx_str_t) -> Option<&'a Self> {
+        NonNull::new(str).and_then(|p| Self::from_raw(*p.as_ref()))
+    }
+
     pub fn as_bytes(&self) -> &[u8] {
         &self.0
     }

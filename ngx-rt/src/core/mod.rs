@@ -5,7 +5,7 @@ mod conf;
 mod cycle;
 mod err;
 pub mod hash;
-mod list;
+pub mod list;
 mod log;
 mod module;
 mod pool;

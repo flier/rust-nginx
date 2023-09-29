@@ -4,6 +4,8 @@ pub mod core;
 mod error;
 pub mod http;
 mod raw;
+#[macro_use]
+mod macros;
 
 pub use self::error::{Error, Result};
 pub(crate) use self::raw::never_drop;

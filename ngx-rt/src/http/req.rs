@@ -1,11 +1,16 @@
-use std::ops::{Deref, DerefMut};
+use std::{
+    ffi::CStr,
+    ops::{Deref, DerefMut},
+    ptr::NonNull,
+};
 
 use bitflags::bitflags;
+use cfg_if::cfg_if;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{
-    core::{hash, Str},
-    ffi, never_drop, AsRawMut, AsRawRef, FromRawRef,
+    core::{hash, list, Str},
+    ffi, flag, get, never_drop, str, AsRawMut, AsRawRef,
 };
 
 bitflags! {
@@ -28,6 +33,12 @@ bitflags! {
         const TRACE = ffi::NGX_HTTP_TRACE;
         const CONNECT = ffi::NGX_HTTP_CONNECT;
     }
+}
+
+macro_rules! header {
+    ($name:ident) => {
+        get!($name as &hash::TableEltRef);
+    };
 }
 
 foreign_type! {
@@ -53,17 +64,9 @@ impl DerefMut for RequestRef {
 }
 
 impl RequestRef {
-    pub fn headers_in(&self) -> &HeadersInRef {
-        unsafe { HeadersInRef::from_ptr(&self.as_raw().headers_in as *const _ as *mut _) }
-    }
-
-    pub fn headers_out(&self) -> &HeadersOutRef {
-        unsafe { HeadersOutRef::from_ptr(&self.as_raw().headers_out as *const _ as *mut _) }
-    }
-
-    pub fn body(&self) -> Option<&BodyRef> {
-        unsafe { BodyRef::from_raw(self.as_raw().request_body) }
-    }
+    get!(headers_in: &HeadersInRef);
+    get!(headers_out: &HeadersOutRef);
+    get!(request_body as &BodyRef);
 
     pub fn method(&self) -> Method {
         Method::from_bits_truncate(unsafe { self.as_raw().method as u32 })
@@ -77,45 +80,16 @@ impl RequestRef {
         }
     }
 
-    pub fn request_line(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw().request_line) }
-    }
-
-    pub fn uri(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw().uri) }
-    }
-
-    pub fn args(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw().args) }
-    }
-
-    pub fn exten(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw().exten) }
-    }
-
-    pub fn unparsed_uri(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw().unparsed_uri) }
-    }
-
-    pub fn method_name(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw().method_name) }
-    }
-
-    pub fn http_protocol(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw().http_protocol) }
-    }
-
-    pub fn schema(&self) -> Option<&Str> {
-        unsafe { Str::from_raw(self.as_raw().schema) }
-    }
-
-    pub fn main(&self) -> Option<&Self> {
-        unsafe { Self::from_raw(self.as_raw().main) }
-    }
-
-    pub fn parent(&self) -> Option<&Self> {
-        unsafe { Self::from_raw(self.as_raw().parent) }
-    }
+    str!(request_line);
+    str!(uri);
+    str!(args);
+    str!(exten);
+    str!(unparsed_uri);
+    str!(method_name);
+    str!(http_protocol);
+    str!(schema);
+    get!(main as &Self);
+    get!(parent as &Self);
 }
 
 foreign_type! {
@@ -126,15 +100,9 @@ foreign_type! {
     }
 }
 
-macro_rules! header {
-    ($name:ident) => {
-        pub fn $name(&self) -> Option<&hash::TableEltRef> {
-            unsafe { hash::TableEltRef::from_raw(self.as_raw().$name) }
-        }
-    };
-}
-
 impl HeadersInRef {
+    get!(headers: Headers);
+
     header!(host);
     header!(connection);
     header!(if_modified_since);
@@ -155,7 +123,7 @@ impl HeadersInRef {
     header!(expect);
     header!(upgrade);
 
-    cfg_if::cfg_if! {
+    cfg_if! {
         if #[cfg(any(feature = "http_gzip", feature = "http_headers"))] {
             header!(accept_encoding);
             header!(via);
@@ -172,12 +140,14 @@ impl HeadersInRef {
     #[cfg(feature = "http_realip")]
     header!(x_real_ip);
 
-    #[cfg(feature = "http_headers")]
-    header!(accept);
-    #[cfg(feature = "http_headers")]
-    header!(accept_language);
+    cfg_if! {
+        if #[cfg(feature = "http_headers")] {
+            header!(accept);
+            header!(accept_language);
+        }
+    }
 
-    cfg_if::cfg_if! {
+    cfg_if! {
         if #[cfg(feature = "http_dav")] {
             header!(depth);
             header!(destination);
@@ -187,6 +157,52 @@ impl HeadersInRef {
     }
 
     header!(cookie);
+
+    str!(user);
+    str!(passwd);
+    str!(server);
+    get!(content_length_n: i64);
+    get!(keep_alive_n: i64);
+    get!(connection_type() as ConnectionType);
+    flag!(chunked());
+    flag!(multi());
+    flag!(multi_linked());
+    flag!(msie());
+    flag!(msie6());
+    flag!(opera());
+    flag!(gecko());
+    flag!(chrome());
+    flag!(safari());
+    flag!(konqueror());
+}
+
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ConnectionType {
+    Close = ffi::NGX_HTTP_CONNECTION_CLOSE,
+    KeepAlive = ffi::NGX_HTTP_CONNECTION_KEEP_ALIVE,
+}
+
+impl ConnectionType {
+    pub fn from_raw(n: u32) -> Option<Self> {
+        match n {
+            ffi::NGX_HTTP_CONNECTION_CLOSE => Some(ConnectionType::Close),
+            ffi::NGX_HTTP_CONNECTION_KEEP_ALIVE => Some(ConnectionType::KeepAlive),
+            _ => None,
+        }
+    }
+}
+
+pub struct Headers<'a>(pub(crate) list::Iter<'a, <hash::TableEltRef as ForeignTypeRef>::CType>);
+
+impl<'a> Iterator for Headers<'a> {
+    type Item = &'a hash::TableEltRef;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.0
+            .next()
+            .map(|p| unsafe { hash::TableEltRef::from_ptr(p as *const _ as *mut _) })
+    }
 }
 
 foreign_type! {
@@ -197,10 +213,65 @@ foreign_type! {
     }
 }
 
+impl HeadersOutRef {
+    get!(headers: Headers);
+    get!(trailers: Headers);
+
+    get!(status: usize);
+    get!(status_line: Str);
+
+    header!(server);
+    header!(date);
+    header!(content_length);
+    header!(content_encoding);
+    header!(location);
+    header!(refresh);
+    header!(last_modified);
+    header!(content_range);
+    header!(accept_ranges);
+    header!(www_authenticate);
+    header!(expires);
+    header!(etag);
+
+    header!(cache_control);
+    header!(link);
+
+    pub fn override_charset(&self) -> Option<&Str> {
+        unsafe {
+            NonNull::new(self.as_raw().override_charset).and_then(|p| Str::from_ptr(p.as_ptr()))
+        }
+    }
+
+    get!(content_type_len: usize);
+    get!(content_type: Str);
+    get!(charset: Str);
+
+    pub fn content_type_lowcase(&self) -> Option<&CStr> {
+        unsafe {
+            NonNull::new(self.as_raw().content_type_lowcase)
+                .map(|p| CStr::from_ptr(p.as_ptr() as *const _))
+        }
+    }
+
+    get!(content_type_hash: usize);
+    get!(content_length_n: i64);
+    get!(content_offset: i64);
+    get!(date_time: i64);
+    get!(last_modified_time: i64);
+}
+
 foreign_type! {
     pub unsafe type Body: Send {
         type CType = ffi::ngx_http_request_body_t;
 
         fn drop = never_drop::<ffi::ngx_http_request_body_t>;
     }
+}
+
+impl BodyRef {
+    get!(rest: i64);
+    get!(received: i64);
+    flag!(filter_need_buffering());
+    flag!(last_sent());
+    flag!(last_saved());
 }

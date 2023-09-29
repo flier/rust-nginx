@@ -4,4 +4,4 @@ mod req;
 pub mod upstream;
 
 pub use self::conf::{Context, ContextRef};
-pub use self::req::{BodyRef, HeadersInRef, HeadersOutRef, RequestRef};
+pub use self::req::{BodyRef, Headers, HeadersInRef, HeadersOutRef, RequestRef};

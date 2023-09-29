@@ -1,6 +1,6 @@
-use foreign_types::{foreign_type, ForeignTypeRef};
+use foreign_types::foreign_type;
 
-use crate::{ffi, never_drop, AsRawMut, AsRawRef};
+use crate::{ffi, get, never_drop};
 
 use super::PeerRef;
 
@@ -21,11 +21,5 @@ foreign_type! {
 }
 
 impl SrvConfRef {
-    pub fn peer(&self) -> &PeerRef {
-        unsafe { PeerRef::from_ptr(&self.as_raw().peer as *const _ as *mut _) }
-    }
-
-    pub fn peer_mut(&mut self) -> &mut PeerRef {
-        unsafe { PeerRef::from_ptr_mut(&mut self.as_raw_mut().peer) }
-    }
+    get!(peer: &PeerRef);
 }
