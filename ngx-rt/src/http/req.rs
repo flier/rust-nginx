@@ -8,10 +8,7 @@ use bitflags::bitflags;
 use cfg_if::cfg_if;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{
-    core::{hash, list, Str},
-    ffi, flag, get, never_drop, str, AsRawMut, AsRawRef,
-};
+use crate::{core::Str, ffi, flag, get, never_drop, str, AsRawMut, AsRawRef};
 
 bitflags! {
     pub struct Method : u32 {
@@ -37,7 +34,7 @@ bitflags! {
 
 macro_rules! header {
     ($name:ident) => {
-        get!($name as &hash::TableEltRef);
+        get!($name as Header);
     };
 }
 
@@ -190,18 +187,6 @@ impl ConnectionType {
             ffi::NGX_HTTP_CONNECTION_KEEP_ALIVE => Some(ConnectionType::KeepAlive),
             _ => None,
         }
-    }
-}
-
-pub struct Headers<'a>(pub(crate) list::Iter<'a, <hash::TableEltRef as ForeignTypeRef>::CType>);
-
-impl<'a> Iterator for Headers<'a> {
-    type Item = &'a hash::TableEltRef;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.0
-            .next()
-            .map(|p| unsafe { hash::TableEltRef::from_ptr(p as *const _ as *mut _) })
     }
 }
 

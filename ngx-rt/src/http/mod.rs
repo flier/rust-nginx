@@ -1,7 +1,12 @@
 mod cmd;
 mod conf;
+mod header;
 mod req;
 pub mod upstream;
 
 pub use self::conf::{Context, ContextRef};
-pub use self::req::{BodyRef, Headers, HeadersInRef, HeadersOutRef, RequestRef};
+pub use self::header::{Header, Headers};
+pub use self::req::{
+    Body, BodyRef, ConnectionType, HeadersIn, HeadersInRef, HeadersOut, HeadersOutRef, Method,
+    Request, RequestRef,
+};

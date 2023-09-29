@@ -18,6 +18,15 @@ macro_rules! get {
             unsafe { $crate::core::Str::from_raw($crate::AsRawRef::as_raw(self).$name) }
         }
     };
+    ($name:ident as Header) => {
+        #[inline(always)]
+        pub fn $name(&self) -> Option<$crate::http::Header> {
+            unsafe {
+                <$crate::core::hash::TableEltRef as $crate::FromRawRef>::from_raw(
+                    crate::AsRawRef::as_raw(self).$name).map(From::from)
+            }
+        }
+    };
     ($name:ident : Headers) => {
         #[inline(always)]
         pub fn $name(&self) -> $crate::http::Headers {
