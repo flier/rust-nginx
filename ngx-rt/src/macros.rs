@@ -1,5 +1,5 @@
 #[macro_export]
-macro_rules! get {
+macro_rules! property {
     ($name:ident () : bool) => {
         #[inline(always)]
         pub fn $name(&self) -> bool {
@@ -69,7 +69,7 @@ macro_rules! get {
         }
     };
     ($name:ident : &mut $ty:ty) => {
-        get!($name : & $ty);
+        property!($name : & $ty);
 
         ::paste::paste! {
             #[inline(always)]
@@ -103,13 +103,13 @@ macro_rules! get {
 #[macro_export]
 macro_rules! flag {
     ($name:ident ()) => {
-        $crate::get!($name (): bool);
+        $crate::property!($name (): bool);
     };
 }
 
 #[macro_export]
 macro_rules! str {
     ($name:ident) => {
-        $crate::get!($name: Str);
+        $crate::property!($name: Str);
     };
 }

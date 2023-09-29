@@ -1,6 +1,6 @@
 use foreign_types::foreign_type;
 
-use crate::{ffi, get, never_drop};
+use crate::{ffi, never_drop, property};
 
 use super::PeerRef;
 
@@ -21,5 +21,5 @@ foreign_type! {
 }
 
 impl SrvConfRef {
-    get!(peer: &mut PeerRef);
+    property!(peer: &mut PeerRef);
 }

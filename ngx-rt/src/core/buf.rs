@@ -3,7 +3,7 @@ use std::{mem, ptr::NonNull};
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{ffi, flag, get, never_drop, AsRawMut, AsRawRef};
+use crate::{ffi, flag, never_drop, property, AsRawMut, AsRawRef};
 
 use super::PoolRef;
 
@@ -24,7 +24,7 @@ impl PoolRef {
 }
 
 impl BufRef {
-    get!(shadow as &BufRef);
+    property!(shadow as &BufRef);
 
     flag!(temporary());
     flag!(memory());
@@ -37,7 +37,7 @@ impl BufRef {
     flag!(last_in_chain());
     flag!(last_shadow());
     flag!(temp_file());
-    get!(num: i32);
+    property!(num: i32);
 
     pub fn in_memory(&self) -> bool {
         self.temporary() || self.memory() || self.mmap()

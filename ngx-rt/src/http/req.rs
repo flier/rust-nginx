@@ -8,7 +8,7 @@ use bitflags::bitflags;
 use cfg_if::cfg_if;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{core::Str, ffi, flag, get, never_drop, str, AsRawMut, AsRawRef};
+use crate::{core::Str, ffi, flag, never_drop, property, str, AsRawMut, AsRawRef};
 
 bitflags! {
     pub struct Method : u32 {
@@ -34,7 +34,7 @@ bitflags! {
 
 macro_rules! header {
     ($name:ident) => {
-        get!($name as Header);
+        property!($name as Header);
     };
 }
 
@@ -61,9 +61,9 @@ impl DerefMut for RequestRef {
 }
 
 impl RequestRef {
-    get!(headers_in: &HeadersInRef);
-    get!(headers_out: &HeadersOutRef);
-    get!(request_body as &BodyRef);
+    property!(headers_in: &HeadersInRef);
+    property!(headers_out: &HeadersOutRef);
+    property!(request_body as &BodyRef);
 
     pub fn method(&self) -> Method {
         Method::from_bits_truncate(unsafe { self.as_raw().method as u32 })
@@ -85,8 +85,8 @@ impl RequestRef {
     str!(method_name);
     str!(http_protocol);
     str!(schema);
-    get!(main as &Self);
-    get!(parent as &Self);
+    property!(main as &Self);
+    property!(parent as &Self);
 }
 
 foreign_type! {
@@ -98,7 +98,7 @@ foreign_type! {
 }
 
 impl HeadersInRef {
-    get!(headers: Headers);
+    property!(headers: Headers);
 
     header!(host);
     header!(connection);
@@ -158,9 +158,9 @@ impl HeadersInRef {
     str!(user);
     str!(passwd);
     str!(server);
-    get!(content_length_n: i64);
-    get!(keep_alive_n: i64);
-    get!(connection_type() as ConnectionType);
+    property!(content_length_n: i64);
+    property!(keep_alive_n: i64);
+    property!(connection_type() as ConnectionType);
     flag!(chunked());
     flag!(multi());
     flag!(multi_linked());
@@ -199,11 +199,11 @@ foreign_type! {
 }
 
 impl HeadersOutRef {
-    get!(headers: Headers);
-    get!(trailers: Headers);
+    property!(headers: Headers);
+    property!(trailers: Headers);
 
-    get!(status: usize);
-    get!(status_line: Str);
+    property!(status: usize);
+    property!(status_line: Str);
 
     header!(server);
     header!(date);
@@ -227,9 +227,9 @@ impl HeadersOutRef {
         }
     }
 
-    get!(content_type_len: usize);
-    get!(content_type: Str);
-    get!(charset: Str);
+    property!(content_type_len: usize);
+    property!(content_type: Str);
+    property!(charset: Str);
 
     pub fn content_type_lowcase(&self) -> Option<&CStr> {
         unsafe {
@@ -238,11 +238,11 @@ impl HeadersOutRef {
         }
     }
 
-    get!(content_type_hash: usize);
-    get!(content_length_n: i64);
-    get!(content_offset: i64);
-    get!(date_time: i64);
-    get!(last_modified_time: i64);
+    property!(content_type_hash: usize);
+    property!(content_length_n: i64);
+    property!(content_offset: i64);
+    property!(date_time: i64);
+    property!(last_modified_time: i64);
 }
 
 foreign_type! {
@@ -254,8 +254,8 @@ foreign_type! {
 }
 
 impl BodyRef {
-    get!(rest: i64);
-    get!(received: i64);
+    property!(rest: i64);
+    property!(received: i64);
     flag!(filter_need_buffering());
     flag!(last_sent());
     flag!(last_saved());
