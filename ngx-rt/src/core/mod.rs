@@ -4,6 +4,7 @@ mod cmd;
 mod conf;
 mod cycle;
 mod err;
+mod file;
 pub mod hash;
 pub mod list;
 mod log;
