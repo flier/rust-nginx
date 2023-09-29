@@ -6,7 +6,11 @@ use tracing::info;
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
 
-    if env::var("DOCS_RS").is_ok() || cfg!(feature = "cargo-clippy") {
+    if env::var("DOCS_RS").is_ok()
+        || env::var("CARGO_CFG_DOC").is_ok()
+        || cfg!(feature = "docsrs")
+        || cfg!(feature = "cargo-clippy")
+    {
         info!("skip gen binding for clippy and docs");
 
         return Ok(());

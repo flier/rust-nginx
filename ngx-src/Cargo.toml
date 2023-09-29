@@ -221,3 +221,6 @@ tracing-subscriber = "0.3"
 url = "2.4"
 
 ngx-build = { version = "0.1", path = "../ngx-build", optional = true }
+
+[package.metadata.docs.rs]
+features = ["docsrs"]
