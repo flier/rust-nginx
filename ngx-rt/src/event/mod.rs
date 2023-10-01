@@ -1,3 +1,3 @@
 mod conn;
 
-pub use self::conn::{PeerConn, PeerConnRef};
+pub use self::conn::{FreePeerFn, GetPeerFn, PeerConn, PeerConnRef};

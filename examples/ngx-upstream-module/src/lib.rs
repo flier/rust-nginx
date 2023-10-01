@@ -2,7 +2,7 @@
 
 use std::{
     ffi::{c_char, c_void},
-    ptr::{self, NonNull},
+    ptr::NonNull,
 };
 
 use anyhow::anyhow;
@@ -18,9 +18,12 @@ use ngx_mod::{
             conf::{self, Unset},
             CmdRef, ConfRef, ConnRef, ModuleRef,
         },
-        event::PeerConnRef,
-        http::{upstream, RequestRef},
-        ngx_str, AsResult,
+        event::{FreePeerFn, GetPeerFn, PeerConnRef},
+        http::{
+            upstream::{self, InitPeerFn},
+            RequestRef,
+        },
+        ngx_str,
     },
     Merge, Module,
 };
@@ -54,8 +57,8 @@ impl http::Module for HttpUpstreamCustomModule {
 struct SrvConfig {
     #[merge(strategy = merge::num::overwrite_zero)]
     max: u32,
-    original_init_upstream: ffi::ngx_http_upstream_init_pt,
-    original_init_peer: ffi::ngx_http_upstream_init_peer_pt,
+    original_init_upstream: Option<upstream::InitFn>,
+    original_init_peer: Option<upstream::InitPeerFn>,
 }
 
 impl Default for SrvConfig {
@@ -122,10 +125,9 @@ impl Setter for SrvConfig {
                 .expect("conf")
         };
 
-        conf.original_init_upstream = uscf
-            .peer()
-            .init_upstream
-            .or(Some(ffi::ngx_http_upstream_init_round_robin));
+        conf.original_init_upstream = uscf.peer().init_upstream().or(Some(upstream::InitFn(
+            ffi::ngx_http_upstream_init_round_robin,
+        )));
 
         uscf.peer_mut().init_upstream = Some(ngx_http_upstream_init_custom);
 
@@ -149,8 +151,8 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
     };
 
     if let Some(f) = original_init_upstream {
-        unsafe { f(cf.as_ptr(), us.as_ptr()) }
-            .ok_or_else(|| anyhow!("failed calling init_upstream"))?;
+        f.call(cf, us)
+            .map_err(|_| anyhow!("failed calling init_upstream"))?;
     }
 
     let original_init_peer = us.peer_mut().init.replace(http_upstream_init_custom_peer);
@@ -158,7 +160,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
     if let Some(hccf) = us.srv_conf_mut::<SrvConfig>(unsafe {
         ModuleRef::from_ptr(&mut ngx_http_upstream_custom_module as *mut _)
     }) {
-        hccf.original_init_peer = original_init_peer
+        hccf.original_init_peer = original_init_peer.map(InitPeerFn)
     }
 
     Ok(())
@@ -176,8 +178,8 @@ fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::
         .ok_or_else(|| anyhow!("no upstream srv_conf"))?
         .original_init_peer
     {
-        unsafe { f(req.as_ptr(), us.as_ptr()) }
-            .ok_or_else(|| anyhow!("failed calling init_peer"))?;
+        f.call(req, us)
+            .map_err(|_| anyhow!("failed calling init_peer"))?;
     }
 
     let hcpd = req
@@ -188,8 +190,8 @@ fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::
                 .upstream()
                 .and_then(|r| NonNull::new(r as *const _ as *mut _)),
             client_connection: NonNull::new(req.connection() as *const _ as *mut _),
-            original_get_peer: None,
-            original_free_peer: None,
+            original_get_peer: req.upstream().and_then(|us| us.peer().get()),
+            original_free_peer: req.upstream().and_then(|us| us.peer().free()),
             data: req.upstream().and_then(|us| NonNull::new(us.peer().data)),
         })
         .and_then(|r| NonNull::new(r as *mut _))
@@ -213,9 +215,8 @@ fn get_custom_peer(conn: &PeerConnRef, data: &UpstreamPeerData) -> anyhow::Resul
     ));
 
     if let Some(f) = data.original_get_peer {
-        let data = data.data.map_or_else(ptr::null_mut, |p| p.as_ptr());
-
-        unsafe { f(conn.as_ptr(), data) }.ok_or_else(|| anyhow!("failed calling get_peer"))?;
+        f.call(conn, Some(data))
+            .map_err(|_| anyhow!("failed calling get_peer"))?;
     }
 
     Ok(())
@@ -226,9 +227,7 @@ fn free_custom_peer(pc: &PeerConnRef, data: &UpstreamPeerData, state: usize) {
     pc.log().http().debug("free peer");
 
     if let Some(f) = data.original_free_peer {
-        let data = data.data.map_or_else(ptr::null_mut, |p| p.as_ptr());
-
-        unsafe { f(pc.as_ptr(), data, state) };
+        f.call(pc, Some(data), state);
     }
 }
 
@@ -238,8 +237,8 @@ pub struct UpstreamPeerData {
     conf: Option<NonNull<SrvConfig>>,
     upstream: Option<NonNull<upstream::UpstreamRef>>,
     client_connection: Option<NonNull<ConnRef>>,
-    original_get_peer: ffi::ngx_event_get_peer_pt,
-    original_free_peer: ffi::ngx_event_free_peer_pt,
+    original_get_peer: Option<GetPeerFn>,
+    original_free_peer: Option<FreePeerFn>,
     data: Option<NonNull<c_void>>,
 }
 

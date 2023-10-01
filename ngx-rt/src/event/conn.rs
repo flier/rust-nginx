@@ -1,10 +1,14 @@
-use std::ops::{Deref, DerefMut};
+use std::{
+    ffi::c_void,
+    ops::{Deref, DerefMut},
+    ptr,
+};
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{
     core::{ConnRef, LogError, LogRef},
-    ffi, flag, never_drop, property, AsRawMut, AsRawRef,
+    ffi, flag, never_drop, property, AsRawMut, AsRawRef, AsResult,
 };
 
 foreign_type! {
@@ -31,6 +35,15 @@ impl DerefMut for PeerConnRef {
 
 impl PeerConnRef {
     property!(connection: &ConnRef);
+
+    pub fn get(&self) -> Option<GetPeerFn> {
+        unsafe { self.as_raw().get.map(GetPeerFn) }
+    }
+
+    pub fn free(&self) -> Option<FreePeerFn> {
+        unsafe { self.as_raw().free.map(FreePeerFn) }
+    }
+
     property!(tries: usize);
     property!(log: &LogRef);
 
@@ -48,6 +61,49 @@ impl PeerConnRef {
             4 => LogError::IgnoreInvalid,
             5 => LogError::IgnoreMsgSize,
             _ => unreachable!(),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[repr(transparent)]
+pub struct GetPeerFn(
+    pub  unsafe extern "C" fn(
+        pc: *mut ffi::ngx_peer_connection_t,
+        data: *mut c_void,
+    ) -> ffi::ngx_int_t,
+);
+
+impl GetPeerFn {
+    pub fn call<T>(&self, pc: &PeerConnRef, data: Option<&T>) -> Result<isize, isize> {
+        unsafe {
+            self.0(
+                pc.as_ptr(),
+                data.map_or(ptr::null_mut(), |p| p as *const _ as *mut T as *mut _),
+            )
+        }
+        .ok()
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[repr(transparent)]
+pub struct FreePeerFn(
+    pub  unsafe extern "C" fn(
+        pc: *mut ffi::ngx_peer_connection_t,
+        data: *mut c_void,
+        state: ffi::ngx_uint_t,
+    ),
+);
+
+impl FreePeerFn {
+    pub fn call<T>(&self, pc: &PeerConnRef, data: Option<&T>, state: usize) {
+        unsafe {
+            self.0(
+                pc.as_ptr(),
+                data.map_or(ptr::null_mut(), |p| p as *const _ as *mut T as *mut _),
+                state,
+            )
         }
     }
 }
