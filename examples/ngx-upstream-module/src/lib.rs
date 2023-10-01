@@ -2,16 +2,17 @@
 
 use std::{
     ffi::{c_char, c_void},
-    ptr::NonNull,
+    ptr::{self, NonNull},
 };
 
+use anyhow::anyhow;
 use foreign_types::ForeignTypeRef;
 use merge::Merge as AutoMerge;
 
 use ngx_mod::{
     core::Setter,
     ffi::{self, ngx_command_t, ngx_module_t},
-    http,
+    http, native_handler,
     rt::{
         core::{
             conf::{self, Unset},
@@ -19,7 +20,7 @@ use ngx_mod::{
         },
         event::PeerConnRef,
         http::{upstream, RequestRef},
-        ngx_str,
+        ngx_str, AsResult,
     },
     Merge, Module,
 };
@@ -37,7 +38,7 @@ impl http::Module for HttpUpstreamCustomModule {
     type LocConf = ();
 
     fn create_srv_conf(cf: &ConfRef) -> Option<&mut Self::SrvConf> {
-        if let Some(p) = cf.pool().allocate(Self::SrvConf::default()) {
+        if let Some(p) = cf.pool().allocate_default::<SrvConfig>() {
             p.max = conf::unset();
 
             Some(p)
@@ -132,81 +133,56 @@ impl Setter for SrvConfig {
     }
 }
 
-#[no_mangle]
-unsafe extern "C" fn ngx_http_upstream_init_custom(
-    cf: *mut ffi::ngx_conf_t,
-    us: *mut ffi::ngx_http_upstream_srv_conf_t,
-) -> ffi::ngx_int_t {
-    let cf = ConfRef::from_ptr(cf);
-    let us = upstream::SrvConfRef::from_ptr_mut(us);
-    let log = cf.log().http();
+#[native_handler(name = ngx_http_upstream_init_custom, log_err = cf.emerg)]
+fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()> {
+    cf.log().http().debug("custom init upstream");
 
-    log.debug("custom init upstream");
+    let original_init_upstream = {
+        let hccf = us
+            .srv_conf_mut::<SrvConfig>(unsafe {
+                ModuleRef::from_ptr(&mut ngx_http_upstream_custom_module as *mut _)
+            })
+            .ok_or_else(|| anyhow!("no upstream srv_conf"))?;
 
-    let original_init_upstream = if let Some(hccf) = us.srv_conf_mut::<SrvConfig>(
-        ModuleRef::from_ptr(&mut ngx_http_upstream_custom_module as *mut _),
-    ) {
         hccf.max.get_or_set(100);
         hccf.original_init_upstream
-    } else {
-        cf.emerg("no upstream srv_conf");
-
-        return ffi::NGX_ERROR as isize;
     };
 
     if let Some(f) = original_init_upstream {
-        if f(cf.as_ptr(), us.as_ptr()) != ffi::NGX_OK as isize {
-            log.debug("failed calling init_upstream");
-
-            return ffi::NGX_ERROR as isize;
-        }
+        unsafe { f(cf.as_ptr(), us.as_ptr()) }
+            .ok_or_else(|| anyhow!("failed calling init_upstream"))?;
     }
 
     let original_init_peer = us.peer_mut().init.replace(http_upstream_init_custom_peer);
 
-    if let Some(hccf) = us.srv_conf_mut::<SrvConfig>(ModuleRef::from_ptr(
-        &mut ngx_http_upstream_custom_module as *mut _,
-    )) {
+    if let Some(hccf) = us.srv_conf_mut::<SrvConfig>(unsafe {
+        ModuleRef::from_ptr(&mut ngx_http_upstream_custom_module as *mut _)
+    }) {
         hccf.original_init_peer = original_init_peer
     }
 
-    ffi::NGX_OK as isize
+    Ok(())
 }
 
-#[no_mangle]
-unsafe extern "C" fn http_upstream_init_custom_peer(
-    r: *mut ffi::ngx_http_request_t,
-    us: *mut ffi::ngx_http_upstream_srv_conf_t,
-) -> ffi::ngx_int_t {
-    let req = RequestRef::from_ptr_mut(r);
-    let us = upstream::SrvConfRef::from_ptr(us);
-
+#[native_handler(name = http_upstream_init_custom_peer, log_err = req.connection().log().http().emerg)]
+fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::Result<()> {
     req.connection().log().http().debug("custom init peer");
 
-    let hccf = us.srv_conf::<SrvConfig>(ModuleRef::from_ptr(
-        &mut ngx_http_upstream_custom_module as *mut _,
-    ));
+    let hccf = us.srv_conf::<SrvConfig>(unsafe {
+        ModuleRef::from_ptr(&mut ngx_http_upstream_custom_module as *mut _)
+    });
 
-    if let Some(hccf) = hccf {
-        if let Some(f) = hccf.original_init_peer {
-            if f(req.as_ptr(), us.as_ptr()) != ffi::NGX_OK as isize {
-                req.connection()
-                    .log()
-                    .http()
-                    .debug("failed calling init_peer");
-
-                return ffi::NGX_ERROR as isize;
-            }
-        }
-    } else {
-        req.connection().log().http().emerg("no upstream srv_conf");
-
-        return ffi::NGX_ERROR as isize;
-    };
+    if let Some(f) = hccf
+        .ok_or_else(|| anyhow!("no upstream srv_conf"))?
+        .original_init_peer
+    {
+        unsafe { f(req.as_ptr(), us.as_ptr()) }
+            .ok_or_else(|| anyhow!("failed calling init_peer"))?;
+    }
 
     let hcpd = req
         .pool()
-        .allocate(CustomPeerData {
+        .allocate(UpstreamPeerData {
             conf: hccf.and_then(|r| NonNull::new(r as *const _ as *mut _)),
             upstream: req
                 .upstream()
@@ -214,47 +190,57 @@ unsafe extern "C" fn http_upstream_init_custom_peer(
             client_connection: NonNull::new(req.connection() as *const _ as *mut _),
             original_get_peer: None,
             original_free_peer: None,
+            data: req.upstream().and_then(|us| NonNull::new(us.peer().data)),
         })
-        .unwrap() as *mut _ as *mut _;
+        .and_then(|r| NonNull::new(r as *mut _))
+        .ok_or_else(|| anyhow!("out of memory"))?;
 
-    if let Some(us) = req.upstream_mut() {
-        let peer = us.peer_mut();
-        peer.data = hcpd;
-        peer.get = Some(ngx_http_upstream_get_custom_peer);
-        peer.free = Some(ngx_http_upstream_free_custom_peer);
-    } else {
-        req.connection().log().http().emerg("no upstream");
+    let us = req.upstream_mut().ok_or_else(|| anyhow!("no upstream"))?;
+    let peer = us.peer_mut();
+    peer.data = hcpd.cast().as_ptr();
+    peer.get = Some(ngx_http_upstream_get_custom_peer);
+    peer.free = Some(ngx_http_upstream_free_custom_peer);
 
-        return ffi::NGX_ERROR as isize;
+    Ok(())
+}
+
+#[native_handler(name = ngx_http_upstream_get_custom_peer, log_err = conn.log().http().emerg)]
+fn get_custom_peer(conn: &PeerConnRef, data: &UpstreamPeerData) -> anyhow::Result<()> {
+    conn.log().http().debug(format!(
+        "get peer, try: {}, conn: {:p}",
+        conn.tries,
+        conn.as_ptr()
+    ));
+
+    if let Some(f) = data.original_get_peer {
+        let data = data.data.map_or_else(ptr::null_mut, |p| p.as_ptr());
+
+        unsafe { f(conn.as_ptr(), data) }.ok_or_else(|| anyhow!("failed calling get_peer"))?;
     }
 
-    ffi::NGX_OK as isize
+    Ok(())
 }
 
-unsafe extern "C" fn ngx_http_upstream_get_custom_peer(
-    pc: *mut ffi::ngx_peer_connection_t,
-    data: *mut c_void,
-) -> ffi::ngx_int_t {
-    let pc = PeerConnRef::from_ptr(pc);
-    0
-}
+#[native_handler(name = ngx_http_upstream_free_custom_peer)]
+fn free_custom_peer(pc: &PeerConnRef, data: &UpstreamPeerData, state: usize) {
+    pc.log().http().debug(format!("free peer"));
 
-unsafe extern "C" fn ngx_http_upstream_free_custom_peer(
-    pc: *mut ffi::ngx_peer_connection_t,
-    data: *mut c_void,
-    state: ffi::ngx_uint_t,
-) {
-    let pc = PeerConnRef::from_ptr(pc);
+    if let Some(f) = data.original_free_peer {
+        let data = data.data.map_or_else(ptr::null_mut, |p| p.as_ptr());
+
+        unsafe { f(pc.as_ptr(), data, state) };
+    }
 }
 
 #[repr(C)]
 #[derive(Clone, Debug, Default)]
-pub struct CustomPeerData {
+pub struct UpstreamPeerData {
     conf: Option<NonNull<SrvConfig>>,
     upstream: Option<NonNull<upstream::UpstreamRef>>,
     client_connection: Option<NonNull<ConnRef>>,
     original_get_peer: ffi::ngx_event_get_peer_pt,
     original_free_peer: ffi::ngx_event_free_peer_pt,
+    data: Option<NonNull<c_void>>,
 }
 
 #[no_mangle]

@@ -1,4 +1,4 @@
-use std::ptr::NonNull;
+use std::{ffi::c_char, ptr::NonNull};
 
 use foreign_types::{ForeignType, ForeignTypeRef};
 
@@ -90,5 +90,54 @@ impl<T: ForeignTypeRef> AsRawMut for T {
     #[inline(always)]
     unsafe fn as_raw_mut(&mut self) -> &mut Self::CType {
         &mut *self.as_ptr()
+    }
+}
+
+pub trait AsResult {
+    fn ok(self) -> Result<Self, Self>
+    where
+        Self: Copy,
+    {
+        self.ok_or(self)
+    }
+
+    fn ok_or<E>(self, err: E) -> Result<Self, E>
+    where
+        Self: Sized,
+    {
+        self.ok_or_else(|| err)
+    }
+
+    fn ok_or_else<E, F>(self, err: F) -> Result<Self, E>
+    where
+        Self: Sized,
+        F: FnOnce() -> E;
+}
+
+impl AsResult for ffi::ngx_int_t {
+    fn ok_or_else<E, F>(self, err: F) -> Result<Self, E>
+    where
+        Self: Sized,
+        F: FnOnce() -> E,
+    {
+        if self == ffi::NGX_OK as isize {
+            Ok(self)
+        } else {
+            Err(err())
+        }
+    }
+}
+
+impl AsResult for *mut c_char {
+    fn ok_or_else<E, F>(self, err: F) -> Result<Self, E>
+    where
+        Self: Sized,
+        F: FnOnce() -> E,
+    {
+        if self != usize::MAX as Self {
+            Ok(self)
+        } else {
+            Err(err())
+        }
     }
 }

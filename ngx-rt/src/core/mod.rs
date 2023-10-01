@@ -20,7 +20,7 @@ pub use self::array::{Array, ArrayRef};
 pub use self::buf::{Buf, BufRef};
 pub use self::cmd::{Cmd, CmdRef};
 pub use self::conf::{Conf, ConfFile, ConfFileRef, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK};
-pub use self::conn::{Conn, ConnRef, TcpNoDelay, TcpNoPush};
+pub use self::conn::{Conn, ConnRef, LogError, TcpNoDelay, TcpNoPush};
 pub use self::cycle::{Cycle, CycleRef};
 pub use self::list::{List, ListRef};
 pub use self::log::{Level as LogLevel, Log, LogRef};

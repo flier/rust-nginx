@@ -1,3 +1,4 @@
+pub extern crate foreign_types;
 pub extern crate ngx_sys as ffi;
 
 pub mod core;
@@ -10,4 +11,4 @@ mod macros;
 
 pub use self::error::{Error, Result};
 pub(crate) use self::raw::never_drop;
-pub use self::raw::{AsRawMut, AsRawRef, FromRaw, FromRawMut, FromRawRef};
+pub use self::raw::{AsRawMut, AsRawRef, AsResult, FromRaw, FromRawMut, FromRawRef};

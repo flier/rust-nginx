@@ -9,6 +9,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+anyhow = "1.0"
 merge = "0.1"
 foreign-types = "0.5"
 

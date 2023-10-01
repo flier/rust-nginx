@@ -108,11 +108,19 @@ impl PoolRef {
 
     /// Allocates memory for a value of a specified type and adds a cleanup handler to the memory pool.
     ///
-    /// Returns a typed pointer to the allocated memory if successful,
+    /// Returns a typed reference to the allocated memory if successful,
     /// or `None` if allocation or cleanup handler addition fails.
+    pub fn allocate_default<T>(&self) -> Option<&mut T>
+    where
+        T: Default,
+    {
+        self.allocate::<T>(Default::default())
+    }
+
+    /// Allocates memory for a value of a specified type and adds a cleanup handler to the memory pool.
     ///
-    /// # Safety
-    /// This function is marked as unsafe because it involves raw pointer manipulation.
+    /// Returns a typed reference to the allocated memory if successful,
+    /// or `None` if allocation or cleanup handler addition fails.
     pub fn allocate<T>(&self, value: T) -> Option<&mut T> {
         unsafe {
             NonNull::new(self.palloc(mem::size_of::<T>()).cast()).and_then(|mut p| {
