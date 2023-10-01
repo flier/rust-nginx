@@ -223,7 +223,7 @@ fn get_custom_peer(conn: &PeerConnRef, data: &UpstreamPeerData) -> anyhow::Resul
 
 #[native_handler(name = ngx_http_upstream_free_custom_peer)]
 fn free_custom_peer(pc: &PeerConnRef, data: &UpstreamPeerData, state: usize) {
-    pc.log().http().debug(format!("free peer"));
+    pc.log().http().debug("free peer");
 
     if let Some(f) = data.original_free_peer {
         let data = data.data.map_or_else(ptr::null_mut, |p| p.as_ptr());

@@ -127,87 +127,35 @@ fn from_native_ty(arg_name: &Ident, ty: &Type) -> Option<(FnArg, ExprLet)> {
     match ty {
         Type::Reference(TypeReference {
             mutability, elem, ..
-        }) => {
-            if is_foreign_ty(elem.as_ref()) {
-                let raw_ty = parse_quote_spanned! { elem.span() =>
-                    #arg_name : * mut <#elem as ::ngx_mod::rt::foreign_types::ForeignTypeRef>::CType
-                };
-
-                let convert = if mutability.is_some() {
-                    parse_quote_spanned! { elem.span() =>
-                        let #arg_name = <#elem as ::ngx_mod::rt::foreign_types::ForeignTypeRef>::from_ptr_mut (#arg_name)
-                    }
-                } else {
-                    parse_quote_spanned! { elem.span() =>
-                        let #arg_name = <#elem as ::ngx_mod::rt::foreign_types::ForeignTypeRef>::from_ptr (#arg_name)
-                    }
-                };
-
-                Some((raw_ty, convert))
-            } else {
-                let raw_ty = parse_quote_spanned! { elem.span() =>
-                    #arg_name : * mut ::std::ffi::c_void
-                };
-
-                let convert = if mutability.is_some() {
-                    parse_quote_spanned! { elem.span() =>
-                        let #arg_name = #arg_name.cast::< #elem >().as_mut().expect(stringify!(#arg_name))
-                    }
-                } else {
-                    parse_quote_spanned! { elem.span() =>
-                        let #arg_name = #arg_name.cast::< #elem >().as_ref().expect(stringify!(#arg_name))
-                    }
-                };
-
-                Some((raw_ty, convert))
-            }
-        }
+        }) => Some(if is_foreign_ty(elem.as_ref()) {
+            cast_from_ptr(arg_name, mutability.is_some(), elem)
+        } else {
+            cast_as_ref(arg_name, mutability.is_some(), elem)
+        }),
         Type::Path(TypePath { qself, path }) if qself.is_none() => match path.segments.last() {
             Some(seg) if seg.ident == "Option" => match seg.arguments {
-                PathArguments::AngleBracketed(ref args) if args.args.len() == 1 => {
-                    match args.args.first() {
-                        Some(GenericArgument::Type(Type::Reference(TypeReference {
+                PathArguments::AngleBracketed(ref args) if args.args.len() == 1 => args
+                    .args
+                    .first()
+                    .and_then(|arg| {
+                        if let GenericArgument::Type(Type::Reference(TypeReference {
                             mutability,
                             elem,
                             ..
-                        }))) => {
-                            if is_foreign_ty(elem.as_ref()) {
-                                let raw_ty = parse_quote_spanned! { elem.span() =>
-                                    #arg_name : * mut <#elem as ::ngx_mod::rt::foreign_types::ForeignTypeRef>::CType
-                                };
-
-                                let convert = if mutability.is_some() {
-                                    parse_quote_spanned! { elem.span() =>
-                                        let #arg_name = <#elem as ::ngx_mod::rt::FromRawMut>::from_raw_mut (#arg_name)
-                                    }
-                                } else {
-                                    parse_quote_spanned! { elem.span() =>
-                                        let #arg_name = <#elem as ::ngx_mod::rt::FromRawRef>::from_raw (#arg_name)
-                                    }
-                                };
-
-                                Some((raw_ty, convert))
-                            } else {
-                                let raw_ty = parse_quote_spanned! { elem.span() =>
-                                    #arg_name : * mut ::std::ffi::c_void
-                                };
-
-                                let convert = if mutability.is_some() {
-                                    parse_quote_spanned! { elem.span() =>
-                                        let #arg_name = #arg_name.cast::< #elem >().as_mut()
-                                    }
-                                } else {
-                                    parse_quote_spanned! { elem.span() =>
-                                        let #arg_name = #arg_name.cast::< #elem >().as_ref()
-                                    }
-                                };
-
-                                Some((raw_ty, convert))
-                            }
+                        })) = arg
+                        {
+                            Some((mutability.is_some(), elem))
+                        } else {
+                            None
                         }
-                        _ => None,
-                    }
-                }
+                    })
+                    .map(|(mutability, elem)| {
+                        if is_foreign_ty(elem.as_ref()) {
+                            cast_from_raw(arg_name, mutability, elem)
+                        } else {
+                            cast_as_option(arg_name, mutability, elem)
+                        }
+                    }),
                 _ => None,
             },
             _ => None,
@@ -226,4 +174,76 @@ fn is_foreign_ty(ty: &Type) -> bool {
     matches!(ty, Type::Path(TypePath { qself, path })
         if qself.is_none()
             && path.segments.last().map_or(false, |seg| seg.ident.to_string().ends_with("Ref")))
+}
+
+fn cast_from_ptr(arg_name: &Ident, mutability: bool, elem: &Type) -> (FnArg, ExprLet) {
+    let raw_ty = parse_quote_spanned! { elem.span() =>
+        #arg_name : * mut <#elem as ::ngx_mod::rt::foreign_types::ForeignTypeRef>::CType
+    };
+
+    let convert = if mutability {
+        parse_quote_spanned! { elem.span() =>
+            let #arg_name = <#elem as ::ngx_mod::rt::foreign_types::ForeignTypeRef>::from_ptr_mut (#arg_name)
+        }
+    } else {
+        parse_quote_spanned! { elem.span() =>
+            let #arg_name = <#elem as ::ngx_mod::rt::foreign_types::ForeignTypeRef>::from_ptr (#arg_name)
+        }
+    };
+
+    (raw_ty, convert)
+}
+
+fn cast_from_raw(arg_name: &Ident, mutability: bool, elem: &Type) -> (FnArg, ExprLet) {
+    let raw_ty = parse_quote_spanned! { elem.span() =>
+        #arg_name : * mut <#elem as ::ngx_mod::rt::foreign_types::ForeignTypeRef>::CType
+    };
+
+    let convert = if mutability {
+        parse_quote_spanned! { elem.span() =>
+            let #arg_name = <#elem as ::ngx_mod::rt::FromRawMut>::from_raw_mut (#arg_name)
+        }
+    } else {
+        parse_quote_spanned! { elem.span() =>
+            let #arg_name = <#elem as ::ngx_mod::rt::FromRawRef>::from_raw (#arg_name)
+        }
+    };
+
+    (raw_ty, convert)
+}
+
+fn cast_as_ref(arg_name: &Ident, mutability: bool, elem: &Type) -> (FnArg, ExprLet) {
+    let raw_ty = parse_quote_spanned! { elem.span() =>
+        #arg_name : * mut ::std::ffi::c_void
+    };
+
+    let convert = if mutability {
+        parse_quote_spanned! { elem.span() =>
+            let #arg_name = #arg_name.cast::< #elem >().as_mut().expect(stringify!(#arg_name))
+        }
+    } else {
+        parse_quote_spanned! { elem.span() =>
+            let #arg_name = #arg_name.cast::< #elem >().as_ref().expect(stringify!(#arg_name))
+        }
+    };
+
+    (raw_ty, convert)
+}
+
+fn cast_as_option(arg_name: &Ident, mutability: bool, elem: &Type) -> (FnArg, ExprLet) {
+    let raw_ty = parse_quote_spanned! { elem.span() =>
+        #arg_name : * mut ::std::ffi::c_void
+    };
+
+    let convert = if mutability {
+        parse_quote_spanned! { elem.span() =>
+            let #arg_name = #arg_name.cast::< #elem >().as_mut()
+        }
+    } else {
+        parse_quote_spanned! { elem.span() =>
+            let #arg_name = #arg_name.cast::< #elem >().as_ref()
+        }
+    };
+
+    (raw_ty, convert)
 }
