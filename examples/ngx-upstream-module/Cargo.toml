@@ -10,5 +10,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 merge = "0.1"
+foreign-types = "0.5"
 
 ngx-mod = { version = "0.1", path = "../../ngx-mod" }

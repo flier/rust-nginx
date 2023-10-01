@@ -1,6 +1,6 @@
 use std::{
     ffi::{c_char, c_void},
-    ptr::{self, NonNull},
+    ptr,
 };
 
 use foreign_types::ForeignTypeRef;
@@ -93,7 +93,7 @@ impl<T: Module> UnsafeModule for T {
 
     unsafe extern "C" fn create_main_conf(cf: *mut ffi::ngx_conf_t) -> *mut c_void {
         <T as Module>::create_main_conf(ConfRef::from_ptr(cf))
-            .map_or_else(ptr::null_mut, |p| p.as_ptr().cast())
+            .map_or_else(ptr::null_mut, |p| p as *mut _ as *mut _)
     }
 
     unsafe extern "C" fn init_main_conf(
@@ -106,7 +106,7 @@ impl<T: Module> UnsafeModule for T {
 
     unsafe extern "C" fn create_srv_conf(cf: *mut ffi::ngx_conf_t) -> *mut c_void {
         <T as Module>::create_srv_conf(ConfRef::from_ptr(cf))
-            .map_or_else(ptr::null_mut, |p| p.as_ptr().cast())
+            .map_or_else(ptr::null_mut, |p| p as *mut _ as *mut _)
     }
 
     unsafe extern "C" fn merge_srv_conf(
@@ -120,7 +120,7 @@ impl<T: Module> UnsafeModule for T {
 
     unsafe extern "C" fn create_loc_conf(cf: *mut ffi::ngx_conf_t) -> *mut c_void {
         <T as Module>::create_loc_conf(ConfRef::from_ptr(cf))
-            .map_or_else(ptr::null_mut, |p| p.as_ptr().cast())
+            .map_or_else(ptr::null_mut, |p| p as *mut _ as *mut _)
     }
 
     unsafe extern "C" fn merge_loc_conf(
@@ -149,7 +149,7 @@ pub trait Module {
         Ok(())
     }
 
-    fn create_main_conf(cf: &ConfRef) -> Option<NonNull<Self::MainConf>> {
+    fn create_main_conf(cf: &ConfRef) -> Option<&mut Self::MainConf> {
         cf.pool().allocate(Self::MainConf::default())
     }
 
@@ -157,7 +157,7 @@ pub trait Module {
         Ok(())
     }
 
-    fn create_srv_conf(cf: &ConfRef) -> Option<NonNull<Self::SrvConf>> {
+    fn create_srv_conf(cf: &ConfRef) -> Option<&mut Self::SrvConf> {
         cf.pool().allocate(Self::SrvConf::default())
     }
 
@@ -169,7 +169,7 @@ pub trait Module {
         prev.merge(conf).map_err(Self::Error::from)
     }
 
-    fn create_loc_conf(cf: &ConfRef) -> Option<NonNull<Self::LocConf>> {
+    fn create_loc_conf(cf: &ConfRef) -> Option<&mut Self::LocConf> {
         cf.pool().allocate(Self::LocConf::default())
     }
 

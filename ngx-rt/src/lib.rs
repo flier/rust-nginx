@@ -2,6 +2,7 @@ pub extern crate ngx_sys as ffi;
 
 pub mod core;
 mod error;
+pub mod event;
 pub mod http;
 mod raw;
 #[macro_use]

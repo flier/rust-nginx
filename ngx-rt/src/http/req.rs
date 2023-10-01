@@ -8,7 +8,12 @@ use bitflags::bitflags;
 use cfg_if::cfg_if;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{core::Str, ffi, flag, never_drop, property, str, AsRawMut, AsRawRef};
+use crate::{
+    core::{BufRef, ConnRef, PoolRef, Str},
+    ffi, flag, never_drop, property, str, AsRawMut, AsRawRef,
+};
+
+use super::upstream::UpstreamRef;
 
 bitflags! {
     pub struct Method : u32 {
@@ -61,6 +66,10 @@ impl DerefMut for RequestRef {
 }
 
 impl RequestRef {
+    property!(connection: &ConnRef);
+    property!(upstream as &mut UpstreamRef);
+    property!(pool: &PoolRef);
+    property!(header_in: &BufRef);
     property!(headers_in: &HeadersInRef);
     property!(headers_out: &HeadersOutRef);
     property!(request_body as &BodyRef);

@@ -1,6 +1,6 @@
 use foreign_types::foreign_type;
 
-use crate::{ffi, never_drop, property};
+use crate::{core::ModuleRef, ffi, never_drop, property, AsRawRef};
 
 use super::PeerRef;
 
@@ -22,4 +22,34 @@ foreign_type! {
 
 impl SrvConfRef {
     property!(peer: &mut PeerRef);
+
+    /// Get the reference of server configuration for the module.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure that the module is initialized.
+    pub fn srv_conf<T>(&self, m: &ModuleRef) -> Option<&T> {
+        unsafe {
+            self.as_raw()
+                .srv_conf
+                .add(m.context_index())
+                .cast::<T>()
+                .as_ref()
+        }
+    }
+
+    /// Get the mutable reference of server configuration for the module.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure that the module is initialized.
+    pub fn srv_conf_mut<T>(&mut self, m: &ModuleRef) -> Option<&mut T> {
+        unsafe {
+            self.as_raw()
+                .srv_conf
+                .add(m.context_index())
+                .cast::<T>()
+                .as_mut()
+        }
+    }
 }

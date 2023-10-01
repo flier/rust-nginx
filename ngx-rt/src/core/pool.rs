@@ -32,7 +32,7 @@ impl PoolRef {
         }
     }
 
-    /// Allocates memory from the pool of the specified size.
+    /// Allocates aligned memory from the pool of the specified size.
     ///
     /// Returns a raw pointer to the allocated memory.
     ///
@@ -44,7 +44,7 @@ impl PoolRef {
         ffi::ngx_palloc(self.as_ptr(), size)
     }
 
-    /// Allocates aligned memory from the pool of the specified size.
+    /// Allocates non-aligned memory from the pool of the specified size.
     ///
     /// Returns a raw pointer to the allocated memory.
     ///
@@ -56,7 +56,7 @@ impl PoolRef {
         ffi::ngx_pnalloc(self.as_ptr(), size)
     }
 
-    /// Allocates zeroed memory from the pool of the specified size.
+    /// Allocates aligned and zeroed memory from the pool of the specified size.
     ///
     /// Returns a raw pointer to the allocated memory.
     ///
@@ -113,13 +113,13 @@ impl PoolRef {
     ///
     /// # Safety
     /// This function is marked as unsafe because it involves raw pointer manipulation.
-    pub fn allocate<T>(&self, value: T) -> Option<NonNull<T>> {
+    pub fn allocate<T>(&self, value: T) -> Option<&mut T> {
         unsafe {
-            NonNull::new(self.palloc(mem::size_of::<T>()).cast()).and_then(|p| {
+            NonNull::new(self.palloc(mem::size_of::<T>()).cast()).and_then(|mut p| {
                 ptr::write(p.as_ptr(), value);
 
                 if self.add_cleanup(p).is_ok() {
-                    Some(p)
+                    Some(p.as_mut())
                 } else {
                     ptr::drop_in_place(p.as_ptr());
 
