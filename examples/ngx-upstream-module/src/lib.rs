@@ -16,7 +16,7 @@ use ngx_mod::{
     rt::{
         core::{
             conf::{self, Unset},
-            CmdRef, ConfRef, ConnRef, ModuleRef,
+            CmdRef, ConfRef, ConnRef,
         },
         event::{FreePeerFn, GetPeerFn, PeerConnRef},
         http::{
@@ -30,11 +30,11 @@ use ngx_mod::{
 
 #[derive(Module)]
 #[module(name = "ngx_http_upstream_custom_module", type = http)]
-struct HttpUpstreamCustomModule;
+struct Custom;
 
-impl Module for HttpUpstreamCustomModule {}
+impl Module for Custom {}
 
-impl http::Module for HttpUpstreamCustomModule {
+impl http::Module for Custom {
     type Error = ();
     type MainConf = ();
     type SrvConf = SrvConfig;
@@ -141,9 +141,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
 
     let original_init_upstream = {
         let hccf = us
-            .srv_conf_mut::<SrvConfig>(unsafe {
-                ModuleRef::from_ptr(&mut ngx_http_upstream_custom_module as *mut _)
-            })
+            .srv_conf_mut::<SrvConfig>(Custom::module())
             .ok_or_else(|| anyhow!("no upstream srv_conf"))?;
 
         hccf.max.get_or_set(100);
@@ -157,9 +155,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
 
     let original_init_peer = us.peer_mut().init.replace(http_upstream_init_custom_peer);
 
-    if let Some(hccf) = us.srv_conf_mut::<SrvConfig>(unsafe {
-        ModuleRef::from_ptr(&mut ngx_http_upstream_custom_module as *mut _)
-    }) {
+    if let Some(hccf) = us.srv_conf_mut::<SrvConfig>(Custom::module()) {
         hccf.original_init_peer = original_init_peer.map(InitPeerFn)
     }
 
@@ -170,9 +166,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
 fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::Result<()> {
     req.connection().log().http().debug("custom init peer");
 
-    let hccf = us.srv_conf::<SrvConfig>(unsafe {
-        ModuleRef::from_ptr(&mut ngx_http_upstream_custom_module as *mut _)
-    });
+    let hccf = us.srv_conf::<SrvConfig>(Custom::module());
 
     if let Some(f) = hccf
         .ok_or_else(|| anyhow!("no upstream srv_conf"))?

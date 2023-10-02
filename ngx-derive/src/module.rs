@@ -8,7 +8,7 @@ use syn::{
     parse::{Parse, ParseStream},
     parse_quote,
     spanned::Spanned,
-    Attribute, Ident, ItemStatic, LitStr,
+    Attribute, Ident, ItemImpl, ItemStatic, LitStr,
 };
 
 #[derive(Clone, Debug, Default, Merge, StructMeta)]
@@ -138,6 +138,16 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
         };
     };
 
+    let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
+
+    let impl_module: ItemImpl = parse_quote! {
+        impl #impl_generics #ident #ty_generics #where_clause {
+            pub fn module() -> &'static ::ngx_mod::rt::core::ModuleRef {
+                unsafe { ::ngx_mod::rt::core::ModuleRef::from_ptr(&mut #ngx_module_name as *mut _) }
+            }
+        }
+    };
+
     let ngx_module_ctx: Option<ItemStatic> = args.ty.as_ref().and_then(|ty|match ty.value {
         Type::Core(_) => Some(parse_quote! {
             #[no_mangle]
@@ -165,6 +175,9 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
 
     quote! {
         #ngx_module
+
+        #impl_module
+
         #ngx_module_ctx
     }
 }

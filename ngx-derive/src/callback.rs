@@ -82,7 +82,7 @@ pub fn expand(args: Args, item: ItemType) -> TokenStream {
     let (result, result_ty) = if matches!(output, ReturnType::Default) {
         (Expr::Call(call), ReturnType::Default)
     } else {
-        let result = if let Some((ok, err)) = extract_result_types(&output) {
+        let result = if let Some((ok, err)) = extract_result_types(output) {
             let mut result = if let Some(log_err) = args.log_err.as_ref().map(|arg| &arg.value) {
                 parse_quote_spanned! { output.span() =>
                     crate::AsResult::ok(#call).map_err(|err| {
