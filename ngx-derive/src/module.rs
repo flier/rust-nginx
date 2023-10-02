@@ -8,14 +8,14 @@ use syn::{
     parse::{Parse, ParseStream},
     parse_quote,
     spanned::Spanned,
-    Attribute, Ident, ItemImpl, ItemStatic, LitStr,
+    Attribute, Ident, ItemImpl, ItemStatic,
 };
 
 #[derive(Clone, Debug, Default, Merge, StructMeta)]
 struct Args {
     #[struct_meta(name = "type")]
     ty: Option<NameValue<Type>>,
-    name: Option<NameValue<LitStr>>,
+    name: Option<NameValue<Ident>>,
 }
 
 impl Args {
@@ -43,10 +43,6 @@ impl Args {
             .collect();
 
         (args, attrs)
-    }
-
-    pub fn name(&self) -> Option<String> {
-        self.name.as_ref().map(|n| n.value.value())
     }
 }
 
@@ -98,8 +94,22 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
 
     let ident: &Ident = &input.ident;
     let mod_name = args
-        .name()
-        .unwrap_or_else(|| input.ident.to_string())
+        .name
+        .as_ref()
+        .map(|n| n.value.to_string())
+        .unwrap_or_else(|| {
+            let mut s = input.ident.to_string();
+
+            if !s.starts_with("Ngx") {
+                s = format!("Ngx{}", s);
+            }
+
+            if !s.ends_with("Module") {
+                s += "Module";
+            }
+
+            s
+        })
         .to_snake();
     let ngx_module_name = Ident::new(mod_name.as_str(), Span::call_site());
     let ngx_module_ctx_name = format_ident!("{}_ctx", &mod_name);

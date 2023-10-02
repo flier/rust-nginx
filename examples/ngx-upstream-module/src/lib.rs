@@ -29,7 +29,7 @@ use ngx_mod::{
 };
 
 #[derive(Module)]
-#[module(name = "ngx_http_upstream_custom_module", type = http)]
+#[module(name = ngx_http_upstream_custom_module, type = http)]
 struct Custom;
 
 impl Module for Custom {}
