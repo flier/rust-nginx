@@ -1,9 +1,6 @@
 #![crate_type = "dylib"]
 
-use std::{
-    ffi::{c_char, c_void},
-    ptr::NonNull,
-};
+use std::ptr::NonNull;
 
 use anyhow::anyhow;
 use foreign_types::ForeignTypeRef;
@@ -11,7 +8,7 @@ use merge::Merge as AutoMerge;
 
 use ngx_mod::{
     core::Setter,
-    ffi::{self, ngx_command_t, ngx_module_t},
+    ffi::{self, ngx_command_t},
     http,
     rt::{
         core::{
@@ -185,7 +182,9 @@ fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::
             client_connection: NonNull::new(req.connection() as *const _ as *mut _),
             original_get_peer: req.upstream().and_then(|us| us.peer().get()),
             original_free_peer: req.upstream().and_then(|us| us.peer().free()),
-            data: req.upstream().and_then(|us| NonNull::new(us.peer().data)),
+            data: req
+                .upstream()
+                .and_then(|us| NonNull::new(us.peer().data.cast())),
         })
         .and_then(|r| NonNull::new(r as *mut _))
         .ok_or_else(|| anyhow!("out of memory"))?;
@@ -232,23 +231,8 @@ pub struct UpstreamPeerData {
     client_connection: Option<NonNull<ConnRef>>,
     original_get_peer: Option<GetPeerFn>,
     original_free_peer: Option<FreePeerFn>,
-    data: Option<NonNull<c_void>>,
+    data: Option<NonNull<()>>,
 }
-
-#[no_mangle]
-pub static mut ngx_modules: [*const ngx_module_t; 2] = [
-    unsafe { &ngx_http_upstream_custom_module as *const ngx_module_t },
-    std::ptr::null(),
-];
-
-#[no_mangle]
-pub static mut ngx_module_names: [*const c_char; 2] = [
-    "ngx_http_upstream_custom_module\0".as_ptr() as *const i8,
-    std::ptr::null(),
-];
-
-#[no_mangle]
-pub static mut ngx_module_order: [*const c_char; 1] = [std::ptr::null()];
 
 #[no_mangle]
 static mut ngx_http_upstream_custom_commands: [ngx_command_t; 1] = [

@@ -183,11 +183,36 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
         _ => None,
     });
 
+    let ngx_modules: ItemStatic = parse_quote! {
+        #[no_mangle]
+        pub static mut ngx_modules: [*const ::ngx_mod::ffi::ngx_module_t; 2] = [
+            unsafe { & #ngx_module_name as *const _ },
+            ::std::ptr::null(),
+        ];
+    };
+
+    let ngx_module_names: ItemStatic = parse_quote! {
+        #[no_mangle]
+        pub static mut ngx_module_names: [*const ::std::ffi::c_char; 2] = [
+            concat!(stringify!(#ngx_module_name), "\0").as_ptr() as *const _,
+            ::std::ptr::null(),
+        ];
+    };
+
+    let ngx_module_order: ItemStatic = parse_quote! {
+        #[no_mangle]
+        pub static mut ngx_module_order: [*const ::std::ffi::c_char; 1] = [::std::ptr::null()];
+    };
+
     quote! {
         #ngx_module
 
         #impl_module
 
         #ngx_module_ctx
+
+        #ngx_modules
+        #ngx_module_names
+        #ngx_module_order
     }
 }
