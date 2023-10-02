@@ -9,6 +9,8 @@ edition = "2021"
 bitflags = "2.4"
 foreign-types = "0.5"
 
-ngx-derive = { version = "0.1", path = "../ngx-derive" }
+ngx-derive = { version = "0.1", path = "../ngx-derive", default-features = false, features = [
+    "module",
+] }
 ngx-rt = { version = "0.1", path = "../ngx-rt" }
 ngx-sys = { version = "0.1", path = "../ngx-sys" }

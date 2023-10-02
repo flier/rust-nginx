@@ -7,6 +7,15 @@ pub enum Error {
     #[error("out of memory")]
     OutOfMemory,
 
+    #[error("internal error, {0}")]
+    InternalError(isize),
+
     #[error(transparent)]
     NulError(#[from] std::ffi::NulError),
+}
+
+impl From<isize> for Error {
+    fn from(value: isize) -> Self {
+        Self::InternalError(value)
+    }
 }

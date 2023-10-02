@@ -5,7 +5,9 @@ use std::{
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{core::ConfRef, ffi, http::RequestRef, never_drop, AsRawMut, AsRawRef, AsResult};
+use crate::{
+    core::ConfRef, ffi, http::RequestRef, native_callback, never_drop, AsRawMut, AsRawRef, Error,
+};
 
 use super::SrvConfRef;
 
@@ -45,32 +47,8 @@ impl PeerRef {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-#[repr(transparent)]
-pub struct InitFn(
-    pub  unsafe extern "C" fn(
-        cf: *mut ffi::ngx_conf_t,
-        us: *mut ffi::ngx_http_upstream_srv_conf_t,
-    ) -> ffi::ngx_int_t,
-);
+#[native_callback]
+pub type InitFn = fn(cf: &ConfRef, us: &SrvConfRef) -> Result<(), Error>;
 
-impl InitFn {
-    pub fn call(&self, cf: &ConfRef, us: &SrvConfRef) -> Result<isize, isize> {
-        unsafe { self.0(cf.as_ptr(), us.as_ptr()) }.ok()
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-#[repr(transparent)]
-pub struct InitPeerFn(
-    pub  unsafe extern "C" fn(
-        r: *mut ffi::ngx_http_request_t,
-        us: *mut ffi::ngx_http_upstream_srv_conf_t,
-    ) -> ffi::ngx_int_t,
-);
-
-impl InitPeerFn {
-    pub fn call(&self, r: &RequestRef, us: &SrvConfRef) -> Result<isize, isize> {
-        unsafe { self.0(r.as_ptr(), us.as_ptr()) }.ok()
-    }
-}
+#[native_callback]
+pub type InitPeerFn = fn(r: &RequestRef, us: &SrvConfRef) -> Result<(), Error>;

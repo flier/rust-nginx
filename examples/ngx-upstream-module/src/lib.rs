@@ -12,7 +12,7 @@ use merge::Merge as AutoMerge;
 use ngx_mod::{
     core::Setter,
     ffi::{self, ngx_command_t, ngx_module_t},
-    http, native_handler,
+    http,
     rt::{
         core::{
             conf::{self, Unset},
@@ -23,7 +23,7 @@ use ngx_mod::{
             upstream::{self, InitPeerFn},
             RequestRef,
         },
-        ngx_str,
+        native_handler, ngx_str,
     },
     Merge, Module,
 };

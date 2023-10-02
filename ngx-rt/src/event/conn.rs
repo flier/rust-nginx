@@ -1,5 +1,4 @@
 use std::{
-    ffi::c_void,
     ops::{Deref, DerefMut},
     ptr,
 };
@@ -8,7 +7,7 @@ use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{
     core::{ConnRef, LogError, LogRef},
-    ffi, flag, never_drop, property, AsRawMut, AsRawRef, AsResult,
+    ffi, flag, native_callback, never_drop, property, AsRawMut, AsRawRef, Error,
 };
 
 foreign_type! {
@@ -65,45 +64,8 @@ impl PeerConnRef {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-#[repr(transparent)]
-pub struct GetPeerFn(
-    pub  unsafe extern "C" fn(
-        pc: *mut ffi::ngx_peer_connection_t,
-        data: *mut c_void,
-    ) -> ffi::ngx_int_t,
-);
+#[native_callback]
+pub type GetPeerFn<T> = fn(pc: &PeerConnRef, data: Option<&T>) -> Result<(), Error>;
 
-impl GetPeerFn {
-    pub fn call<T>(&self, pc: &PeerConnRef, data: Option<&T>) -> Result<isize, isize> {
-        unsafe {
-            self.0(
-                pc.as_ptr(),
-                data.map_or(ptr::null_mut(), |p| p as *const _ as *mut T as *mut _),
-            )
-        }
-        .ok()
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-#[repr(transparent)]
-pub struct FreePeerFn(
-    pub  unsafe extern "C" fn(
-        pc: *mut ffi::ngx_peer_connection_t,
-        data: *mut c_void,
-        state: ffi::ngx_uint_t,
-    ),
-);
-
-impl FreePeerFn {
-    pub fn call<T>(&self, pc: &PeerConnRef, data: Option<&T>, state: usize) {
-        unsafe {
-            self.0(
-                pc.as_ptr(),
-                data.map_or(ptr::null_mut(), |p| p as *const _ as *mut T as *mut _),
-                state,
-            )
-        }
-    }
-}
+#[native_callback]
+pub type FreePeerFn<T> = fn(pc: &PeerConnRef, data: Option<&T>, state: usize);

@@ -7,8 +7,8 @@ use syn::{
     spanned::Spanned,
     Expr, ExprCall, ExprLet,
     FnArg::{self, Receiver},
-    GenericArgument, Ident, ItemFn, Pat, PathArguments, ReturnType, Signature, Type, TypePath,
-    TypeReference,
+    GenericArgument, Ident, ItemFn, Pat, PathArguments, ReturnType, Signature, Stmt, Type,
+    TypePath, TypeReference,
 };
 
 #[derive(Clone, Debug, StructMeta)]
@@ -56,7 +56,14 @@ pub fn expand(args: Args, f: ItemFn) -> TokenStream {
                             arg
                         },
                     ),
-                    (convert, arg_name),
+                    (
+                        convert.map(|expr| {
+                            parse_quote_spanned! { pt.span() =>
+                                #expr ;
+                            }
+                        }),
+                        arg_name,
+                    ),
                 )
             } else {
                 abort!(
@@ -66,10 +73,10 @@ pub fn expand(args: Args, f: ItemFn) -> TokenStream {
                 )
             }
         })
-        .unzip::<FnArg, (Option<ExprLet>, &Ident), Vec<_>, Vec<_>>();
+        .unzip::<FnArg, (Option<Stmt>, &Ident), Vec<_>, Vec<_>>();
     let (unsafe_conversions, unsafe_params) = unsafe_params
         .into_iter()
-        .unzip::<Option<ExprLet>, &Ident, Vec<_>, Vec<_>>();
+        .unzip::<Option<Stmt>, &Ident, Vec<_>, Vec<_>>();
 
     let handler: ExprCall = parse_quote_spanned! { ident.span() =>
         handler( #( #unsafe_params ),* )
@@ -116,7 +123,7 @@ pub fn expand(args: Args, f: ItemFn) -> TokenStream {
         #vis unsafe extern "C" fn #name #ty_generics ( #( #unsafe_args ),* ) #result_ty #where_clause {
             fn handler #ty_generics ( #inputs ) #output #where_clause #block
 
-            #( #unsafe_conversions ; )*
+            #( #unsafe_conversions )*
 
             #result
         }

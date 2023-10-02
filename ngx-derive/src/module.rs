@@ -11,8 +11,6 @@ use syn::{
     Attribute, Ident, ItemStatic, LitStr,
 };
 
-use ngx_rt::core::ModuleType;
-
 #[derive(Clone, Debug, Default, Merge, StructMeta)]
 struct Args {
     #[struct_meta(name = "type")]
@@ -50,12 +48,6 @@ impl Args {
     pub fn name(&self) -> Option<String> {
         self.name.as_ref().map(|n| n.value.value())
     }
-
-    pub fn ty(&self) -> ModuleType {
-        self.ty
-            .as_ref()
-            .map_or(ModuleType::Http, |ty| ty.value.clone().into())
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -66,19 +58,6 @@ enum Type {
     Http(kw::http),
     Mail(kw::mail),
     Stream(kw::stream),
-}
-
-impl From<Type> for ModuleType {
-    fn from(ty: Type) -> Self {
-        match ty {
-            Type::Core(_) => ModuleType::Core,
-            Type::Conf(_) => ModuleType::Conf,
-            Type::Event(_) => ModuleType::Event,
-            Type::Http(_) => ModuleType::Http,
-            Type::Mail(_) => ModuleType::Mail,
-            Type::Stream(_) => ModuleType::Stream,
-        }
-    }
 }
 
 mod kw {
@@ -159,8 +138,8 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
         };
     };
 
-    let ngx_module_ctx: Option<ItemStatic> = match args.ty() {
-        ModuleType::Core => Some(parse_quote! {
+    let ngx_module_ctx: Option<ItemStatic> = args.ty.as_ref().and_then(|ty|match ty.value {
+        Type::Core(_) => Some(parse_quote! {
             #[no_mangle]
             static #ngx_module_ctx_name: ::ngx_mod::ffi::ngx_core_module_t = ::ngx_mod::ffi::ngx_core_module_t {
                 name: ::ngx_mod::rt::ngx_str!( #mod_name ),
@@ -168,7 +147,7 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
                 init_conf: Some(<#ident as ::ngx_mod::core::UnsafeModule>::init_conf),
             };
         }),
-        ModuleType::Http => Some(parse_quote! {
+        Type::Http(_) => Some(parse_quote! {
             #[no_mangle]
             static #ngx_module_ctx_name: ::ngx_mod::ffi::ngx_http_module_t = ::ngx_mod::ffi::ngx_http_module_t {
                 preconfiguration: Some(<#ident as ::ngx_mod::http::UnsafeModule>::preconfiguration),
@@ -182,7 +161,7 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
             };
         }),
         _ => None,
-    };
+    });
 
     quote! {
         #ngx_module

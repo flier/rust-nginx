@@ -229,3 +229,7 @@ thiserror = "1.0"
 paste = "1.0"
 
 ngx-sys = { version = "0.1", path = "../ngx-sys" }
+ngx-derive = { version = "0.1", path = "../ngx-derive", default-features = false, features = [
+    "native_callback",
+    "native_handler",
+] }
