@@ -1,6 +1,6 @@
 use std::{
     ops::{Deref, DerefMut},
-    ptr,
+    ptr::{self, NonNull},
 };
 
 use foreign_types::{foreign_type, ForeignTypeRef};
@@ -35,6 +35,8 @@ impl DerefMut for PeerConnRef {
 impl PeerConnRef {
     property!(connection: &ConnRef);
 
+    property!(tries: usize);
+
     pub fn get(&self) -> Option<GetPeerFn> {
         unsafe { self.as_raw().get.map(GetPeerFn) }
     }
@@ -43,7 +45,16 @@ impl PeerConnRef {
         unsafe { self.as_raw().free.map(FreePeerFn) }
     }
 
-    property!(tries: usize);
+    pub fn notify(&self) -> Option<NotifyPeerFn> {
+        unsafe { self.as_raw().notify.map(NotifyPeerFn) }
+    }
+
+    pub fn data<T>(&self) -> Option<NonNull<T>> {
+        NonNull::new(unsafe { self.as_raw().data.cast() })
+    }
+
+    property!(type_: i32);
+    property!(rcvbuf: i32);
     property!(log: &LogRef);
 
     flag!(cached());
@@ -69,3 +80,6 @@ pub type GetPeerFn<T> = fn(pc: &PeerConnRef, data: Option<&T>) -> Result<(), Err
 
 #[native_callback]
 pub type FreePeerFn<T> = fn(pc: &PeerConnRef, data: Option<&T>, state: usize);
+
+#[native_callback]
+pub type NotifyPeerFn<T> = fn(pc: &PeerConnRef, data: Option<&T>, ty: usize);

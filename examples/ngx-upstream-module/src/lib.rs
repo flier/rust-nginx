@@ -172,26 +172,24 @@ fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::
             .map_err(|_| anyhow!("failed calling init_peer"))?;
     }
 
-    let hcpd = req
-        .pool()
-        .allocate(UpstreamPeerData {
-            conf: hccf.and_then(|r| NonNull::new(r as *const _ as *mut _)),
-            upstream: req
-                .upstream()
-                .and_then(|r| NonNull::new(r as *const _ as *mut _)),
-            client_connection: NonNull::new(req.connection() as *const _ as *mut _),
-            original_get_peer: req.upstream().and_then(|us| us.peer().get()),
-            original_free_peer: req.upstream().and_then(|us| us.peer().free()),
-            data: req
-                .upstream()
-                .and_then(|us| NonNull::new(us.peer().data.cast())),
-        })
-        .and_then(|r| NonNull::new(r as *mut _))
-        .ok_or_else(|| anyhow!("out of memory"))?;
+    let hcpd = {
+        req.pool()
+            .allocate(UpstreamPeerData {
+                conf: hccf,
+                upstream: req.upstream(),
+                client_connection: Some(req.connection()),
+                original_get_peer: req.upstream().and_then(|us| us.peer().get()),
+                original_free_peer: req.upstream().and_then(|us| us.peer().free()),
+                data: req.upstream().and_then(|us| us.peer().data()),
+            })
+            .and_then(|r| NonNull::new(r as *mut _))
+            .ok_or_else(|| anyhow!("out of memory"))?
+    }
+    .cast();
 
     let us = req.upstream_mut().ok_or_else(|| anyhow!("no upstream"))?;
     let peer = us.peer_mut();
-    peer.data = hcpd.cast().as_ptr();
+    peer.data = hcpd.as_ptr();
     peer.get = Some(ngx_http_upstream_get_custom_peer);
     peer.free = Some(ngx_http_upstream_free_custom_peer);
 
@@ -201,7 +199,7 @@ fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::
 #[native_handler(name = ngx_http_upstream_get_custom_peer, log_err = conn.log().http().emerg)]
 fn get_custom_peer(conn: &PeerConnRef, data: &UpstreamPeerData) -> anyhow::Result<()> {
     conn.log().http().debug(format!(
-        "get peer, try: {}, conn: {:p}",
+        "custom get peer, try: {}, conn: {:p}",
         conn.tries,
         conn.as_ptr()
     ));
@@ -211,12 +209,14 @@ fn get_custom_peer(conn: &PeerConnRef, data: &UpstreamPeerData) -> anyhow::Resul
             .map_err(|_| anyhow!("failed calling get_peer"))?;
     }
 
+    /* in this section you can set the upstream server connection */
+
     Ok(())
 }
 
 #[native_handler(name = ngx_http_upstream_free_custom_peer)]
 fn free_custom_peer(pc: &PeerConnRef, data: &UpstreamPeerData, state: usize) {
-    pc.log().http().debug("free peer");
+    pc.log().http().debug("custom free peer");
 
     if let Some(f) = data.original_free_peer {
         f.call(pc, Some(data), state);
@@ -224,11 +224,11 @@ fn free_custom_peer(pc: &PeerConnRef, data: &UpstreamPeerData, state: usize) {
 }
 
 #[repr(C)]
-#[derive(Clone, Debug, Default)]
-pub struct UpstreamPeerData {
-    conf: Option<NonNull<SrvConfig>>,
-    upstream: Option<NonNull<upstream::UpstreamRef>>,
-    client_connection: Option<NonNull<ConnRef>>,
+#[derive(Clone, Default)]
+pub struct UpstreamPeerData<'a> {
+    conf: Option<&'a SrvConfig>,
+    upstream: Option<&'a upstream::UpstreamRef>,
+    client_connection: Option<&'a ConnRef>,
     original_get_peer: Option<GetPeerFn>,
     original_free_peer: Option<FreePeerFn>,
     data: Option<NonNull<()>>,
