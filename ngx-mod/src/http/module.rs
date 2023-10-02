@@ -133,7 +133,7 @@ impl<T: Module> UnsafeModule for T {
     }
 }
 
-pub trait Module {
+pub trait Module: crate::Module {
     type Error: From<<Self::MainConf as Merge>::Error>
         + From<<Self::SrvConf as Merge>::Error>
         + From<<Self::LocConf as Merge>::Error>;

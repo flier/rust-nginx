@@ -25,7 +25,7 @@ use ngx_mod::{
         },
         native_handler, ngx_str,
     },
-    Merge, Module,
+    Merge, Module, ModuleMetadata as _,
 };
 
 #[derive(Module)]
@@ -118,12 +118,11 @@ impl Setter for SrvConfig {
             }
         }
 
-        let uscf = unsafe {
-            cf.as_http_context()
-                .expect("ctx")
-                .srv_conf::<upstream::SrvConf>(ffi::ngx_http_upstream_module.ctx_index)
-                .expect("conf")
-        };
+        let uscf = cf
+            .as_http_context()
+            .expect("ctx")
+            .srv_conf_for::<upstream::SrvConfRef>(Custom::module())
+            .expect("srvConf");
 
         conf.original_init_upstream = uscf.peer().init_upstream().or(Some(upstream::InitFn(
             ffi::ngx_http_upstream_init_round_robin,

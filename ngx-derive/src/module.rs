@@ -141,8 +141,8 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
     let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
 
     let impl_module: ItemImpl = parse_quote! {
-        impl #impl_generics #ident #ty_generics #where_clause {
-            pub fn module() -> &'static ::ngx_mod::rt::core::ModuleRef {
+        impl #impl_generics ::ngx_mod::ModuleMetadata for #ident #ty_generics #where_clause {
+            fn module() -> &'static ::ngx_mod::rt::core::ModuleRef {
                 unsafe { ::ngx_mod::rt::core::ModuleRef::from_ptr(&mut #ngx_module_name as *mut _) }
             }
         }

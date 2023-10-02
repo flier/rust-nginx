@@ -1,5 +1,5 @@
 use foreign_types::ForeignTypeRef;
-use ngx_rt::core::Code;
+use ngx_rt::core::{Code, ModuleRef};
 
 use crate::{
     ffi,
@@ -101,7 +101,7 @@ impl<T: Module + Sized> UnsafeModule for T {
     }
 }
 
-pub trait Module {
+pub trait Module: ModuleMetadata {
     fn init_master(_: &LogRef) -> Result<(), Code> {
         Ok(())
     }
@@ -123,4 +123,8 @@ pub trait Module {
     fn exit_process(_: &CycleRef) {}
 
     fn exit_master(_: &CycleRef) {}
+}
+
+pub trait ModuleMetadata {
+    fn module() -> &'static ModuleRef;
 }

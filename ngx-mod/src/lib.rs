@@ -10,4 +10,4 @@ mod merge;
 mod module;
 
 pub use self::merge::Merge;
-pub use self::module::{Module, UnsafeModule, UNSET_INDEX};
+pub use self::module::{Module, ModuleMetadata, UnsafeModule, UNSET_INDEX};

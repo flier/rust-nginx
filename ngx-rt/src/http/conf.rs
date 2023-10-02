@@ -1,6 +1,6 @@
 use foreign_types::foreign_type;
 
-use crate::{ffi, never_drop, AsRawRef};
+use crate::{core::ModuleRef, ffi, never_drop, AsRawRef};
 
 foreign_type! {
     pub unsafe type Context: Send {
@@ -11,6 +11,21 @@ foreign_type! {
 }
 
 impl ContextRef {
+    /// Get the main configuration for the module.
+    pub fn main_conf_for<T>(&self, m: &ModuleRef) -> Option<&mut T> {
+        unsafe { self.main_conf(m.context_index()) }
+    }
+
+    /// Get the server configuration for the module.
+    pub fn srv_conf_for<T>(&self, m: &ModuleRef) -> Option<&mut T> {
+        unsafe { self.srv_conf(m.context_index()) }
+    }
+
+    /// Get the location configuration for the module.
+    pub fn loc_conf_for<T>(&self, m: &ModuleRef) -> Option<&mut T> {
+        unsafe { self.loc_conf(m.context_index()) }
+    }
+
     /// Get the main configuration from context.
     ///
     /// # Safety
