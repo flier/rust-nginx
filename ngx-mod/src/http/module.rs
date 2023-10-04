@@ -6,8 +6,10 @@ use std::{
 use foreign_types::ForeignTypeRef;
 
 use crate::{
-    ffi,
-    rt::core::{Code, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK},
+    rt::{
+        core::{Code, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK},
+        ffi,
+    },
     Merge,
 };
 

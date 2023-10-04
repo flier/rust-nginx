@@ -1,11 +1,11 @@
 [workspace]
 members = [
     "ngx-build",
-    "ngx-derive",
+    "ngx-mod-derive",
     "ngx-mod",
+    "ngx-rt-derive",
     "ngx-rt",
     "ngx-src",
     "ngx-sys",
-    "examples/ngx-upstream-module",
 ]
 resolver = "2"

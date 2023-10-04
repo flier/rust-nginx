@@ -1,4 +1,5 @@
 #![crate_type = "dylib"]
+#![cfg(not(feature = "static-link"))]
 
 use std::ptr::NonNull;
 
@@ -8,7 +9,6 @@ use merge::Merge as AutoMerge;
 
 use ngx_mod::{
     core::Setter,
-    ffi::{self, ngx_command_t},
     http,
     rt::{
         core::{
@@ -16,13 +16,14 @@ use ngx_mod::{
             CmdRef, ConfRef, ConnRef,
         },
         event::{FreePeerFn, GetPeerFn, PeerConnRef},
+        ffi::{self, ngx_command_t},
         http::{
             upstream::{self, InitPeerFn},
             RequestRef,
         },
         native_handler, ngx_str,
     },
-    Merge, Module, ModuleMetadata as _,
+    Conf, Merge, Module, ModuleMetadata as _,
 };
 
 #[derive(Module)]
@@ -50,7 +51,7 @@ impl http::Module for Custom {
     }
 }
 
-#[derive(Clone, Debug, AutoMerge)]
+#[derive(Clone, Debug, AutoMerge, Conf)]
 struct SrvConfig {
     #[merge(strategy = merge::num::overwrite_zero)]
     max: u32,
@@ -172,20 +173,18 @@ fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::
             .map_err(|_| anyhow!("failed calling init_peer"))?;
     }
 
-    let hcpd = {
-        req.pool()
-            .allocate(UpstreamPeerData {
-                conf: hccf,
-                upstream: req.upstream(),
-                client_connection: Some(req.connection()),
-                original_get_peer: req.upstream().and_then(|us| us.peer().get()),
-                original_free_peer: req.upstream().and_then(|us| us.peer().free()),
-                data: req.upstream().and_then(|us| us.peer().data()),
-            })
-            .and_then(|r| NonNull::new(r as *mut _))
-            .ok_or_else(|| anyhow!("out of memory"))?
-    }
-    .cast();
+    let hcpd = req
+        .pool()
+        .allocate(UpstreamPeerData {
+            conf: hccf,
+            upstream: req.upstream(),
+            client_connection: Some(req.connection()),
+            original_get_peer: req.upstream().and_then(|us| us.peer().get()),
+            original_free_peer: req.upstream().and_then(|us| us.peer().free()),
+            data: req.upstream().and_then(|us| us.peer().data()),
+        })
+        .and_then(|r| NonNull::new(r as *mut _).map(|p| p.cast()))
+        .ok_or_else(|| anyhow!("out of memory"))?;
 
     let us = req.upstream_mut().ok_or_else(|| anyhow!("no upstream"))?;
     let peer = us.peer_mut();
@@ -235,7 +234,7 @@ pub struct UpstreamPeerData<'a> {
 }
 
 #[no_mangle]
-static mut ngx_http_upstream_custom_commands: [ngx_command_t; 1] = [
+static mut ngx_http_upstream_custom_module_commands: [ngx_command_t; 1] = [
     // ngx_command_t {
     //     name: ngx_string!("custom"),
     //     type_: (NGX_HTTP_UPS_CONF | NGX_CONF_NOARGS | NGX_CONF_TAKE1) as ngx_uint_t,

@@ -1,16 +1,17 @@
 [package]
-name = "ngx-upstream-module"
+name = "ngx-rt-derive"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-crate-type = ["cdylib"]
+proc-macro = true
 
 [dependencies]
-anyhow = "1.0"
+syn = "2.0"
+quote = "1.0"
+proc-macro-error = "1.0"
+proc-macro2 = "1.0"
+structmeta = "0.2"
 merge = "0.1"
-foreign-types = "0.5"
-
-ngx-mod = { version = "0.1", path = "../../ngx-mod" }

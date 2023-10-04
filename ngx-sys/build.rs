@@ -10,6 +10,7 @@ fn main() -> Result<()> {
         || env::var("CARGO_CFG_DOC").is_ok()
         || cfg!(feature = "docsrs")
         || cfg!(feature = "cargo-clippy")
+        || cfg!(target_family = "windows")
     {
         info!("skip gen binding for clippy and docs");
 
@@ -17,29 +18,10 @@ fn main() -> Result<()> {
     }
 
     #[cfg(feature = "gen")]
-    gen::nginx_binding()?;
+    gen::generate_nginx_binding()?;
 
-    if cfg!(feature = "static-link") {
-        let mut cfg = pkg_config::Config::new();
-
-        if cfg.statik(true).probe("libssl").is_err() {
-            cargo_emit::rustc_link_lib!("crypto", "ssl");
-        }
-        if cfg.statik(true).probe("libcrypt").is_err() {
-            cargo_emit::rustc_link_lib!("crypt");
-        }
-        if cfg.statik(true).probe("libpcre2-8").is_err() {
-            cargo_emit::rustc_link_lib!("pcre2-8");
-        }
-        if cfg.statik(true).probe("zlib").is_err() {
-            cargo_emit::rustc_link_lib!("z");
-        }
-
-        cargo_emit::rustc_link_search!(ngx_src::BUILD_DIR);
-        cargo_emit::rustc_link_lib!(
-            "nginx" => "static"
-        );
-    }
+    #[cfg(feature = "static-link")]
+    build::link_static_libraries();
 
     Ok(())
 }
@@ -55,7 +37,7 @@ mod gen {
     use cfg_if::cfg_if;
     use tracing::{debug, info};
 
-    pub fn nginx_binding() -> Result<()> {
+    pub fn generate_nginx_binding() -> Result<()> {
         cargo_emit::rerun_if_env_changed!("NGINX_DIR");
 
         let (nginx_dir, build_dir) = if let Ok(dir) = env::var("NGINX_DIR") {
@@ -132,5 +114,30 @@ mod gen {
         builder.write_to_file(out_dir.join("bindings.rs"))?;
 
         Ok(())
+    }
+}
+
+#[cfg(feature = "static-link")]
+mod build {
+    pub fn link_static_libraries() {
+        let mut cfg = pkg_config::Config::new();
+
+        if cfg.statik(true).probe("libssl").is_err() {
+            cargo_emit::rustc_link_lib!("crypto", "ssl");
+        }
+        if cfg.statik(true).probe("libcrypt").is_err() {
+            cargo_emit::rustc_link_lib!("crypt");
+        }
+        if cfg.statik(true).probe("libpcre2-8").is_err() {
+            cargo_emit::rustc_link_lib!("pcre2-8");
+        }
+        if cfg.statik(true).probe("zlib").is_err() {
+            cargo_emit::rustc_link_lib!("z");
+        }
+
+        cargo_emit::rustc_link_search!(ngx_src::BUILD_DIR);
+        cargo_emit::rustc_link_lib!(
+            "nginx" => "static"
+        );
     }
 }

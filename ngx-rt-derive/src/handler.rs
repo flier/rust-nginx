@@ -90,19 +90,19 @@ pub fn expand(args: Args, f: ItemFn) -> TokenStream {
                 if let Some(log_err) = args.log_err.as_ref().map(|arg| &arg.value) {
                     parse_quote_spanned! { output.span() =>
                         match #handler {
-                            Ok(_) => { ::ngx_mod::ffi::NGX_OK as isize }
+                            Ok(_) => { ::ngx_mod::rt::ffi::NGX_OK as isize }
                             Err(err) => {
                                 #log_err (err.to_string().as_str());
 
-                                ::ngx_mod::ffi::NGX_ERROR as isize
+                                ::ngx_mod::rt::ffi::NGX_ERROR as isize
                             }
                         }
                     }
                 } else {
                     parse_quote_spanned! { output.span() =>
                         match #handler {
-                            Ok(_) => { ::ngx_mod::ffi::NGX_OK as isize }
-                            Err(_) => { ::ngx_mod::ffi::NGX_ERROR as isize }
+                            Ok(_) => { ::ngx_mod::rt::ffi::NGX_OK as isize }
+                            Err(_) => { ::ngx_mod::rt::ffi::NGX_ERROR as isize }
                         }
                     }
                 }
@@ -112,7 +112,7 @@ pub fn expand(args: Args, f: ItemFn) -> TokenStream {
                 }
             },
             parse_quote_spanned! { output.span() =>
-                -> ::ngx_mod::ffi::ngx_int_t
+                -> ::ngx_mod::rt::ffi::ngx_int_t
             },
         )
     };

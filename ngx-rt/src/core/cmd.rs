@@ -79,3 +79,20 @@ bitflags! {
 impl Type {
     pub const MAX_ARGS: usize = ffi::NGX_CONF_MAX_ARGS as usize;
 }
+
+#[macro_export]
+macro_rules! ngx_command {
+    () => {
+        $crate::ffi::ngx_command_t {
+            name: $crate::ffi::ngx_str_t {
+                data: ::std::ptr::null_mut(),
+                len: 0,
+            },
+            type_: 0,
+            set: None,
+            conf: 0,
+            offset: 0,
+            post: ::std::ptr::null_mut(),
+        }
+    };
+}

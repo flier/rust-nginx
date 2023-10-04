@@ -1,9 +1,9 @@
-use std::{ffi::CStr, ptr::NonNull};
+use std::{ffi::CStr, mem, ptr::NonNull};
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{
-    core::{ArrayRef, CycleRef, ModuleType, PoolRef, Str},
+    core::{ArrayRef, CycleRef, PoolRef, Str, Type},
     ffi, http, never_drop, AsRawRef,
 };
 
@@ -37,7 +37,7 @@ impl ConfRef {
     }
 
     pub fn as_http_context(&self) -> Option<&http::ContextRef> {
-        if self.module_type() == ModuleType::Http {
+        if self.module_type() == Type::Http {
             unsafe {
                 NonNull::new(self.as_raw().ctx)
                     .map(|p| http::ContextRef::from_ptr(p.cast().as_ptr()))
@@ -47,7 +47,7 @@ impl ConfRef {
         }
     }
 
-    pub fn module_type(&self) -> ModuleType {
-        ModuleType::try_from(unsafe { self.as_raw().module_type as u32 }).expect("module_type")
+    pub fn module_type(&self) -> Type {
+        unsafe { mem::transmute(self.as_raw().module_type as u32) }
     }
 }

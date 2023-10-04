@@ -1,9 +1,9 @@
 use foreign_types::ForeignTypeRef;
 use ngx_rt::core::{Code, ModuleRef};
 
-use crate::{
+use crate::rt::{
+    core::{CycleRef, LogRef},
     ffi,
-    rt::core::{CycleRef, LogRef},
 };
 
 pub const UNSET_INDEX: ffi::ngx_uint_t = ffi::ngx_uint_t::max_value();

@@ -1,49 +1,20 @@
 use case::CaseExt;
 use merge::Merge;
 use proc_macro2::{Span, TokenStream};
-use proc_macro_error::abort;
 use quote::{format_ident, quote};
 use structmeta::{NameValue, StructMeta};
 use syn::{
     parse::{Parse, ParseStream},
-    parse_quote,
-    spanned::Spanned,
-    Attribute, Ident, ItemImpl, ItemStatic,
+    parse_quote, Ident, ItemImpl, ItemStatic,
 };
+
+use crate::extract;
 
 #[derive(Clone, Debug, Default, Merge, StructMeta)]
 struct Args {
     #[struct_meta(name = "type")]
     ty: Option<NameValue<Type>>,
     name: Option<NameValue<Ident>>,
-}
-
-impl Args {
-    pub fn extract<I: IntoIterator<Item = Attribute>>(attrs: I) -> (Self, Vec<Attribute>) {
-        let (args, attrs): (Vec<_>, Vec<_>) =
-            attrs.into_iter().partition(|f| f.path().is_ident("module"));
-
-        let args = args
-            .into_iter()
-            .map(|attr| match attr.parse_args::<Args>() {
-                Ok(arg) => arg,
-                Err(err) => abort!(attr.span(), "fail to parse args, {}", err),
-            })
-            .fold(Args::default(), |mut args, arg| {
-                args.merge(arg);
-                args
-            });
-        let attrs = attrs
-            .into_iter()
-            .filter(|attr| {
-                WELL_KNOWN_ATTRS
-                    .iter()
-                    .any(|name| attr.path().is_ident(name))
-            })
-            .collect();
-
-        (args, attrs)
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -87,47 +58,46 @@ impl Parse for Type {
     }
 }
 
-const WELL_KNOWN_ATTRS: &[&str] = &["allow", "deny", "doc", "cfg"];
-
 pub fn expand(input: syn::DeriveInput) -> TokenStream {
-    let (args, _) = Args::extract(input.attrs);
+    let (args, _) = extract::args::<Args, _>(input.attrs, "module");
 
     let ident: &Ident = &input.ident;
-    let mod_name = args
-        .name
-        .as_ref()
-        .map(|n| n.value.to_string())
-        .unwrap_or_else(|| {
-            let mut s = input.ident.to_string();
+    let mod_name = {
+        let mut s = args
+            .name
+            .as_ref()
+            .map(|n| n.value.to_string())
+            .unwrap_or_else(|| input.ident.to_string())
+            .to_snake();
 
-            if !s.starts_with("Ngx") {
-                s = format!("Ngx{}", s);
-            }
+        if !s.starts_with("ngx_") {
+            s = format!("ngx_{}", s);
+        }
 
-            if !s.ends_with("Module") {
-                s += "Module";
-            }
+        if !s.ends_with("_module") {
+            s += "_module";
+        }
 
-            s
-        })
-        .to_snake();
+        s
+    };
     let ngx_module_name = Ident::new(mod_name.as_str(), Span::call_site());
     let ngx_module_ctx_name = format_ident!("{}_ctx", &mod_name);
+    let ngx_module_cmds_name = format_ident!("{}_commands", &mod_name);
 
     let ngx_module: ItemStatic = parse_quote! {
         #[no_mangle]
-        pub static mut #ngx_module_name: ::ngx_mod::ffi::ngx_module_t = ::ngx_mod::ffi::ngx_module_t {
+        pub static mut #ngx_module_name: ::ngx_mod::rt::ffi::ngx_module_t = ::ngx_mod::rt::ffi::ngx_module_t {
             ctx_index: ::ngx_mod::UNSET_INDEX,
             index: ::ngx_mod::UNSET_INDEX,
             name: ::std::ptr::null_mut(),
             spare0: 0,
             spare1: 0,
-            version: ::ngx_mod::ffi::nginx_version as ::ngx_mod::ffi::ngx_uint_t,
-            signature: ::ngx_mod::ffi::NGX_RS_MODULE_SIGNATURE.as_ptr() as *const ::std::ffi::c_char,
+            version: ::ngx_mod::rt::ffi::nginx_version as ::ngx_mod::rt::ffi::ngx_uint_t,
+            signature: ::ngx_mod::rt::ffi::NGX_RS_MODULE_SIGNATURE.as_ptr() as *const ::std::ffi::c_char,
 
             ctx: & #ngx_module_ctx_name as *const _ as *mut _,
-            commands: unsafe { &ngx_http_upstream_custom_commands[0] as *const _ as *mut _ },
-            type_: ::ngx_mod::ffi::NGX_HTTP_MODULE as ::ngx_mod::ffi::ngx_uint_t,
+            commands: unsafe { & #ngx_module_cmds_name [0] as *const _ as *mut _ },
+            type_: ::ngx_mod::rt::ffi::NGX_HTTP_MODULE as ::ngx_mod::rt::ffi::ngx_uint_t,
 
             init_master: Some(<#ident as ::ngx_mod::UnsafeModule>::init_master),
             init_module: Some(<#ident as ::ngx_mod::UnsafeModule>::init_module),
@@ -153,15 +123,20 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
     let impl_module: ItemImpl = parse_quote! {
         impl #impl_generics ::ngx_mod::ModuleMetadata for #ident #ty_generics #where_clause {
             fn module() -> &'static ::ngx_mod::rt::core::ModuleRef {
-                unsafe { ::ngx_mod::rt::core::ModuleRef::from_ptr(&mut #ngx_module_name as *mut _) }
+                unsafe { ::ngx_mod::rt::foreign_types::ForeignTypeRef::from_ptr(&mut #ngx_module_name as *mut _) }
             }
         }
     };
 
-    let ngx_module_ctx: Option<ItemStatic> = args.ty.as_ref().and_then(|ty|match ty.value {
+    let ty = args.ty.as_ref().map_or_else(
+        || Type::Http(parse_quote! { http }),
+        |arg| arg.value.clone(),
+    );
+
+    let ngx_module_ctx: Option<ItemStatic> = match ty {
         Type::Core(_) => Some(parse_quote! {
             #[no_mangle]
-            static #ngx_module_ctx_name: ::ngx_mod::ffi::ngx_core_module_t = ::ngx_mod::ffi::ngx_core_module_t {
+            static #ngx_module_ctx_name: ::ngx_mod::rt::ffi::ngx_core_module_t = ::ngx_mod::rt::ffi::ngx_core_module_t {
                 name: ::ngx_mod::rt::ngx_str!( #mod_name ),
                 create_conf: Some(<#ident as ::ngx_mod::core::UnsafeModule>::create_conf),
                 init_conf: Some(<#ident as ::ngx_mod::core::UnsafeModule>::init_conf),
@@ -169,7 +144,7 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
         }),
         Type::Http(_) => Some(parse_quote! {
             #[no_mangle]
-            static #ngx_module_ctx_name: ::ngx_mod::ffi::ngx_http_module_t = ::ngx_mod::ffi::ngx_http_module_t {
+            static #ngx_module_ctx_name: ::ngx_mod::rt::ffi::ngx_http_module_t = ::ngx_mod::rt::ffi::ngx_http_module_t {
                 preconfiguration: Some(<#ident as ::ngx_mod::http::UnsafeModule>::preconfiguration),
                 postconfiguration: Some(<#ident as ::ngx_mod::http::UnsafeModule>::postconfiguration),
                 create_main_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::create_main_conf),
@@ -181,11 +156,11 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
             };
         }),
         _ => None,
-    });
+    };
 
     let ngx_modules: ItemStatic = parse_quote! {
         #[no_mangle]
-        pub static mut ngx_modules: [*const ::ngx_mod::ffi::ngx_module_t; 2] = [
+        pub static mut ngx_modules: [*const ::ngx_mod::rt::ffi::ngx_module_t; 2] = [
             unsafe { & #ngx_module_name as *const _ },
             ::std::ptr::null(),
         ];

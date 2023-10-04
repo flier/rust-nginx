@@ -5,9 +5,13 @@ use std::{
 
 use foreign_types::ForeignTypeRef;
 
-use ngx_rt::core::{CycleRef, NGX_CONF_ERROR, NGX_CONF_OK};
-
-use crate::{ffi, Merge};
+use crate::{
+    rt::{
+        core::{CycleRef, NGX_CONF_ERROR, NGX_CONF_OK},
+        ffi,
+    },
+    Merge,
+};
 
 pub trait UnsafeModule {
     /// Create the configuration.

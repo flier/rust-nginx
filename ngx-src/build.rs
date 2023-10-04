@@ -1,13 +1,10 @@
 use std::env;
-#[cfg(target_family = "unix")]
-use std::os::unix::fs::symlink;
-#[cfg(target_family = "windows")]
-use std::os::windows::fs::symlink_dir as symlink;
+
 use std::path::{Path, PathBuf};
 
 use anyhow::Result;
 use cfg_if::cfg_if;
-use tracing::{debug, info};
+use tracing::info;
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
@@ -16,6 +13,7 @@ fn main() -> Result<()> {
         || env::var("CARGO_CFG_DOC").is_ok()
         || cfg!(feature = "docsrs")
         || cfg!(feature = "cargo-clippy")
+        || cfg!(target_family = "windows")
     {
         info!("skip building nginx for clippy and docs");
 
@@ -28,47 +26,32 @@ fn main() -> Result<()> {
     cargo_emit::rerun_if_env_changed!("NGINX_SRC_FILE");
 
     let src_file = if let Ok(filename) = env::var("NGINX_SRC_FILE") {
-        debug!(filename, "using nginx source file");
+        info!(filename, "using nginx source file");
 
         PathBuf::from(filename)
     } else {
         cfg_if! {
             if #[cfg(feature = "fetch")] {
-                fetch::nginx_src(out_dir)?
+                fetch::download_nginx_src(out_dir)?
             } else {
                 anyhow::bail!("NGINX_SRC_FILE is not set")
             }
         }
     };
 
-    debug!(dir = ?out_dir, "extracting nginx source file");
+    let src_dir = extract::decompress_nginx_src(&src_file, out_dir)?;
 
-    let src_dir = extract::nginx_src(&src_file, out_dir)?;
-
-    let nginx_dir = out_dir.join("nginx");
-
-    if !nginx_dir.is_symlink() {
-        debug!(
-            original = ?src_dir,
-            link = ?nginx_dir,
-            "symlink nginx source"
-        );
-
-        symlink(&src_dir, &nginx_dir)?;
-    }
-
-    info!(dir = ?src_dir, "building nginx source");
+    build::link_nginx_src(&src_dir, &out_dir.join("nginx"))?;
 
     let build_dir = out_dir.join("build");
-    let dist_dir = out_dir.join("dist");
 
     #[cfg(feature = "build")]
-    build::nginx(&src_dir, &build_dir, &dist_dir)?;
+    build::compile_nginx_src(&src_dir, &build_dir, &out_dir.join("dist"))?;
 
     cargo_emit::rerun_if_env_changed!("STATIC_LINK_NGINX");
 
     if cfg!(feature = "static-lib") || env::var("STATIC_LINK_NGINX").is_ok() {
-        build::static_lib(&build_dir)?;
+        build::link_static_lib(&build_dir)?;
     }
 
     Ok(())
@@ -92,7 +75,7 @@ mod fetch {
     const NGINX_SRC_URL: &str = "https://nginx.org/download/nginx-1.25.2.tar.gz";
 
     #[instrument]
-    pub fn nginx_src(dir: &Path) -> Result<PathBuf> {
+    pub fn download_nginx_src(dir: &Path) -> Result<PathBuf> {
         use std::borrow::Cow;
 
         cargo_emit::rerun_if_env_changed!("NGINX_SRC_URL");
@@ -116,14 +99,14 @@ mod fetch {
         } else {
             info!(url = %src_url, "fetching source file");
 
-            download(&src_url, &filename)?;
+            download_file(&src_url, &filename)?;
         }
 
         Ok(filename)
     }
 
     #[instrument]
-    fn download(url: &Url, filename: &Path) -> Result<()> {
+    fn download_file(url: &Url, filename: &Path) -> Result<()> {
         let mut res = reqwest::blocking::Client::builder()
             .build()?
             .get(url.as_str())
@@ -158,7 +141,7 @@ mod extract {
     use tracing::{info, instrument};
 
     #[instrument]
-    pub fn nginx_src(file: &Path, to: &Path) -> Result<PathBuf> {
+    pub fn decompress_nginx_src(file: &Path, to: &Path) -> Result<PathBuf> {
         let dir = to.join(
             file.file_name()
                 .and_then(|s| s.to_str())
@@ -181,11 +164,26 @@ mod extract {
 
 #[cfg(feature = "build")]
 mod build {
-    use std::{fs, path::Path, process::Command};
+    use std::fs;
+    #[cfg(target_family = "unix")]
+    use std::os::unix::fs::symlink;
+    #[cfg(target_family = "windows")]
+    use std::os::windows::fs::symlink_dir as symlink;
+    use std::path::Path;
+    use std::process::Command;
 
     use anyhow::Result;
     use ngx_build::CommandExt;
     use tracing::{info, instrument};
+
+    #[instrument]
+    pub fn link_nginx_src(original: &Path, link: &Path) -> Result<()> {
+        if !link.is_symlink() {
+            symlink(original, link)?;
+        }
+
+        Ok(())
+    }
 
     const OPTIONAL_HTTP_MODULES: &[&str] = &[
         #[cfg(feature = "http_ssl")]
@@ -342,7 +340,7 @@ mod build {
     ];
 
     #[instrument]
-    pub fn nginx(src_dir: &Path, build_dir: &Path, dist_dir: &Path) -> Result<()> {
+    pub fn compile_nginx_src(src_dir: &Path, build_dir: &Path, dist_dir: &Path) -> Result<()> {
         if dist_dir.join("sbin/nginx").is_file() {
             info!(build = ?build_dir, dist = ?dist_dir, "use installed nginx");
         } else {
@@ -404,7 +402,7 @@ mod build {
         Ok(())
     }
 
-    pub fn static_lib(build_dir: &Path) -> Result<()> {
+    pub fn link_static_lib(build_dir: &Path) -> Result<()> {
         let mut cc = cc::Build::new();
 
         for dir in &[
@@ -454,7 +452,9 @@ mod build {
             }
         }
 
-        cc.static_flag(true)
+        cc.pic(true)
+            .shared_flag(true)
+            .static_flag(true)
             .out_dir(build_dir)
             .cargo_metadata(true)
             .compile("nginx");

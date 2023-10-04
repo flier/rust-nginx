@@ -1,18 +1,16 @@
 [package]
-name = "ngx-derive"
+name = "ngx-mod-derive"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[features]
-default = ["native_handler", "native_callback", "module"]
-native_handler = []
-native_callback = []
-module = []
-
 [lib]
 proc-macro = true
+
+[features]
+default = []
+static-link = ["ngx-sys/static-link"]
 
 [dependencies]
 case = "1.0"
@@ -22,3 +20,5 @@ proc-macro-error = "1.0"
 proc-macro2 = "1.0"
 structmeta = "0.2"
 merge = "0.1"
+
+ngx-sys = { version = "0.1", path = "../ngx-sys" }

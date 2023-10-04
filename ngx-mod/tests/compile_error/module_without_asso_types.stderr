@@ -1,0 +1,10 @@
+error[E0046]: not all trait items implemented, missing: `Error`, `MainConf`, `SrvConf`, `LocConf`
+ --> tests/compile_error/module_without_asso_types.rs
+  |
+  | impl ngx_mod::http::Module for M {}
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ missing `Error`, `MainConf`, `SrvConf`, `LocConf` in implementation
+  |
+  = help: implement the missing item: `type Error = /* Type */;`
+  = help: implement the missing item: `type MainConf = /* Type */;`
+  = help: implement the missing item: `type SrvConf = /* Type */;`
+  = help: implement the missing item: `type LocConf = /* Type */;`

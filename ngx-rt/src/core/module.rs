@@ -1,4 +1,4 @@
-use std::ffi::CStr;
+use std::{ffi::CStr, mem};
 
 use foreign_types::foreign_type;
 
@@ -24,35 +24,23 @@ impl ModuleRef {
     pub fn name(&self) -> &CStr {
         unsafe { CStr::from_ptr(self.as_raw().name) }
     }
+
+    pub fn ty(&self) -> Type {
+        unsafe { mem::transmute(self.as_raw().type_ as u32) }
+    }
 }
 
+#[repr(u32)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Type {
-    Core,
-    Conf,
-    Event,
-    Http,
-    Mail,
-    Stream,
-}
+    Core = ffi::NGX_CORE_MODULE,
+    Conf = ffi::NGX_CONF_MODULE,
+    #[cfg(feature = "event")]
+    Event = ffi::NGX_EVENT_MODULE,
+    #[cfg(feature = "http")]
+    Http = ffi::NGX_HTTP_MODULE,
+    #[cfg(feature = "mail")]
+    Mail = ffi::NGX_MAIL_MODULE,
 
-impl TryFrom<u32> for Type {
-    type Error = u32;
-
-    fn try_from(value: u32) -> Result<Type, Self::Error> {
-        match value {
-            ffi::NGX_CORE_MODULE => Ok(Type::Core),
-            ffi::NGX_CONF_MODULE => Ok(Type::Conf),
-            #[cfg(feature = "event")]
-            ffi::NGX_EVENT_MODULE => Ok(Type::Event),
-            #[cfg(feature = "http")]
-            ffi::NGX_HTTP_MODULE => Ok(Type::Http),
-            #[cfg(feature = "mail")]
-            ffi::NGX_MAIL_MODULE => Ok(Type::Mail),
-            #[cfg(feature = "stream")]
-            ffi::NGX_STREAM_MODULE => Ok(Type::Stream),
-
-            _ => Err(value),
-        }
-    }
+    Stream = ffi::NGX_STREAM_MODULE,
 }

@@ -1,0 +1,17 @@
+error[E0277]: the trait bound `M: ngx_mod::Module` is not satisfied
+ --> tests/compile_error/module_empty.rs
+  |
+  | #[derive(Module)]
+  |          ^^^^^^ the trait `ngx_mod::Module` is not implemented for `M`
+  |
+  = note: required for `M` to implement `ngx_mod::UnsafeModule`
+  = note: this error originates in the derive macro `Module` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `M: ngx_mod::http::Module` is not satisfied
+ --> tests/compile_error/module_empty.rs
+  |
+  | #[derive(Module)]
+  |          ^^^^^^ the trait `ngx_mod::http::Module` is not implemented for `M`
+  |
+  = note: required for `M` to implement `ngx_mod::http::UnsafeModule`
+  = note: this error originates in the derive macro `Module` (in Nightly builds, run with -Z macro-backtrace for more info)

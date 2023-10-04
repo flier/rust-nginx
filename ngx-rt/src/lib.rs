@@ -1,8 +1,7 @@
 pub extern crate foreign_types;
-pub extern crate ngx_derive as derive;
 pub extern crate ngx_sys as ffi;
 
-pub use self::derive::{native_callback, native_handler};
+pub use ::ngx_rt_derive::{native_callback, native_handler};
 
 pub mod core;
 mod error;

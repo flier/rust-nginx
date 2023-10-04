@@ -2,9 +2,9 @@ use std::ffi::{c_char, c_void};
 
 use foreign_types::ForeignTypeRef;
 
-use crate::{
+use crate::rt::{
+    core::{CmdRef, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK},
     ffi,
-    rt::core::{CmdRef, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK},
 };
 
 pub trait UnsafeSetter {
