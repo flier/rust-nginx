@@ -27,7 +27,7 @@ use ngx_mod::{
 };
 
 #[derive(Module)]
-#[module(name = ngx_http_upstream_custom_module, type = http)]
+#[module(name = http_upstream_custom, type = http)]
 struct Custom;
 
 impl Module for Custom {}
@@ -234,7 +234,7 @@ pub struct UpstreamPeerData<'a> {
 }
 
 #[no_mangle]
-static mut ngx_http_upstream_custom_module_commands: [ngx_command_t; 1] = [
+static mut ngx_http_upstream_custom_commands: [ngx_command_t; 1] = [
     // ngx_command_t {
     //     name: ngx_string!("custom"),
     //     type_: (NGX_HTTP_UPS_CONF | NGX_CONF_NOARGS | NGX_CONF_TAKE1) as ngx_uint_t,

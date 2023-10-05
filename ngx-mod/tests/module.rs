@@ -20,7 +20,7 @@ impl http::Module for M {
 }
 
 #[no_mangle]
-static mut ngx_foobar_module_commands: [ffi::ngx_command_t; 1] = [ngx_command!()];
+static mut ngx_foobar_commands: [ffi::ngx_command_t; 1] = [ngx_command!()];
 
 #[test]
 fn module() {

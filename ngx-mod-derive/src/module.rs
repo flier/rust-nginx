@@ -62,7 +62,7 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
     let (args, _) = extract::args::<Args, _>(input.attrs, "module");
 
     let ident: &Ident = &input.ident;
-    let mod_name = {
+    let base_name = {
         let mut s = args
             .name
             .as_ref()
@@ -74,6 +74,11 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
             s = format!("ngx_{}", s);
         }
 
+        s
+    };
+    let mod_name = {
+        let mut s = base_name.clone();
+
         if !s.ends_with("_module") {
             s += "_module";
         }
@@ -81,8 +86,8 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
         s
     };
     let ngx_module_name = Ident::new(mod_name.as_str(), Span::call_site());
-    let ngx_module_ctx_name = format_ident!("{}_ctx", &mod_name);
-    let ngx_module_cmds_name = format_ident!("{}_commands", &mod_name);
+    let ngx_module_ctx_name = format_ident!("{}_ctx", &base_name);
+    let ngx_module_cmds_name = format_ident!("{}_commands", &base_name);
 
     let ngx_module: ItemStatic = parse_quote! {
         #[no_mangle]
