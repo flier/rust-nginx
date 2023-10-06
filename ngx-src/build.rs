@@ -67,12 +67,17 @@ mod fetch {
     use tracing::{debug, info, instrument};
     use url::Url;
 
-    #[cfg(feature = "v1_22")]
-    const NGINX_SRC_URL: &str = "https://nginx.org/download/nginx-1.22.1.tar.gz";
-    #[cfg(feature = "v1_24")]
-    const NGINX_SRC_URL: &str = "https://nginx.org/download/nginx-1.24.0.tar.gz";
-    #[cfg(feature = "v1_25")]
-    const NGINX_SRC_URL: &str = "https://nginx.org/download/nginx-1.25.2.tar.gz";
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "v1_25")] {
+            const NGINX_SRC_URL: &str = "https://nginx.org/download/nginx-1.25.2.tar.gz";
+        } else if #[cfg(feature = "v1_24")] {
+            const NGINX_SRC_URL: &str = "https://nginx.org/download/nginx-1.24.0.tar.gz";
+        } else if #[cfg(feature = "v1_22")] {
+            const NGINX_SRC_URL: &str = "https://nginx.org/download/nginx-1.22.1.tar.gz";
+        } else if #[cfg(feature = "v1_20")] {
+            const NGINX_SRC_URL: &str = "https://nginx.org/download/nginx-1.20.2.tar.gz";
+        }
+    }
 
     #[instrument]
     pub fn download_nginx_src(dir: &Path) -> Result<PathBuf> {
@@ -190,7 +195,7 @@ mod build {
         "http_ssl",
         #[cfg(feature = "http_v2")]
         "http_v2",
-        #[cfg(feature = "http_v3")]
+        #[cfg(all(feature = "http_v3", feature = "v1_25"))]
         "http_v3",
         #[cfg(feature = "http_realip")]
         "http_realip",

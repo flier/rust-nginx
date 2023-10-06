@@ -1,3 +1,4 @@
+pub extern crate memoffset;
 pub extern crate ngx_rt as rt;
 
 pub use ::ngx_mod_derive::{Conf, Module};

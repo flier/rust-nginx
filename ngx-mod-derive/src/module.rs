@@ -60,6 +60,7 @@ impl Parse for Type {
 
 pub fn expand(input: syn::DeriveInput) -> TokenStream {
     let (args, _) = extract::args::<Args, _>(input.attrs, "module");
+    let args = args.unwrap_or_default();
 
     let ident: &Ident = &input.ident;
     let base_name = {

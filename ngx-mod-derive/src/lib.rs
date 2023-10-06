@@ -1,5 +1,3 @@
-extern crate ngx_sys as ffi;
-
 use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
 use syn::parse_macro_input;
@@ -19,7 +17,7 @@ pub fn derive_module(item: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_error]
-#[proc_macro_derive(Conf, attributes(conf))]
+#[proc_macro_derive(Conf, attributes(conf, directive))]
 pub fn derive_conf(item: TokenStream) -> TokenStream {
     let input = parse_macro_input!(item as syn::DeriveInput);
 

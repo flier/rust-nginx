@@ -9,16 +9,19 @@ edition = "2021"
 proc-macro = true
 
 [features]
-default = []
-static-link = ["ngx-sys/static-link"]
+default = ["event", "http", "stream"]
+
+event = []
+http = []
+stream = []
+mail = []
 
 [dependencies]
 case = "1.0"
-syn = "2.0"
-quote = "1.0"
+cfg-if = "1.0"
+merge = "0.1"
 proc-macro-error = "1.0"
 proc-macro2 = "1.0"
+quote = "1.0"
 structmeta = "0.2"
-merge = "0.1"
-
-ngx-sys = { version = "0.1", path = "../ngx-sys" }
+syn = "2.0"

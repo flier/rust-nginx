@@ -6,16 +6,25 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = []
+default = ["event", "http", "stream"]
+
+event = ["ngx-rt/event", "ngx-mod-derive/event"]
+http = ["ngx-rt/http", "ngx-mod-derive/http"]
+stream = ["ngx-rt/stream", "ngx-mod-derive/stream"]
+mail = ["ngx-rt/mail", "ngx-mod-derive/mail"]
+
+# optional features for derive compile testing
+
 compile_error = []
 
 # optional features for build
 
-static-link = ["ngx-rt/static-link", "ngx-mod-derive/static-link"]
+static-link = ["ngx-rt/static-link"]
 
 [dependencies]
 bitflags = "2.4"
 foreign-types = "0.5"
+memoffset = "0.9"
 
 ngx-rt = { version = "0.1", path = "../ngx-rt" }
 ngx-mod-derive = { version = "0.1", path = "../ngx-mod-derive" }
