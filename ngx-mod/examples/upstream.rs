@@ -3,7 +3,7 @@
 
 use std::ptr::NonNull;
 
-use anyhow::anyhow;
+use anyhow::{anyhow, bail, Context};
 use foreign_types::ForeignTypeRef;
 use merge::Merge as AutoMerge;
 
@@ -80,45 +80,29 @@ impl Merge for SrvConfig {
     }
 }
 
-#[native_setter(name = ngx_http_upstream_custom)]
-fn set_custom(cf: &ConfRef, cmd: &CmdRef, conf: &mut SrvConfig) -> Result<(), ()> {
+#[native_setter(name = ngx_http_upstream_custom, log_err = cf.emerg)]
+fn set_custom(cf: &ConfRef, _cmd: &CmdRef, conf: &mut SrvConfig) -> anyhow::Result<()> {
     cf.log().http().debug("custom init upstream");
 
     if cf.args().len() == 2 {
-        let s = cf.args().get(1).unwrap().to_str().expect("max");
-        match s.parse() {
-            Ok(n) => {
-                if n > 0 {
-                    conf.max = n;
-                } else {
-                    cf.emerg(format!(
-                        "invalid value `{}` in `{}` directive, {}",
-                        s,
-                        cmd.name().unwrap(),
-                        "max must be greater than 0"
-                    ));
-
-                    return Err(());
-                }
-            }
-            Err(err) => {
-                cf.emerg(format!(
-                    "invalid value `{}` in `{}` directive, {}",
-                    s,
-                    cmd.name().unwrap(),
-                    err
-                ));
-
-                return Err(());
-            }
+        let n = cf
+            .args()
+            .get(1)
+            .ok_or_else(|| anyhow!("missing `max`"))?
+            .to_str()?
+            .parse()
+            .context("parse `max`")?;
+        if n > 0 {
+            conf.max = n;
+        } else {
+            bail!("max must be greater than 0");
         }
     }
 
     let uscf = cf
         .as_http_context()
-        .expect("ctx")
-        .srv_conf_for::<upstream::SrvConfRef>(Custom::module())
-        .expect("srvConf");
+        .and_then(|ctx| ctx.srv_conf_for::<upstream::SrvConfRef>(Custom::module()))
+        .ok_or_else(|| anyhow!("missing `ctx.srvConf`"))?;
 
     conf.original_init_upstream = uscf.peer().init_upstream().or(Some(upstream::InitFn(
         ffi::ngx_http_upstream_init_round_robin,
