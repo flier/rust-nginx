@@ -37,31 +37,31 @@ impl CycleRef {
         unsafe { ListRef::from_ptr(&self.as_raw().shared_memory as *const _ as *mut _) }
     }
 
-    pub fn conf_file(&self) -> Option<&Str> {
+    pub fn conf_file(&self) -> Option<Str> {
         unsafe { Str::from_raw(self.as_raw().conf_file) }
     }
 
-    pub fn conf_param(&self) -> Option<&Str> {
+    pub fn conf_param(&self) -> Option<Str> {
         unsafe { Str::from_raw(self.as_raw().conf_param) }
     }
 
-    pub fn conf_prefix(&self) -> Option<&Str> {
+    pub fn conf_prefix(&self) -> Option<Str> {
         unsafe { Str::from_raw(self.as_raw().conf_prefix) }
     }
 
-    pub fn prefix(&self) -> Option<&Str> {
+    pub fn prefix(&self) -> Option<Str> {
         unsafe { Str::from_raw(self.as_raw().prefix) }
     }
 
-    pub fn error_log(&self) -> Option<&Str> {
+    pub fn error_log(&self) -> Option<Str> {
         unsafe { Str::from_raw(self.as_raw().error_log) }
     }
 
-    pub fn lock_file(&self) -> Option<&Str> {
+    pub fn lock_file(&self) -> Option<Str> {
         unsafe { Str::from_raw(self.as_raw().lock_file) }
     }
 
-    pub fn hostname(&self) -> Option<&Str> {
+    pub fn hostname(&self) -> Option<Str> {
         unsafe { Str::from_raw(self.as_raw().hostname) }
     }
 }

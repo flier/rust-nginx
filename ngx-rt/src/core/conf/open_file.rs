@@ -19,7 +19,7 @@ impl AsRawFd for OpenFileRef {
 }
 
 impl OpenFileRef {
-    pub fn name(&self) -> Option<&Str> {
+    pub fn name(&self) -> Option<Str> {
         unsafe { Str::from_raw(self.as_raw().name) }
     }
 }

@@ -20,7 +20,7 @@ impl ConfRef {
         unsafe { CStr::from_ptr(self.as_raw().name) }
     }
 
-    pub fn args(&self) -> &ArrayRef<&Str> {
+    pub fn args(&self) -> &ArrayRef<Str> {
         unsafe { ArrayRef::from_ptr(self.as_raw().args) }
     }
 

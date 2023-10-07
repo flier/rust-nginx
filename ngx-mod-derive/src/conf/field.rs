@@ -6,7 +6,7 @@ use structmeta::{Flag, NameArgs, NameValue, StructMeta};
 use syn::{
     parse::{Parse, ParseStream},
     spanned::Spanned,
-    Expr, ExprLit, ExprRange, Ident, Lit, LitInt, Path, RangeLimits, Token,
+    Expr, ExprLit, ExprRange, Lit, LitInt, LitStr, Path, RangeLimits, Token,
 };
 
 use super::{Args, Offset};
@@ -14,7 +14,7 @@ use super::{Args, Offset};
 #[derive(Clone, Debug, Default, Merge, StructMeta)]
 pub struct FieldArgs {
     pub conf: Option<NameValue<Path>>,
-    pub name: Option<NameValue<Ident>>,
+    pub name: Option<NameValue<LitStr>>,
     pub args: Option<NameArgs<Vec<Arg>>>,
     #[merge(strategy = merge_flag)]
     pub block: Flag,

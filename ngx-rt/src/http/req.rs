@@ -230,10 +230,8 @@ impl HeadersOutRef {
     header!(cache_control);
     header!(link);
 
-    pub fn override_charset(&self) -> Option<&Str> {
-        unsafe {
-            NonNull::new(self.as_raw().override_charset).and_then(|p| Str::from_ptr(p.as_ptr()))
-        }
+    pub fn override_charset(&self) -> Option<Str> {
+        unsafe { Str::from_ptr(self.as_raw().override_charset) }
     }
 
     property!(content_type_len: usize);

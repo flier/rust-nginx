@@ -14,7 +14,7 @@ macro_rules! property {
     };
     ($name:ident : Str) => {
         #[inline(always)]
-        pub fn $name(&self) -> Option<&$crate::core::Str> {
+        pub fn $name(&self) -> Option<$crate::core::Str> {
             unsafe { $crate::core::Str::from_raw($crate::AsRawRef::as_raw(self).$name) }
         }
     };

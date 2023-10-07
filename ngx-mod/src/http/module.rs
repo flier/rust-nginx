@@ -1,6 +1,6 @@
 use std::{
     ffi::{c_char, c_void},
-    mem, ptr,
+    ptr,
 };
 
 use foreign_types::ForeignTypeRef;
@@ -152,11 +152,7 @@ pub trait Module: crate::Module {
     }
 
     fn create_main_conf(cf: &ConfRef) -> Option<&mut Self::MainConf> {
-        if mem::size_of::<Self::MainConf>() > 0 {
-            cf.pool().allocate(Self::MainConf::default())
-        } else {
-            None
-        }
+        cf.pool().allocate(Self::MainConf::default())
     }
 
     fn init_main_conf(_cf: &ConfRef, _conf: &Self::MainConf) -> Result<(), Self::Error> {
@@ -164,11 +160,7 @@ pub trait Module: crate::Module {
     }
 
     fn create_srv_conf(cf: &ConfRef) -> Option<&mut Self::SrvConf> {
-        if mem::size_of::<Self::SrvConf>() > 0 {
-            cf.pool().allocate(Self::SrvConf::default())
-        } else {
-            None
-        }
+        cf.pool().allocate(Self::SrvConf::default())
     }
 
     fn merge_srv_conf(
@@ -180,11 +172,7 @@ pub trait Module: crate::Module {
     }
 
     fn create_loc_conf(cf: &ConfRef) -> Option<&mut Self::LocConf> {
-        if mem::size_of::<Self::LocConf>() > 0 {
-            cf.pool().allocate(Self::LocConf::default())
-        } else {
-            None
-        }
+        cf.pool().allocate(Self::LocConf::default())
     }
 
     fn merge_loc_conf(

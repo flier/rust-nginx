@@ -49,9 +49,8 @@ impl<'a> Directive<'a> {
         self.args
             .name
             .as_ref()
-            .map(|n| n.value.to_string())
-            .unwrap_or_else(|| self.name.to_string())
-            .to_snake()
+            .map(|n| n.value.value())
+            .unwrap_or_else(|| self.name.to_string().to_snake())
     }
 
     fn set(&self) -> Set {

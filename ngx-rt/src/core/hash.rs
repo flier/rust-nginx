@@ -139,11 +139,11 @@ impl TableEltRef {
         unsafe { self.as_raw().hash }
     }
 
-    pub fn key(&self) -> Option<&Str> {
+    pub fn key(&self) -> Option<Str> {
         unsafe { Str::from_raw(self.as_raw().key) }
     }
 
-    pub fn value(&self) -> Option<&Str> {
+    pub fn value(&self) -> Option<Str> {
         unsafe { Str::from_raw(self.as_raw().value) }
     }
 

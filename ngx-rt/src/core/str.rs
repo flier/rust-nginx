@@ -1,15 +1,16 @@
 use std::borrow::Cow;
+use std::ffi::c_uchar;
 use std::fmt;
 use std::ops::{Deref, DerefMut};
 use std::ptr::NonNull;
 use std::slice;
 use std::str::{self, Utf8Error};
 
-use crate::ffi::{ngx_str_t, u_char};
+use crate::ffi::ngx_str_t;
 
 #[repr(transparent)]
-#[derive(Debug)]
-pub struct Str([u_char]);
+#[derive(Clone, Copy, Debug)]
+pub struct Str(ngx_str_t);
 
 impl Str {
     /// Create an [`Str`] from an [`ngx_str_t`].
@@ -21,8 +22,12 @@ impl Str {
     /// The caller has provided a valid `ngx_str_t` with a `data` pointer that points
     /// to range of bytes of at least `len` bytes, whose content remains valid and doesn't
     /// change for the lifetime of the returned `Str`.
-    pub unsafe fn from_raw<'a>(str: ngx_str_t) -> Option<&'a Self> {
-        NonNull::new(str.data).map(|p| slice::from_raw_parts(p.as_ptr(), str.len).into())
+    pub unsafe fn from_raw(str: ngx_str_t) -> Option<Self> {
+        if str.data.is_null() {
+            None
+        } else {
+            Some(Str(str))
+        }
     }
 
     /// Create an [`Str`] from an pointer of [`ngx_str_t`].
@@ -34,16 +39,24 @@ impl Str {
     /// The caller has provided a valid `ngx_str_t` with a `data` pointer that points
     /// to range of bytes of at least `len` bytes, whose content remains valid and doesn't
     /// change for the lifetime of the returned `Str`.
-    pub unsafe fn from_ptr<'a>(str: *mut ngx_str_t) -> Option<&'a Self> {
-        NonNull::new(str).and_then(|p| Self::from_raw(*p.as_ref()))
+    pub unsafe fn from_ptr<'a>(str: *mut ngx_str_t) -> Option<Self> {
+        NonNull::new(str).and_then(|p| {
+            let s = p.as_ref();
+
+            if s.data.is_null() {
+                None
+            } else {
+                Some(Str(*s))
+            }
+        })
     }
 
     pub fn as_bytes(&self) -> &[u8] {
-        &self.0
+        unsafe { slice::from_raw_parts(self.0.data, self.0.len) }
     }
 
     pub fn as_bytes_mut(&mut self) -> &mut [u8] {
-        &mut self.0
+        unsafe { slice::from_raw_parts_mut(self.0.data, self.0.len) }
     }
 
     pub fn as_str(&self) -> Result<Option<&str>, Utf8Error> {
@@ -63,11 +76,11 @@ impl Str {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+        self.len() == 0
     }
 
     pub fn len(&self) -> usize {
-        self.0.len()
+        self.0.len
     }
 }
 
@@ -77,36 +90,33 @@ impl fmt::Display for Str {
     }
 }
 
-impl From<&Str> for ngx_str_t {
-    fn from(s: &Str) -> ngx_str_t {
-        ngx_str_t {
-            len: s.len(),
-            data: s.as_ptr() as *mut u_char,
-        }
+impl From<ngx_str_t> for Str {
+    fn from(str: ngx_str_t) -> Self {
+        Self(str)
     }
 }
 
-impl From<&[u8]> for &Str {
+impl From<Str> for ngx_str_t {
+    fn from(str: Str) -> Self {
+        str.0
+    }
+}
+
+impl From<&[u8]> for Str {
     fn from(bytes: &[u8]) -> Self {
-        unsafe { *bytes.as_ptr().cast::<Self>() }
+        Str(ngx_str_t {
+            len: bytes.len(),
+            data: bytes.as_ptr().cast::<c_uchar>() as *mut _,
+        })
     }
 }
 
-impl From<&str> for &Str {
+impl From<&str> for Str {
     fn from(s: &str) -> Self {
-        s.as_bytes().into()
-    }
-}
-
-impl AsRef<[u8]> for Str {
-    fn as_ref(&self) -> &[u8] {
-        self.as_bytes()
-    }
-}
-
-impl AsMut<[u8]> for Str {
-    fn as_mut(&mut self) -> &mut [u8] {
-        self.as_bytes_mut()
+        Str(ngx_str_t {
+            len: s.len(),
+            data: s.as_ptr().cast::<c_uchar>() as *mut _,
+        })
     }
 }
 

@@ -53,7 +53,7 @@ impl http::Module for Custom {
 #[derive(Clone, Debug, AutoMerge, Conf)]
 #[conf(http::upstream)]
 struct SrvConfig {
-    #[directive(args(0, 1), set = ngx_http_upstream_custom)]
+    #[directive(name = "custom", args(0, 1), set = ngx_http_upstream_custom)]
     #[merge(strategy = merge::num::overwrite_zero)]
     max: usize,
     original_init_upstream: Option<upstream::InitFn>,
@@ -101,7 +101,7 @@ fn set_custom(cf: &ConfRef, _cmd: &CmdRef, conf: &mut SrvConfig) -> anyhow::Resu
 
     let uscf = cf
         .as_http_context()
-        .and_then(|ctx| ctx.srv_conf_for::<upstream::SrvConfRef>(Custom::module()))
+        .and_then(|ctx| ctx.srv_conf_for::<upstream::SrvConfRef>(upstream::module()))
         .ok_or_else(|| anyhow!("missing `ctx.srvConf`"))?;
 
     conf.original_init_upstream = uscf.peer().init_upstream().or(Some(upstream::InitFn(

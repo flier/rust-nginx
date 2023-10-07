@@ -6,7 +6,7 @@ use crate::rt::{
     ffi,
 };
 
-pub const UNSET_INDEX: ffi::ngx_uint_t = ffi::ngx_uint_t::max_value();
+pub const UNSET_INDEX: ffi::ngx_uint_t = ffi::ngx_uint_t::MAX;
 
 pub trait UnsafeModule {
     /// Initialize the master process.

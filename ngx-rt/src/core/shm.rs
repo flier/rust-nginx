@@ -33,7 +33,7 @@ impl ShmRef {
         unsafe { self.as_raw().size }
     }
 
-    pub fn name(&self) -> Option<&Str> {
+    pub fn name(&self) -> Option<Str> {
         unsafe { Str::from_raw(self.as_raw().name) }
     }
 

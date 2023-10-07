@@ -12,11 +12,11 @@ impl<'a> From<&'a hash::TableEltRef> for Header<'a> {
 }
 
 impl<'a> Header<'a> {
-    pub fn key(&self) -> Option<&Str> {
+    pub fn key(&self) -> Option<Str> {
         self.0.key()
     }
 
-    pub fn value(&self) -> Option<&Str> {
+    pub fn value(&self) -> Option<Str> {
         self.0.value()
     }
 
