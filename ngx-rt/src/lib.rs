@@ -6,10 +6,14 @@ pub use ::ngx_rt_derive::{native_callback, native_handler};
 pub mod core;
 mod error;
 pub mod event;
-pub mod http;
 mod raw;
 #[macro_use]
 mod macros;
+
+#[cfg(feature = "http")]
+pub mod http;
+#[cfg(feature = "stream")]
+pub mod stream;
 
 pub use self::error::{Error, Result};
 pub(crate) use self::raw::never_drop;

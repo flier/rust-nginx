@@ -126,7 +126,7 @@ pub const NGX_HAVE_CRYPT_H: u32 = 1;
 pub const NGX_LINUX: u32 = 1;
 pub const NGX_HAVE_SYS_PRCTL_H: u32 = 1;
 pub const NGX_HAVE_SYS_VFS_H: u32 = 1;
-pub const NGX_CONFIGURE : & [u8 ; 704] = b" --builddir=/mnt/c/Users/flier/Documents/GitHub/rust-nginx/target/debug/build/ngx-src-025644144e7e8d94/out/build --prefix=/mnt/c/Users/flier/Documents/GitHub/rust-nginx/target/debug/build/ngx-src-025644144e7e8d94/out/dist --with-compat --with-stream --with-threads --with-http_addition_module --with-http_auth_request_module --with-http_flv_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_random_index_module --with-http_realip_module --with-http_secure_link_module --with-http_slice_module --with-http_ssl_module --with-http_stub_status_module --with-http_sub_module --with-http_v2_module --with-stream_realip_module --with-stream_ssl_module --with-stream_ssl_preread_module\0" ;
+pub const NGX_CONFIGURE : & [u8 ; 872] = b" --builddir=/mnt/c/Users/flier/Documents/GitHub/rust-nginx/target/debug/build/ngx-src-37a57ed04e0f2446/out/build --prefix=/mnt/c/Users/flier/Documents/GitHub/rust-nginx/target/debug/build/ngx-src-37a57ed04e0f2446/out/dist --with-compat --with-mail --with-stream --with-threads --with-http_ssl_module --with-http_v2_module --with-http_realip_module --with-http_addition_module --with-http_xslt_module --with-http_image_filter_module --with-http_sub_module --with-http_dav_module --with-http_flv_module --with-http_mp4_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_auth_request_module --with-http_random_index_module --with-http_secure_link_module --with-http_degradation_module --with-http_slice_module --with-http_stub_status_module --with-mail_ssl_module --with-stream_ssl_module --with-stream_realip_module --with-stream_ssl_preread_module\0" ;
 pub const NGX_COMPILER: &[u8; 43] = b"gcc 10.5.0 (Ubuntu 10.5.0-1ubuntu1~20.04) \0";
 pub const NGX_HAVE_GCC_ATOMIC: u32 = 1;
 pub const NGX_HAVE_C99_VARIADIC_MACROS: u32 = 1;
@@ -202,22 +202,26 @@ pub const NGX_HTTP_GZIP: u32 = 1;
 pub const NGX_HTTP_SSI: u32 = 1;
 pub const NGX_HTTP_V2: u32 = 1;
 pub const NGX_HTTP_HEADERS: u32 = 1;
+pub const NGX_HTTP_DAV: u32 = 1;
 pub const NGX_CRYPT: u32 = 1;
 pub const NGX_HTTP_REALIP: u32 = 1;
 pub const NGX_HTTP_X_FORWARDED_FOR: u32 = 1;
 pub const NGX_HTTP_SSL: u32 = 1;
+pub const NGX_HTTP_DEGRADATION: u32 = 1;
 pub const NGX_HTTP_UPSTREAM_ZONE: u32 = 1;
 pub const NGX_STAT_STUB: u32 = 1;
+pub const NGX_MAIL_SSL: u32 = 1;
 pub const NGX_STREAM_SSL: u32 = 1;
 pub const NGX_STREAM_UPSTREAM_ZONE: u32 = 1;
 pub const NGX_COMPAT: u32 = 1;
-pub const NGX_HTTP_DAV: u32 = 1;
 pub const NGX_PCRE2: u32 = 1;
 pub const NGX_PCRE: u32 = 1;
 pub const NGX_OPENSSL: u32 = 1;
 pub const NGX_SSL: u32 = 1;
 pub const NGX_ZLIB: u32 = 1;
-pub const NGX_PREFIX : & [u8 ; 101] = b"/mnt/c/Users/flier/Documents/GitHub/rust-nginx/target/debug/build/ngx-src-025644144e7e8d94/out/dist/\0" ;
+pub const NGX_HAVE_EXSLT: u32 = 1;
+pub const NGX_HAVE_GD_WEBP: u32 = 1;
+pub const NGX_PREFIX : & [u8 ; 101] = b"/mnt/c/Users/flier/Documents/GitHub/rust-nginx/target/debug/build/ngx-src-37a57ed04e0f2446/out/dist/\0" ;
 pub const NGX_CONF_PREFIX: &[u8; 6] = b"conf/\0";
 pub const NGX_SBIN_PATH: &[u8; 11] = b"sbin/nginx\0";
 pub const NGX_CONF_PATH: &[u8; 16] = b"conf/nginx.conf\0";
@@ -804,6 +808,64 @@ pub const NGX_HTTP_SSI_URL_ENCODING: u32 = 1;
 pub const NGX_HTTP_SSI_ENTITY_ENCODING: u32 = 2;
 pub const NGX_HTTP_LAST: u32 = 1;
 pub const NGX_HTTP_FLUSH: u32 = 2;
+pub const NGX_MAIL_STARTTLS_OFF: u32 = 0;
+pub const NGX_MAIL_STARTTLS_ON: u32 = 1;
+pub const NGX_MAIL_STARTTLS_ONLY: u32 = 2;
+pub const NGX_MAIL_POP3_PROTOCOL: u32 = 0;
+pub const NGX_MAIL_IMAP_PROTOCOL: u32 = 1;
+pub const NGX_MAIL_SMTP_PROTOCOL: u32 = 2;
+pub const NGX_POP3_USER: u32 = 1;
+pub const NGX_POP3_PASS: u32 = 2;
+pub const NGX_POP3_CAPA: u32 = 3;
+pub const NGX_POP3_QUIT: u32 = 4;
+pub const NGX_POP3_NOOP: u32 = 5;
+pub const NGX_POP3_STLS: u32 = 6;
+pub const NGX_POP3_APOP: u32 = 7;
+pub const NGX_POP3_AUTH: u32 = 8;
+pub const NGX_POP3_STAT: u32 = 9;
+pub const NGX_POP3_LIST: u32 = 10;
+pub const NGX_POP3_RETR: u32 = 11;
+pub const NGX_POP3_DELE: u32 = 12;
+pub const NGX_POP3_RSET: u32 = 13;
+pub const NGX_POP3_TOP: u32 = 14;
+pub const NGX_POP3_UIDL: u32 = 15;
+pub const NGX_IMAP_LOGIN: u32 = 1;
+pub const NGX_IMAP_LOGOUT: u32 = 2;
+pub const NGX_IMAP_CAPABILITY: u32 = 3;
+pub const NGX_IMAP_NOOP: u32 = 4;
+pub const NGX_IMAP_STARTTLS: u32 = 5;
+pub const NGX_IMAP_NEXT: u32 = 6;
+pub const NGX_IMAP_AUTHENTICATE: u32 = 7;
+pub const NGX_SMTP_HELO: u32 = 1;
+pub const NGX_SMTP_EHLO: u32 = 2;
+pub const NGX_SMTP_AUTH: u32 = 3;
+pub const NGX_SMTP_QUIT: u32 = 4;
+pub const NGX_SMTP_NOOP: u32 = 5;
+pub const NGX_SMTP_MAIL: u32 = 6;
+pub const NGX_SMTP_RSET: u32 = 7;
+pub const NGX_SMTP_RCPT: u32 = 8;
+pub const NGX_SMTP_DATA: u32 = 9;
+pub const NGX_SMTP_VRFY: u32 = 10;
+pub const NGX_SMTP_EXPN: u32 = 11;
+pub const NGX_SMTP_HELP: u32 = 12;
+pub const NGX_SMTP_STARTTLS: u32 = 13;
+pub const NGX_MAIL_AUTH_PLAIN: u32 = 0;
+pub const NGX_MAIL_AUTH_LOGIN: u32 = 1;
+pub const NGX_MAIL_AUTH_LOGIN_USERNAME: u32 = 2;
+pub const NGX_MAIL_AUTH_APOP: u32 = 3;
+pub const NGX_MAIL_AUTH_CRAM_MD5: u32 = 4;
+pub const NGX_MAIL_AUTH_EXTERNAL: u32 = 5;
+pub const NGX_MAIL_AUTH_NONE: u32 = 6;
+pub const NGX_MAIL_AUTH_PLAIN_ENABLED: u32 = 2;
+pub const NGX_MAIL_AUTH_LOGIN_ENABLED: u32 = 4;
+pub const NGX_MAIL_AUTH_APOP_ENABLED: u32 = 8;
+pub const NGX_MAIL_AUTH_CRAM_MD5_ENABLED: u32 = 16;
+pub const NGX_MAIL_AUTH_EXTERNAL_ENABLED: u32 = 32;
+pub const NGX_MAIL_AUTH_NONE_ENABLED: u32 = 64;
+pub const NGX_MAIL_PARSE_INVALID_COMMAND: u32 = 20;
+pub const NGX_MAIL_MODULE: u32 = 1279869261;
+pub const NGX_MAIL_MAIN_CONF: u32 = 33554432;
+pub const NGX_MAIL_SRV_CONF: u32 = 67108864;
 pub const NGX_STREAM_VAR_CHANGEABLE: u32 = 1;
 pub const NGX_STREAM_VAR_NOCACHEABLE: u32 = 2;
 pub const NGX_STREAM_VAR_INDEXED: u32 = 4;
@@ -856,7 +918,7 @@ pub type off_t = __off64_t;
 pub type pid_t = __pid_t;
 pub type time_t = __time_t;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct timespec {
     pub tv_sec: __time_t,
     pub tv_nsec: __syscall_slong_t,
@@ -897,7 +959,7 @@ fn bindgen_test_layout_timespec() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct __pthread_internal_list {
     pub __prev: *mut __pthread_internal_list,
     pub __next: *mut __pthread_internal_list,
@@ -938,9 +1000,18 @@ fn bindgen_test_layout___pthread_internal_list() {
         )
     );
 }
+impl Default for __pthread_internal_list {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type __pthread_list_t = __pthread_internal_list;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct __pthread_mutex_s {
     pub __lock: ::std::os::raw::c_int,
     pub __count: ::std::os::raw::c_uint,
@@ -1046,6 +1117,15 @@ fn bindgen_test_layout___pthread_mutex_s() {
         )
     );
 }
+impl Default for __pthread_mutex_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct __pthread_cond_s {
@@ -1064,7 +1144,7 @@ pub union __pthread_cond_s__bindgen_ty_1 {
     pub __wseq32: __pthread_cond_s__bindgen_ty_1__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct __pthread_cond_s__bindgen_ty_1__bindgen_ty_1 {
     pub __low: ::std::os::raw::c_uint,
     pub __high: ::std::os::raw::c_uint,
@@ -1147,6 +1227,20 @@ fn bindgen_test_layout___pthread_cond_s__bindgen_ty_1() {
         )
     );
 }
+impl Default for __pthread_cond_s__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for __pthread_cond_s__bindgen_ty_1 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "__pthread_cond_s__bindgen_ty_1 {{ union }}")
+    }
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union __pthread_cond_s__bindgen_ty_2 {
@@ -1154,7 +1248,7 @@ pub union __pthread_cond_s__bindgen_ty_2 {
     pub __g1_start32: __pthread_cond_s__bindgen_ty_2__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct __pthread_cond_s__bindgen_ty_2__bindgen_ty_1 {
     pub __low: ::std::os::raw::c_uint,
     pub __high: ::std::os::raw::c_uint,
@@ -1237,6 +1331,20 @@ fn bindgen_test_layout___pthread_cond_s__bindgen_ty_2() {
         )
     );
 }
+impl Default for __pthread_cond_s__bindgen_ty_2 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for __pthread_cond_s__bindgen_ty_2 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "__pthread_cond_s__bindgen_ty_2 {{ union }}")
+    }
+}
 #[test]
 fn bindgen_test_layout___pthread_cond_s() {
     const UNINIT: ::std::mem::MaybeUninit<__pthread_cond_s> = ::std::mem::MaybeUninit::uninit();
@@ -1302,6 +1410,20 @@ fn bindgen_test_layout___pthread_cond_s() {
         )
     );
 }
+impl Default for __pthread_cond_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for __pthread_cond_s {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write ! (f , "__pthread_cond_s {{ __bindgen_anon_1: {:?}, __bindgen_anon_2: {:?}, __g_refs: {:?}, __g_size: {:?}, __g1_orig_size: {:?}, __wrefs: {:?}, __g_signals: {:?} }}" , self . __bindgen_anon_1 , self . __bindgen_anon_2 , self . __g_refs , self . __g_size , self . __g1_orig_size , self . __wrefs , self . __g_signals)
+    }
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union pthread_mutex_t {
@@ -1353,6 +1475,20 @@ fn bindgen_test_layout_pthread_mutex_t() {
             stringify!(__align)
         )
     );
+}
+impl Default for pthread_mutex_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for pthread_mutex_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "pthread_mutex_t {{ union }}")
+    }
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -1406,11 +1542,25 @@ fn bindgen_test_layout_pthread_cond_t() {
         )
     );
 }
+impl Default for pthread_cond_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for pthread_cond_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "pthread_cond_t {{ union }}")
+    }
+}
 pub type socklen_t = __socklen_t;
 pub type va_list = __builtin_va_list;
 pub type sig_atomic_t = __sig_atomic_t;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct dirent {
     pub d_ino: __ino64_t,
     pub d_off: __off64_t,
@@ -1483,6 +1633,15 @@ fn bindgen_test_layout_dirent() {
         )
     );
 }
+impl Default for dirent {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct __dirstream {
@@ -1491,7 +1650,7 @@ pub struct __dirstream {
 pub type DIR = __dirstream;
 pub type __size_t = ::std::os::raw::c_ulong;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct glob_t {
     pub gl_pathc: __size_t,
     pub gl_pathv: *mut *mut ::std::os::raw::c_char,
@@ -1622,8 +1781,17 @@ fn bindgen_test_layout_glob_t() {
         )
     );
 }
+impl Default for glob_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct iovec {
     pub iov_base: *mut ::std::os::raw::c_void,
     pub iov_len: usize,
@@ -1663,8 +1831,17 @@ fn bindgen_test_layout_iovec() {
         )
     );
 }
+impl Default for iovec {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct stat {
     pub st_dev: __dev_t,
     pub st_ino: __ino_t,
@@ -1849,7 +2026,7 @@ fn bindgen_test_layout_stat() {
 }
 pub type __cpu_mask = ::std::os::raw::c_ulong;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct cpu_set_t {
     pub __bits: [__cpu_mask; 16usize],
 }
@@ -1880,7 +2057,7 @@ fn bindgen_test_layout_cpu_set_t() {
 }
 pub type sa_family_t = ::std::os::raw::c_ushort;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct sockaddr {
     pub sa_family: sa_family_t,
     pub sa_data: [::std::os::raw::c_char; 14usize],
@@ -1921,7 +2098,7 @@ fn bindgen_test_layout_sockaddr() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct msghdr {
     pub msg_name: *mut ::std::os::raw::c_void,
     pub msg_namelen: socklen_t,
@@ -2016,8 +2193,17 @@ fn bindgen_test_layout_msghdr() {
         )
     );
 }
+impl Default for msghdr {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct cmsghdr {
     pub cmsg_len: usize,
     pub cmsg_level: ::std::os::raw::c_int,
@@ -2081,7 +2267,7 @@ fn bindgen_test_layout_cmsghdr() {
 }
 pub type in_addr_t = u32;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct in_addr {
     pub s_addr: in_addr_t,
 }
@@ -2111,7 +2297,7 @@ fn bindgen_test_layout_in_addr() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct in_pktinfo {
     pub ipi_ifindex: ::std::os::raw::c_int,
     pub ipi_spec_dst: in_addr,
@@ -2221,6 +2407,20 @@ fn bindgen_test_layout_in6_addr__bindgen_ty_1() {
         )
     );
 }
+impl Default for in6_addr__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for in6_addr__bindgen_ty_1 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "in6_addr__bindgen_ty_1 {{ union }}")
+    }
+}
 #[test]
 fn bindgen_test_layout_in6_addr() {
     const UNINIT: ::std::mem::MaybeUninit<in6_addr> = ::std::mem::MaybeUninit::uninit();
@@ -2246,8 +2446,22 @@ fn bindgen_test_layout_in6_addr() {
         )
     );
 }
+impl Default for in6_addr {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for in6_addr {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "in6_addr {{ __in6_u: {:?} }}", self.__in6_u)
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct sockaddr_in {
     pub sin_family: sa_family_t,
     pub sin_port: in_port_t,
@@ -2383,6 +2597,24 @@ fn bindgen_test_layout_sockaddr_in6() {
         )
     );
 }
+impl Default for sockaddr_in6 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for sockaddr_in6 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "sockaddr_in6 {{ sin6_family: {:?}, sin6_addr: {:?} }}",
+            self.sin6_family, self.sin6_addr
+        )
+    }
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct in6_pktinfo {
@@ -2424,8 +2656,26 @@ fn bindgen_test_layout_in6_pktinfo() {
         )
     );
 }
+impl Default for in6_pktinfo {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for in6_pktinfo {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "in6_pktinfo {{ ipi6_addr: {:?}, ipi6_ifindex: {:?} }}",
+            self.ipi6_addr, self.ipi6_ifindex
+        )
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct sockaddr_un {
     pub sun_family: sa_family_t,
     pub sun_path: [::std::os::raw::c_char; 108usize],
@@ -2465,8 +2715,17 @@ fn bindgen_test_layout_sockaddr_un() {
         )
     );
 }
+impl Default for sockaddr_un {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct tm {
     pub tm_sec: ::std::os::raw::c_int,
     pub tm_min: ::std::os::raw::c_int,
@@ -2605,6 +2864,15 @@ fn bindgen_test_layout_tm() {
         )
     );
 }
+impl Default for tm {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union sem_t {
@@ -2645,6 +2913,20 @@ fn bindgen_test_layout_sem_t() {
             stringify!(__align)
         )
     );
+}
+impl Default for sem_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for sem_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "sem_t {{ union }}")
+    }
 }
 pub type ngx_int_t = isize;
 pub type ngx_uint_t = usize;
@@ -2731,7 +3013,7 @@ pub type ngx_rbtree_key_t = ngx_uint_t;
 pub type ngx_rbtree_key_int_t = ngx_int_t;
 pub type ngx_rbtree_node_t = ngx_rbtree_node_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_rbtree_node_s {
     pub key: ngx_rbtree_key_t,
     pub left: *mut ngx_rbtree_node_t,
@@ -2815,6 +3097,15 @@ fn bindgen_test_layout_ngx_rbtree_node_s() {
         )
     );
 }
+impl Default for ngx_rbtree_node_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_rbtree_t = ngx_rbtree_s;
 pub type ngx_rbtree_insert_pt = ::std::option::Option<
     unsafe extern "C" fn(
@@ -2824,7 +3115,7 @@ pub type ngx_rbtree_insert_pt = ::std::option::Option<
     ),
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_rbtree_s {
     pub root: *mut ngx_rbtree_node_t,
     pub sentinel: *mut ngx_rbtree_node_t,
@@ -2874,6 +3165,15 @@ fn bindgen_test_layout_ngx_rbtree_s() {
             stringify!(insert)
         )
     );
+}
+impl Default for ngx_rbtree_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn ngx_rbtree_insert(tree: *mut ngx_rbtree_t, node: *mut ngx_rbtree_node_t);
@@ -2930,7 +3230,7 @@ extern "C" {
     pub fn ngx_tcp_push(s: ngx_socket_t) -> ::std::os::raw::c_int;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_str_t {
     pub len: usize,
     pub data: *mut u_char,
@@ -2970,8 +3270,17 @@ fn bindgen_test_layout_ngx_str_t() {
         )
     );
 }
+impl Default for ngx_str_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_keyval_t {
     pub key: ngx_str_t,
     pub value: ngx_str_t,
@@ -3011,8 +3320,17 @@ fn bindgen_test_layout_ngx_keyval_t() {
         )
     );
 }
+impl Default for ngx_keyval_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_variable_value_t {
     pub _bitfield_align_1: [u32; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize]>,
@@ -3042,6 +3360,15 @@ fn bindgen_test_layout_ngx_variable_value_t() {
             stringify!(data)
         )
     );
+}
+impl Default for ngx_variable_value_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_variable_value_t {
     #[inline]
@@ -3285,7 +3612,7 @@ extern "C" {
     pub fn ngx_escape_json(dst: *mut u_char, src: *mut u_char, size: usize) -> usize;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_str_node_t {
     pub node: ngx_rbtree_node_t,
     pub str_: ngx_str_t,
@@ -3325,6 +3652,15 @@ fn bindgen_test_layout_ngx_str_node_t() {
         )
     );
 }
+impl Default for ngx_str_node_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_str_rbtree_insert_value(
         temp: *mut ngx_rbtree_node_t,
@@ -3356,7 +3692,7 @@ pub type ngx_fd_t = ::std::os::raw::c_int;
 pub type ngx_file_info_t = stat;
 pub type ngx_file_uniq_t = ino_t;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_file_mapping_t {
     pub name: *mut u_char,
     pub size: usize,
@@ -3429,8 +3765,17 @@ fn bindgen_test_layout_ngx_file_mapping_t() {
         )
     );
 }
+impl Default for ngx_file_mapping_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_dir_t {
     pub dir: *mut DIR,
     pub de: *mut dirent,
@@ -3484,6 +3829,15 @@ fn bindgen_test_layout_ngx_dir_t() {
         )
     );
 }
+impl Default for ngx_dir_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_dir_t {
     #[inline]
     pub fn type_(&self) -> ::std::os::raw::c_uint {
@@ -3525,7 +3879,7 @@ impl ngx_dir_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_glob_t {
     pub n: usize,
     pub pglob: glob_t,
@@ -3597,6 +3951,15 @@ fn bindgen_test_layout_ngx_glob_t() {
             stringify!(test)
         )
     );
+}
+impl Default for ngx_glob_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn ngx_open_tempfile(
@@ -3695,7 +4058,7 @@ extern "C" {
     ) -> isize;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_shm_t {
     pub addr: *mut u_char,
     pub size: usize,
@@ -3768,6 +4131,15 @@ fn bindgen_test_layout_ngx_shm_t() {
         )
     );
 }
+impl Default for ngx_shm_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_shm_alloc(shm: *mut ngx_shm_t) -> ngx_int_t;
 }
@@ -3789,7 +4161,7 @@ pub type ngx_spawn_proc_pt = ::std::option::Option<
     unsafe extern "C" fn(cycle: *mut ngx_cycle_t, data: *mut ::std::os::raw::c_void),
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_process_t {
     pub pid: ngx_pid_t,
     pub status: ::std::os::raw::c_int,
@@ -3875,6 +4247,15 @@ fn bindgen_test_layout_ngx_process_t() {
             stringify!(name)
         )
     );
+}
+impl Default for ngx_process_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_process_t {
     #[inline]
@@ -3965,7 +4346,7 @@ impl ngx_process_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_exec_ctx_t {
     pub path: *mut ::std::os::raw::c_char,
     pub name: *mut ::std::os::raw::c_char,
@@ -4026,6 +4407,15 @@ fn bindgen_test_layout_ngx_exec_ctx_t() {
             stringify!(envp)
         )
     );
+}
+impl Default for ngx_exec_ctx_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn ngx_spawn_process(
@@ -4104,7 +4494,7 @@ pub type ngx_log_writer_pt = ::std::option::Option<
     unsafe extern "C" fn(log: *mut ngx_log_t, level: ngx_uint_t, buf: *mut u_char, len: usize),
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_log_s {
     pub log_level: ngx_uint_t,
     pub file: *mut ngx_open_file_t,
@@ -4232,6 +4622,15 @@ fn bindgen_test_layout_ngx_log_s() {
         )
     );
 }
+impl Default for ngx_log_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_log_error_core(
         level: ngx_uint_t,
@@ -4300,7 +4699,7 @@ pub type ngx_pool_cleanup_pt =
     ::std::option::Option<unsafe extern "C" fn(data: *mut ::std::os::raw::c_void)>;
 pub type ngx_pool_cleanup_t = ngx_pool_cleanup_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_pool_cleanup_s {
     pub handler: ngx_pool_cleanup_pt,
     pub data: *mut ::std::os::raw::c_void,
@@ -4351,9 +4750,18 @@ fn bindgen_test_layout_ngx_pool_cleanup_s() {
         )
     );
 }
+impl Default for ngx_pool_cleanup_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_pool_large_t = ngx_pool_large_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_pool_large_s {
     pub next: *mut ngx_pool_large_t,
     pub alloc: *mut ::std::os::raw::c_void,
@@ -4393,8 +4801,17 @@ fn bindgen_test_layout_ngx_pool_large_s() {
         )
     );
 }
+impl Default for ngx_pool_large_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_pool_data_t {
     pub last: *mut u_char,
     pub end: *mut u_char,
@@ -4456,8 +4873,17 @@ fn bindgen_test_layout_ngx_pool_data_t() {
         )
     );
 }
+impl Default for ngx_pool_data_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_pool_s {
     pub d: ngx_pool_data_t,
     pub max: usize,
@@ -4552,8 +4978,17 @@ fn bindgen_test_layout_ngx_pool_s() {
         )
     );
 }
+impl Default for ngx_pool_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_pool_cleanup_file_t {
     pub fd: ngx_fd_t,
     pub name: *mut u_char,
@@ -4605,6 +5040,15 @@ fn bindgen_test_layout_ngx_pool_cleanup_file_t() {
         )
     );
 }
+impl Default for ngx_pool_cleanup_file_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_create_pool(size: usize, log: *mut ngx_log_t) -> *mut ngx_pool_t;
 }
@@ -4648,7 +5092,7 @@ extern "C" {
 pub type ngx_buf_tag_t = *mut ::std::os::raw::c_void;
 pub type ngx_buf_t = ngx_buf_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_buf_s {
     pub pos: *mut u_char,
     pub last: *mut u_char,
@@ -4777,6 +5221,15 @@ fn bindgen_test_layout_ngx_buf_s() {
             stringify!(num)
         )
     );
+}
+impl Default for ngx_buf_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_buf_s {
     #[inline]
@@ -4963,7 +5416,7 @@ impl ngx_buf_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_chain_s {
     pub buf: *mut ngx_buf_t,
     pub next: *mut ngx_chain_t,
@@ -5003,8 +5456,17 @@ fn bindgen_test_layout_ngx_chain_s() {
         )
     );
 }
+impl Default for ngx_chain_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_bufs_t {
     pub num: ngx_int_t,
     pub size: usize,
@@ -5052,7 +5514,7 @@ pub type ngx_output_chain_aio_pt = ::std::option::Option<
     unsafe extern "C" fn(ctx: *mut ngx_output_chain_ctx_t, file: *mut ngx_file_t),
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_output_chain_ctx_s {
     pub buf: *mut ngx_buf_t,
     pub in_: *mut ngx_chain_t,
@@ -5229,6 +5691,15 @@ fn bindgen_test_layout_ngx_output_chain_ctx_s() {
         )
     );
 }
+impl Default for ngx_output_chain_ctx_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_output_chain_ctx_s {
     #[inline]
     pub fn sendfile(&self) -> ::std::os::raw::c_uint {
@@ -5334,7 +5805,7 @@ impl ngx_output_chain_ctx_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_chain_writer_ctx_t {
     pub out: *mut ngx_chain_t,
     pub last: *mut *mut ngx_chain_t,
@@ -5408,6 +5879,15 @@ fn bindgen_test_layout_ngx_chain_writer_ctx_t() {
         )
     );
 }
+impl Default for ngx_chain_writer_ctx_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_create_temp_buf(pool: *mut ngx_pool_t, size: usize) -> *mut ngx_buf_t;
 }
@@ -5456,7 +5936,7 @@ extern "C" {
 }
 pub type ngx_queue_t = ngx_queue_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_queue_s {
     pub prev: *mut ngx_queue_t,
     pub next: *mut ngx_queue_t,
@@ -5496,6 +5976,15 @@ fn bindgen_test_layout_ngx_queue_s() {
         )
     );
 }
+impl Default for ngx_queue_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_queue_middle(queue: *mut ngx_queue_t) -> *mut ngx_queue_t;
 }
@@ -5508,7 +5997,7 @@ extern "C" {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_array_t {
     pub elts: *mut ::std::os::raw::c_void,
     pub nelts: ngx_uint_t,
@@ -5581,6 +6070,15 @@ fn bindgen_test_layout_ngx_array_t() {
         )
     );
 }
+impl Default for ngx_array_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_array_create(p: *mut ngx_pool_t, n: ngx_uint_t, size: usize) -> *mut ngx_array_t;
 }
@@ -5595,7 +6093,7 @@ extern "C" {
 }
 pub type ngx_list_part_t = ngx_list_part_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_list_part_s {
     pub elts: *mut ::std::os::raw::c_void,
     pub nelts: ngx_uint_t,
@@ -5646,8 +6144,17 @@ fn bindgen_test_layout_ngx_list_part_s() {
         )
     );
 }
+impl Default for ngx_list_part_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_list_t {
     pub last: *mut ngx_list_part_t,
     pub part: ngx_list_part_t,
@@ -5720,6 +6227,15 @@ fn bindgen_test_layout_ngx_list_t() {
         )
     );
 }
+impl Default for ngx_list_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_list_create(pool: *mut ngx_pool_t, n: ngx_uint_t, size: usize) -> *mut ngx_list_t;
 }
@@ -5727,7 +6243,7 @@ extern "C" {
     pub fn ngx_list_push(list: *mut ngx_list_t) -> *mut ::std::os::raw::c_void;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_hash_elt_t {
     pub value: *mut ::std::os::raw::c_void,
     pub len: u_short,
@@ -5778,8 +6294,17 @@ fn bindgen_test_layout_ngx_hash_elt_t() {
         )
     );
 }
+impl Default for ngx_hash_elt_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_hash_t {
     pub buckets: *mut *mut ngx_hash_elt_t,
     pub size: ngx_uint_t,
@@ -5819,8 +6344,17 @@ fn bindgen_test_layout_ngx_hash_t() {
         )
     );
 }
+impl Default for ngx_hash_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_hash_wildcard_t {
     pub hash: ngx_hash_t,
     pub value: *mut ::std::os::raw::c_void,
@@ -5860,8 +6394,17 @@ fn bindgen_test_layout_ngx_hash_wildcard_t() {
         )
     );
 }
+impl Default for ngx_hash_wildcard_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_hash_key_t {
     pub key: ngx_str_t,
     pub key_hash: ngx_uint_t,
@@ -5912,10 +6455,19 @@ fn bindgen_test_layout_ngx_hash_key_t() {
         )
     );
 }
+impl Default for ngx_hash_key_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_hash_key_pt =
     ::std::option::Option<unsafe extern "C" fn(data: *mut u_char, len: usize) -> ngx_uint_t>;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_hash_combined_t {
     pub hash: ngx_hash_t,
     pub wc_head: *mut ngx_hash_wildcard_t,
@@ -5966,8 +6518,17 @@ fn bindgen_test_layout_ngx_hash_combined_t() {
         )
     );
 }
+impl Default for ngx_hash_combined_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_hash_init_t {
     pub hash: *mut ngx_hash_t,
     pub key: ngx_hash_key_pt,
@@ -6062,8 +6623,17 @@ fn bindgen_test_layout_ngx_hash_init_t() {
         )
     );
 }
+impl Default for ngx_hash_init_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_hash_keys_arrays_t {
     pub hsize: ngx_uint_t,
     pub pool: *mut ngx_pool_t,
@@ -6181,9 +6751,18 @@ fn bindgen_test_layout_ngx_hash_keys_arrays_t() {
         )
     );
 }
+impl Default for ngx_hash_keys_arrays_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_table_elt_t = ngx_table_elt_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_table_elt_s {
     pub hash: ngx_uint_t,
     pub key: ngx_str_t,
@@ -6256,6 +6835,15 @@ fn bindgen_test_layout_ngx_table_elt_s() {
         )
     );
 }
+impl Default for ngx_table_elt_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_hash_find(
         hash: *mut ngx_hash_t,
@@ -6324,7 +6912,7 @@ extern "C" {
     ) -> ngx_int_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_file_s {
     pub fd: ngx_fd_t,
     pub name: ngx_str_t,
@@ -6457,6 +7045,15 @@ fn bindgen_test_layout_ngx_file_s() {
         )
     );
 }
+impl Default for ngx_file_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_file_s {
     #[inline]
     pub fn valid_info(&self) -> ::std::os::raw::c_uint {
@@ -6504,7 +7101,7 @@ pub type ngx_path_purger_pt =
 pub type ngx_path_loader_pt =
     ::std::option::Option<unsafe extern "C" fn(data: *mut ::std::os::raw::c_void)>;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_path_t {
     pub name: ngx_str_t,
     pub len: usize,
@@ -6621,8 +7218,17 @@ fn bindgen_test_layout_ngx_path_t() {
         )
     );
 }
+impl Default for ngx_path_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_path_init_t {
     pub name: ngx_str_t,
     pub level: [usize; 3usize],
@@ -6662,8 +7268,17 @@ fn bindgen_test_layout_ngx_path_init_t() {
         )
     );
 }
+impl Default for ngx_path_init_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_temp_file_t {
     pub file: ngx_file_t,
     pub offset: off_t,
@@ -6750,6 +7365,15 @@ fn bindgen_test_layout_ngx_temp_file_t() {
         )
     );
 }
+impl Default for ngx_temp_file_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_temp_file_t {
     #[inline]
     pub fn log_level(&self) -> ::std::os::raw::c_uint {
@@ -6823,7 +7447,7 @@ impl ngx_temp_file_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_ext_rename_file_t {
     pub access: ngx_uint_t,
     pub path_access: ngx_uint_t,
@@ -6899,6 +7523,15 @@ fn bindgen_test_layout_ngx_ext_rename_file_t() {
         )
     );
 }
+impl Default for ngx_ext_rename_file_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_ext_rename_file_t {
     #[inline]
     pub fn create_path(&self) -> ::std::os::raw::c_uint {
@@ -6940,7 +7573,7 @@ impl ngx_ext_rename_file_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_copy_file_t {
     pub size: off_t,
     pub buf_size: usize,
@@ -7013,6 +7646,15 @@ fn bindgen_test_layout_ngx_copy_file_t() {
         )
     );
 }
+impl Default for ngx_copy_file_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_tree_ctx_t = ngx_tree_ctx_s;
 pub type ngx_tree_init_handler_pt = ::std::option::Option<
     unsafe extern "C" fn(
@@ -7024,7 +7666,7 @@ pub type ngx_tree_handler_pt = ::std::option::Option<
     unsafe extern "C" fn(ctx: *mut ngx_tree_ctx_t, name: *mut ngx_str_t) -> ngx_int_t,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_tree_ctx_s {
     pub size: off_t,
     pub fs_size: off_t,
@@ -7174,6 +7816,15 @@ fn bindgen_test_layout_ngx_tree_ctx_s() {
         )
     );
 }
+impl Default for ngx_tree_ctx_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_get_full_name(
         pool: *mut ngx_pool_t,
@@ -7275,7 +7926,7 @@ pub struct pcre2_real_code_8 {
 pub type pcre2_code_8 = pcre2_real_code_8;
 pub type ngx_regex_t = pcre2_code_8;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_regex_compile_t {
     pub pattern: ngx_str_t,
     pub pool: *mut ngx_pool_t,
@@ -7392,8 +8043,17 @@ fn bindgen_test_layout_ngx_regex_compile_t() {
         )
     );
 }
+impl Default for ngx_regex_compile_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_regex_elt_t {
     pub regex: *mut ngx_regex_t,
     pub name: *mut u_char,
@@ -7433,6 +8093,15 @@ fn bindgen_test_layout_ngx_regex_elt_t() {
         )
     );
 }
+impl Default for ngx_regex_elt_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_regex_init();
 }
@@ -7456,7 +8125,7 @@ extern "C" {
 }
 pub type ngx_radix_node_t = ngx_radix_node_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_radix_node_s {
     pub right: *mut ngx_radix_node_t,
     pub left: *mut ngx_radix_node_t,
@@ -7518,8 +8187,17 @@ fn bindgen_test_layout_ngx_radix_node_s() {
         )
     );
 }
+impl Default for ngx_radix_node_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_radix_tree_t {
     pub root: *mut ngx_radix_node_t,
     pub pool: *mut ngx_pool_t,
@@ -7592,6 +8270,15 @@ fn bindgen_test_layout_ngx_radix_tree_t() {
         )
     );
 }
+impl Default for ngx_radix_tree_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_radix_tree_create(
         pool: *mut ngx_pool_t,
@@ -7631,7 +8318,7 @@ extern "C" {
     pub fn ngx_radix128tree_find(tree: *mut ngx_radix_tree_t, key: *mut u_char) -> usize;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_time_t {
     pub sec: time_t,
     pub msec: ngx_uint_t,
@@ -7737,7 +8424,7 @@ extern "C" {
     pub fn ngx_rwlock_downgrade(lock: *mut ngx_atomic_t);
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_shmtx_sh_t {
     pub lock: ngx_atomic_t,
     pub wait: ngx_atomic_t,
@@ -7851,6 +8538,24 @@ fn bindgen_test_layout_ngx_shmtx_t() {
         )
     );
 }
+impl Default for ngx_shmtx_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_shmtx_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "ngx_shmtx_t {{ lock: {:?}, wait: {:?}, sem: {:?} }}",
+            self.lock, self.wait, self.sem
+        )
+    }
+}
 extern "C" {
     pub fn ngx_shmtx_create(
         mtx: *mut ngx_shmtx_t,
@@ -7875,7 +8580,7 @@ extern "C" {
 }
 pub type ngx_slab_page_t = ngx_slab_page_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_slab_page_s {
     pub slab: usize,
     pub next: *mut ngx_slab_page_t,
@@ -7926,8 +8631,17 @@ fn bindgen_test_layout_ngx_slab_page_s() {
         )
     );
 }
+impl Default for ngx_slab_page_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_slab_stat_t {
     pub total: ngx_uint_t,
     pub used: ngx_uint_t,
@@ -8175,6 +8889,20 @@ fn bindgen_test_layout_ngx_slab_pool_t() {
         )
     );
 }
+impl Default for ngx_slab_pool_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_slab_pool_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write ! (f , "ngx_slab_pool_t {{ lock: {:?}, pages: {:?}, last: {:?}, free: {:?}, stats: {:?}, start: {:?}, end: {:?}, mutex: {:?}, log_ctx: {:?}, zero: {:?}, log_nomem : {:?}, data: {:?}, addr: {:?} }}" , self . lock , self . pages , self . last , self . free , self . stats , self . start , self . end , self . mutex , self . log_ctx , self . zero , self . log_nomem () , self . data , self . addr)
+    }
+}
 impl ngx_slab_pool_t {
     #[inline]
     pub fn log_nomem(&self) -> ::std::os::raw::c_uint {
@@ -8292,8 +9020,22 @@ fn bindgen_test_layout_ngx_sockaddr_t() {
         )
     );
 }
+impl Default for ngx_sockaddr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_sockaddr_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "ngx_sockaddr_t {{ union }}")
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_in_cidr_t {
     pub addr: in_addr_t,
     pub mask: in_addr_t,
@@ -8374,6 +9116,24 @@ fn bindgen_test_layout_ngx_in6_cidr_t() {
         )
     );
 }
+impl Default for ngx_in6_cidr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_in6_cidr_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "ngx_in6_cidr_t {{ addr: {:?}, mask: {:?} }}",
+            self.addr, self.mask
+        )
+    }
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ngx_cidr_t {
@@ -8422,6 +9182,20 @@ fn bindgen_test_layout_ngx_cidr_t__bindgen_ty_1() {
         )
     );
 }
+impl Default for ngx_cidr_t__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_cidr_t__bindgen_ty_1 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "ngx_cidr_t__bindgen_ty_1 {{ union }}")
+    }
+}
 #[test]
 fn bindgen_test_layout_ngx_cidr_t() {
     const UNINIT: ::std::mem::MaybeUninit<ngx_cidr_t> = ::std::mem::MaybeUninit::uninit();
@@ -8457,8 +9231,22 @@ fn bindgen_test_layout_ngx_cidr_t() {
         )
     );
 }
+impl Default for ngx_cidr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_cidr_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "ngx_cidr_t {{ u: {:?} }}", self.u)
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_addr_t {
     pub sockaddr: *mut sockaddr,
     pub socklen: socklen_t,
@@ -8508,6 +9296,15 @@ fn bindgen_test_layout_ngx_addr_t() {
             stringify!(name)
         )
     );
+}
+impl Default for ngx_addr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -8672,6 +9469,20 @@ fn bindgen_test_layout_ngx_url_t() {
             stringify!(err)
         )
     );
+}
+impl Default for ngx_url_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_url_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write ! (f , "ngx_url_t {{ url: {:?}, host: {:?}, port_text: {:?}, uri: {:?}, family: {:?}, listen : {:?}, uri_part : {:?}, no_resolve : {:?}, no_port : {:?}, wildcard : {:?}, socklen: {:?}, sockaddr: {:?}, addrs: {:?}, err: {:?} }}" , self . url , self . host , self . port_text , self . uri , self . family , self . listen () , self . uri_part () , self . no_resolve () , self . no_port () , self . wildcard () , self . socklen , self . sockaddr , self . addrs , self . err)
+    }
 }
 impl ngx_url_t {
     #[inline]
@@ -8838,7 +9649,7 @@ pub type ngx_shm_zone_init_pt = ::std::option::Option<
     unsafe extern "C" fn(zone: *mut ngx_shm_zone_t, data: *mut ::std::os::raw::c_void) -> ngx_int_t,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_shm_zone_s {
     pub data: *mut ::std::os::raw::c_void,
     pub shm: ngx_shm_t,
@@ -8922,8 +9733,17 @@ fn bindgen_test_layout_ngx_shm_zone_s() {
         )
     );
 }
+impl Default for ngx_shm_zone_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_cycle_s {
     pub conf_ctx: *mut *mut *mut *mut ::std::os::raw::c_void,
     pub pool: *mut ngx_pool_t,
@@ -9315,8 +10135,17 @@ fn bindgen_test_layout_ngx_cycle_s() {
         )
     );
 }
+impl Default for ngx_cycle_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_core_conf_t {
     pub daemon: ngx_flag_t,
     pub master: ngx_flag_t,
@@ -9576,6 +10405,15 @@ fn bindgen_test_layout_ngx_core_conf_t() {
         )
     );
 }
+impl Default for ngx_core_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_init_cycle(old_cycle: *mut ngx_cycle_t) -> *mut ngx_cycle_t;
 }
@@ -9640,7 +10478,7 @@ extern "C" {
 }
 pub type ngx_resolver_t = ngx_resolver_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_resolver_connection_t {
     pub udp: *mut ngx_connection_t,
     pub tcp: *mut ngx_connection_t,
@@ -9758,11 +10596,20 @@ fn bindgen_test_layout_ngx_resolver_connection_t() {
         )
     );
 }
+impl Default for ngx_resolver_connection_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_resolver_ctx_t = ngx_resolver_ctx_s;
 pub type ngx_resolver_handler_pt =
     ::std::option::Option<unsafe extern "C" fn(ctx: *mut ngx_resolver_ctx_t)>;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_resolver_addr_t {
     pub sockaddr: *mut sockaddr,
     pub socklen: socklen_t,
@@ -9835,8 +10682,17 @@ fn bindgen_test_layout_ngx_resolver_addr_t() {
         )
     );
 }
+impl Default for ngx_resolver_addr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_resolver_srv_t {
     pub name: ngx_str_t,
     pub priority: u_short,
@@ -9898,8 +10754,17 @@ fn bindgen_test_layout_ngx_resolver_srv_t() {
         )
     );
 }
+impl Default for ngx_resolver_srv_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_resolver_srv_name_t {
     pub name: ngx_str_t,
     pub priority: u_short,
@@ -10006,6 +10871,15 @@ fn bindgen_test_layout_ngx_resolver_srv_name_t() {
         )
     );
 }
+impl Default for ngx_resolver_srv_name_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ngx_resolver_node_t {
@@ -10099,6 +10973,20 @@ fn bindgen_test_layout_ngx_resolver_node_t__bindgen_ty_1() {
         )
     );
 }
+impl Default for ngx_resolver_node_t__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_resolver_node_t__bindgen_ty_1 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "ngx_resolver_node_t__bindgen_ty_1 {{ union }}")
+    }
+}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union ngx_resolver_node_t__bindgen_ty_2 {
@@ -10143,6 +11031,20 @@ fn bindgen_test_layout_ngx_resolver_node_t__bindgen_ty_2() {
             stringify!(addrs6)
         )
     );
+}
+impl Default for ngx_resolver_node_t__bindgen_ty_2 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_resolver_node_t__bindgen_ty_2 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "ngx_resolver_node_t__bindgen_ty_2 {{ union }}")
+    }
 }
 #[test]
 fn bindgen_test_layout_ngx_resolver_node_t() {
@@ -10359,6 +11261,20 @@ fn bindgen_test_layout_ngx_resolver_node_t() {
         )
     );
 }
+impl Default for ngx_resolver_node_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_resolver_node_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write ! (f , "ngx_resolver_node_t {{ node: {:?}, queue: {:?}, name: {:?}, addr6: {:?}, nlen: {:?}, qlen: {:?}, query: {:?}, query6: {:?}, u: {:?}, code: {:?}, naddrs: {:?}, nsrvs: {:?}, cnlen: {:?}, u6: {:?}, naddrs6: {:?}, expire: {:?}, valid: {:?}, tcp : {:?}, tcp6 : {:?}, waiting: {:?} }}" , self . node , self . queue , self . name , self . addr6 , self . nlen , self . qlen , self . query , self . query6 , self . u , self . code , self . naddrs , self . nsrvs , self . cnlen , self . u6 , self . naddrs6 , self . expire , self . valid , self . tcp () , self . tcp6 () , self . waiting)
+    }
+}
 impl ngx_resolver_node_t {
     #[inline]
     pub fn tcp(&self) -> ::std::os::raw::c_uint {
@@ -10400,7 +11316,7 @@ impl ngx_resolver_node_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_resolver_s {
     pub event: *mut ngx_event_t,
     pub dummy: *mut ::std::os::raw::c_void,
@@ -10717,6 +11633,15 @@ fn bindgen_test_layout_ngx_resolver_s() {
         )
     );
 }
+impl Default for ngx_resolver_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_resolver_s {
     #[inline]
     pub fn ipv4(&self) -> ::std::os::raw::c_uint {
@@ -10758,7 +11683,7 @@ impl ngx_resolver_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_resolver_ctx_s {
     pub next: *mut ngx_resolver_ctx_t,
     pub resolver: *mut ngx_resolver_t,
@@ -10998,6 +11923,15 @@ fn bindgen_test_layout_ngx_resolver_ctx_s() {
         )
     );
 }
+impl Default for ngx_resolver_ctx_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_resolver_ctx_s {
     #[inline]
     pub fn quick(&self) -> ::std::os::raw::c_uint {
@@ -11107,7 +12041,7 @@ pub struct ngx_ssl_ocsp_s {
 }
 pub type ngx_ssl_ocsp_t = ngx_ssl_ocsp_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_ssl_s {
     pub ctx: *mut SSL_CTX,
     pub log: *mut ngx_log_t,
@@ -11158,8 +12092,17 @@ fn bindgen_test_layout_ngx_ssl_s() {
         )
     );
 }
+impl Default for ngx_ssl_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_ssl_connection_s {
     pub connection: *mut SSL,
     pub session_ctx: *mut SSL_CTX,
@@ -11311,6 +12254,15 @@ fn bindgen_test_layout_ngx_ssl_connection_s() {
             stringify!(early_buf)
         )
     );
+}
+impl Default for ngx_ssl_connection_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_ssl_connection_s {
     #[inline]
@@ -11563,7 +12515,7 @@ impl ngx_ssl_connection_s {
 }
 pub type ngx_ssl_sess_id_t = ngx_ssl_sess_id_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_ssl_sess_id_s {
     pub node: ngx_rbtree_node_t,
     pub len: usize,
@@ -11647,8 +12599,17 @@ fn bindgen_test_layout_ngx_ssl_sess_id_s() {
         )
     );
 }
+impl Default for ngx_ssl_sess_id_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_ssl_ticket_key_t {
     pub name: [u_char; 16usize],
     pub hmac_key: [u_char; 32usize],
@@ -11754,7 +12715,7 @@ impl ngx_ssl_ticket_key_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_ssl_session_cache_t {
     pub session_rbtree: ngx_rbtree_t,
     pub sentinel: ngx_rbtree_node_t,
@@ -11827,6 +12788,15 @@ fn bindgen_test_layout_ngx_ssl_session_cache_t() {
             stringify!(fail_time)
         )
     );
+}
+impl Default for ngx_ssl_session_cache_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn ngx_ssl_init(log: *mut ngx_log_t) -> ngx_int_t;
@@ -12266,7 +13236,7 @@ extern "C" {
     pub static mut ngx_ssl_stapling_index: ::std::os::raw::c_int;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_cache_manager_ctx_t {
     pub handler: ngx_event_handler_pt,
     pub name: *mut ::std::os::raw::c_char,
@@ -12317,6 +13287,15 @@ fn bindgen_test_layout_ngx_cache_manager_ctx_t() {
             stringify!(delay)
         )
     );
+}
+impl Default for ngx_cache_manager_ctx_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn ngx_master_process_cycle(cycle: *mut ngx_cycle_t);
@@ -12373,7 +13352,7 @@ extern "C" {
     pub static mut ngx_change_binary: sig_atomic_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_command_s {
     pub name: ngx_str_t,
     pub type_: ngx_uint_t,
@@ -12463,8 +13442,17 @@ fn bindgen_test_layout_ngx_command_s() {
         )
     );
 }
+impl Default for ngx_command_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_open_file_s {
     pub fd: ngx_fd_t,
     pub name: ngx_str_t,
@@ -12528,8 +13516,17 @@ fn bindgen_test_layout_ngx_open_file_s() {
         )
     );
 }
+impl Default for ngx_open_file_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_conf_file_t {
     pub file: ngx_file_t,
     pub buffer: *mut ngx_buf_t,
@@ -12591,8 +13588,17 @@ fn bindgen_test_layout_ngx_conf_file_t() {
         )
     );
 }
+impl Default for ngx_conf_file_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_conf_dump_t {
     pub name: ngx_str_t,
     pub buffer: *mut ngx_buf_t,
@@ -12632,6 +13638,15 @@ fn bindgen_test_layout_ngx_conf_dump_t() {
         )
     );
 }
+impl Default for ngx_conf_dump_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_conf_handler_pt = ::std::option::Option<
     unsafe extern "C" fn(
         cf: *mut ngx_conf_t,
@@ -12640,7 +13655,7 @@ pub type ngx_conf_handler_pt = ::std::option::Option<
     ) -> *mut ::std::os::raw::c_char,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_conf_s {
     pub name: *mut ::std::os::raw::c_char,
     pub args: *mut ngx_array_t,
@@ -12790,6 +13805,15 @@ fn bindgen_test_layout_ngx_conf_s() {
         )
     );
 }
+impl Default for ngx_conf_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_conf_post_handler_pt = ::std::option::Option<
     unsafe extern "C" fn(
         cf: *mut ngx_conf_t,
@@ -12798,7 +13822,7 @@ pub type ngx_conf_post_handler_pt = ::std::option::Option<
     ) -> *mut ::std::os::raw::c_char,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_conf_post_t {
     pub post_handler: ngx_conf_post_handler_pt,
 }
@@ -12828,7 +13852,7 @@ fn bindgen_test_layout_ngx_conf_post_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_conf_deprecated_t {
     pub post_handler: ngx_conf_post_handler_pt,
     pub old_name: *mut ::std::os::raw::c_char,
@@ -12880,8 +13904,17 @@ fn bindgen_test_layout_ngx_conf_deprecated_t() {
         )
     );
 }
+impl Default for ngx_conf_deprecated_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_conf_num_bounds_t {
     pub post_handler: ngx_conf_post_handler_pt,
     pub low: ngx_int_t,
@@ -12934,7 +13967,7 @@ fn bindgen_test_layout_ngx_conf_num_bounds_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_conf_enum_t {
     pub name: ngx_str_t,
     pub value: ngx_uint_t,
@@ -12974,8 +14007,17 @@ fn bindgen_test_layout_ngx_conf_enum_t() {
         )
     );
 }
+impl Default for ngx_conf_enum_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_conf_bitmask_t {
     pub name: ngx_str_t,
     pub mask: ngx_uint_t,
@@ -13014,6 +14056,15 @@ fn bindgen_test_layout_ngx_conf_bitmask_t() {
             stringify!(mask)
         )
     );
+}
+impl Default for ngx_conf_bitmask_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn ngx_conf_deprecated(
@@ -13152,7 +14203,7 @@ extern "C" {
     ) -> *mut ::std::os::raw::c_char;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_module_s {
     pub ctx_index: ngx_uint_t,
     pub index: ngx_uint_t,
@@ -13448,8 +14499,17 @@ fn bindgen_test_layout_ngx_module_s() {
         )
     );
 }
+impl Default for ngx_module_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_core_module_t {
     pub name: ngx_str_t,
     pub create_conf: ::std::option::Option<
@@ -13507,6 +14567,15 @@ fn bindgen_test_layout_ngx_core_module_t() {
         )
     );
 }
+impl Default for ngx_core_module_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_preinit_modules() -> ngx_int_t;
 }
@@ -13537,7 +14606,7 @@ extern "C" {
     pub static mut ngx_module_names: [*mut ::std::os::raw::c_char; 0usize];
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_open_file_info_t {
     pub fd: ngx_fd_t,
     pub uniq: ngx_file_uniq_t,
@@ -13689,6 +14758,15 @@ fn bindgen_test_layout_ngx_open_file_info_t() {
             stringify!(disable_symlinks_from)
         )
     );
+}
+impl Default for ngx_open_file_info_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_open_file_info_t {
     #[inline]
@@ -13876,7 +14954,7 @@ impl ngx_open_file_info_t {
 }
 pub type ngx_cached_open_file_t = ngx_cached_open_file_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_cached_open_file_s {
     pub node: ngx_rbtree_node_t,
     pub queue: ngx_queue_t,
@@ -14040,6 +15118,15 @@ fn bindgen_test_layout_ngx_cached_open_file_s() {
         )
     );
 }
+impl Default for ngx_cached_open_file_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_cached_open_file_s {
     #[inline]
     pub fn disable_symlinks(&self) -> ::std::os::raw::c_uint {
@@ -14193,7 +15280,7 @@ impl ngx_cached_open_file_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_open_file_cache_t {
     pub rbtree: ngx_rbtree_t,
     pub sentinel: ngx_rbtree_node_t,
@@ -14278,8 +15365,17 @@ fn bindgen_test_layout_ngx_open_file_cache_t() {
         )
     );
 }
+impl Default for ngx_open_file_cache_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_open_file_cache_cleanup_t {
     pub cache: *mut ngx_open_file_cache_t,
     pub file: *mut ngx_cached_open_file_t,
@@ -14342,8 +15438,17 @@ fn bindgen_test_layout_ngx_open_file_cache_cleanup_t() {
         )
     );
 }
+impl Default for ngx_open_file_cache_cleanup_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_open_file_cache_event_t {
     pub data: *mut ::std::os::raw::c_void,
     pub read: *mut ngx_event_t,
@@ -14428,6 +15533,15 @@ fn bindgen_test_layout_ngx_open_file_cache_event_t() {
         )
     );
 }
+impl Default for ngx_open_file_cache_event_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_open_file_cache_init(
         pool: *mut ngx_pool_t,
@@ -14460,7 +15574,7 @@ pub type ngx_send_chain_pt = ::std::option::Option<
     ) -> *mut ngx_chain_t,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_os_io_t {
     pub recv: ngx_recv_pt,
     pub recv_chain: ngx_recv_chain_pt,
@@ -14622,7 +15736,7 @@ extern "C" {
     ) -> *mut ngx_chain_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_iovec_t {
     pub iovs: *mut iovec,
     pub count: ngx_uint_t,
@@ -14684,6 +15798,15 @@ fn bindgen_test_layout_ngx_iovec_t() {
         )
     );
 }
+impl Default for ngx_iovec_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_output_chain_to_iovec(
         vec: *mut ngx_iovec_t,
@@ -14719,7 +15842,7 @@ extern "C" {
 }
 pub type ngx_listening_t = ngx_listening_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_listening_s {
     pub fd: ngx_socket_t,
     pub sockaddr: *mut sockaddr,
@@ -15002,6 +16125,15 @@ fn bindgen_test_layout_ngx_listening_s() {
             stringify!(fastopen)
         )
     );
+}
+impl Default for ngx_listening_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_listening_s {
     #[inline]
@@ -15314,7 +16446,7 @@ pub const ngx_connection_tcp_nopush_e_NGX_TCP_NOPUSH_SET: ngx_connection_tcp_nop
 pub const ngx_connection_tcp_nopush_e_NGX_TCP_NOPUSH_DISABLED: ngx_connection_tcp_nopush_e = 2;
 pub type ngx_connection_tcp_nopush_e = ::std::os::raw::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_connection_s {
     pub data: *mut ::std::os::raw::c_void,
     pub read: *mut ngx_event_t,
@@ -15630,6 +16762,15 @@ fn bindgen_test_layout_ngx_connection_s() {
             stringify!(sendfile_task)
         )
     );
+}
+impl Default for ngx_connection_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_connection_s {
     #[inline]
@@ -15966,7 +17107,7 @@ extern "C" {
     pub fn ngx_reusable_connection(c: *mut ngx_connection_t, reusable: ngx_uint_t);
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_syslog_peer_t {
     pub facility: ngx_uint_t,
     pub severity: ngx_uint_t,
@@ -16075,6 +17216,15 @@ fn bindgen_test_layout_ngx_syslog_peer_t() {
         )
     );
 }
+impl Default for ngx_syslog_peer_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_syslog_peer_t {
     #[inline]
     pub fn busy(&self) -> ::std::os::raw::c_uint {
@@ -16131,7 +17281,7 @@ extern "C" {
     pub fn ngx_syslog_send(peer: *mut ngx_syslog_peer_t, buf: *mut u_char, len: usize) -> isize;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_proxy_protocol_s {
     pub src_addr: ngx_str_t,
     pub dst_addr: ngx_str_t,
@@ -16204,6 +17354,15 @@ fn bindgen_test_layout_ngx_proxy_protocol_s() {
         )
     );
 }
+impl Default for ngx_proxy_protocol_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_proxy_protocol_read(
         c: *mut ngx_connection_t,
@@ -16229,7 +17388,7 @@ extern "C" {
     pub fn ngx_cpuinfo();
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_event_s {
     pub data: *mut ::std::os::raw::c_void,
     pub _bitfield_align_1: [u8; 0],
@@ -16325,6 +17484,15 @@ fn bindgen_test_layout_ngx_event_s() {
             stringify!(queue)
         )
     );
+}
+impl Default for ngx_event_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_event_s {
     #[inline]
@@ -16655,7 +17823,7 @@ impl ngx_event_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_event_actions_t {
     pub add: ::std::option::Option<
         unsafe extern "C" fn(
@@ -16829,7 +17997,7 @@ extern "C" {
     pub static mut ngx_io: ngx_os_io_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_event_conf_t {
     pub connections: ngx_uint_t,
     pub use_: ngx_uint_t,
@@ -16913,8 +18081,17 @@ fn bindgen_test_layout_ngx_event_conf_t() {
         )
     );
 }
+impl Default for ngx_event_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_event_module_t {
     pub name: *mut ngx_str_t,
     pub create_conf: ::std::option::Option<
@@ -16982,6 +18159,15 @@ fn bindgen_test_layout_ngx_event_module_t() {
             stringify!(actions)
         )
     );
+}
+impl Default for ngx_event_module_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub static mut ngx_connection_counter: *mut ngx_atomic_t;
@@ -17138,6 +18324,20 @@ fn bindgen_test_layout_ngx_addrinfo_t() {
         )
     );
 }
+impl Default for ngx_addrinfo_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_addrinfo_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "ngx_addrinfo_t {{ union }}")
+    }
+}
 extern "C" {
     pub fn ngx_set_srcaddr_cmsg(cmsg: *mut cmsghdr, local_sockaddr: *mut sockaddr) -> usize;
 }
@@ -17203,7 +18403,7 @@ pub type ngx_http_get_variable_pt = ::std::option::Option<
     ) -> ngx_int_t,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_variable_s {
     pub name: ngx_str_t,
     pub set_handler: ngx_http_set_variable_pt,
@@ -17287,6 +18487,15 @@ fn bindgen_test_layout_ngx_http_variable_s() {
         )
     );
 }
+impl Default for ngx_http_variable_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_http_add_variable(
         cf: *mut ngx_conf_t,
@@ -17326,7 +18535,7 @@ extern "C" {
     ) -> ngx_int_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_regex_variable_t {
     pub capture: ngx_uint_t,
     pub index: ngx_int_t,
@@ -17368,7 +18577,7 @@ fn bindgen_test_layout_ngx_http_regex_variable_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_regex_t {
     pub regex: *mut ngx_regex_t,
     pub ncaptures: ngx_uint_t,
@@ -17441,8 +18650,17 @@ fn bindgen_test_layout_ngx_http_regex_t() {
         )
     );
 }
+impl Default for ngx_http_regex_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_map_regex_t {
     pub regex: *mut ngx_http_regex_t,
     pub value: *mut ::std::os::raw::c_void,
@@ -17482,6 +18700,15 @@ fn bindgen_test_layout_ngx_http_map_regex_t() {
         )
     );
 }
+impl Default for ngx_http_map_regex_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_http_regex_compile(
         cf: *mut ngx_conf_t,
@@ -17496,7 +18723,7 @@ extern "C" {
     ) -> ngx_int_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_map_t {
     pub hash: ngx_hash_combined_t,
     pub regex: *mut ngx_http_map_regex_t,
@@ -17547,6 +18774,15 @@ fn bindgen_test_layout_ngx_http_map_t() {
         )
     );
 }
+impl Default for ngx_http_map_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_http_map_find(
         r: *mut ngx_http_request_t,
@@ -17567,7 +18803,7 @@ extern "C" {
     pub static mut ngx_http_variable_true_value: ngx_http_variable_value_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_conf_ctx_t {
     pub main_conf: *mut *mut ::std::os::raw::c_void,
     pub srv_conf: *mut *mut ::std::os::raw::c_void,
@@ -17618,8 +18854,17 @@ fn bindgen_test_layout_ngx_http_conf_ctx_t() {
         )
     );
 }
+impl Default for ngx_http_conf_ctx_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_module_t {
     pub preconfiguration:
         ::std::option::Option<unsafe extern "C" fn(cf: *mut ngx_conf_t) -> ngx_int_t>,
@@ -17761,7 +19006,7 @@ pub const ngx_http_state_e_NGX_HTTP_LINGERING_CLOSE_STATE: ngx_http_state_e = 7;
 pub const ngx_http_state_e_NGX_HTTP_KEEPALIVE_STATE: ngx_http_state_e = 8;
 pub type ngx_http_state_e = ::std::os::raw::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_header_t {
     pub name: ngx_str_t,
     pub offset: ngx_uint_t,
@@ -17812,8 +19057,17 @@ fn bindgen_test_layout_ngx_http_header_t() {
         )
     );
 }
+impl Default for ngx_http_header_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_header_out_t {
     pub name: ngx_str_t,
     pub offset: ngx_uint_t,
@@ -17854,8 +19108,17 @@ fn bindgen_test_layout_ngx_http_header_out_t() {
         )
     );
 }
+impl Default for ngx_http_header_out_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_headers_in_t {
     pub headers: ngx_list_t,
     pub host: *mut ngx_table_elt_t,
@@ -18273,6 +19536,15 @@ fn bindgen_test_layout_ngx_http_headers_in_t() {
         )
     );
 }
+impl Default for ngx_http_headers_in_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_headers_in_t {
     #[inline]
     pub fn connection_type(&self) -> ::std::os::raw::c_uint {
@@ -18458,7 +19730,7 @@ impl ngx_http_headers_in_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_headers_out_t {
     pub headers: ngx_list_t,
     pub trailers: ngx_list_t,
@@ -18785,10 +20057,19 @@ fn bindgen_test_layout_ngx_http_headers_out_t() {
         )
     );
 }
+impl Default for ngx_http_headers_out_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_http_client_body_handler_pt =
     ::std::option::Option<unsafe extern "C" fn(r: *mut ngx_http_request_t)>;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_request_body_t {
     pub temp_file: *mut ngx_temp_file_t,
     pub bufs: *mut ngx_chain_t,
@@ -18909,6 +20190,15 @@ fn bindgen_test_layout_ngx_http_request_body_t() {
         )
     );
 }
+impl Default for ngx_http_request_body_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_request_body_t {
     #[inline]
     pub fn filter_need_buffering(&self) -> ::std::os::raw::c_uint {
@@ -18968,7 +20258,7 @@ impl ngx_http_request_body_t {
 }
 pub type ngx_http_addr_conf_t = ngx_http_addr_conf_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_connection_t {
     pub addr_conf: *mut ngx_http_addr_conf_t,
     pub conf_ctx: *mut ngx_http_conf_ctx_t,
@@ -19067,6 +20357,15 @@ fn bindgen_test_layout_ngx_http_connection_t() {
         )
     );
 }
+impl Default for ngx_http_connection_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_connection_t {
     #[inline]
     pub fn ssl(&self) -> ::std::os::raw::c_uint {
@@ -19111,7 +20410,7 @@ pub type ngx_http_cleanup_pt =
     ::std::option::Option<unsafe extern "C" fn(data: *mut ::std::os::raw::c_void)>;
 pub type ngx_http_cleanup_t = ngx_http_cleanup_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_cleanup_s {
     pub handler: ngx_http_cleanup_pt,
     pub data: *mut ::std::os::raw::c_void,
@@ -19162,6 +20461,15 @@ fn bindgen_test_layout_ngx_http_cleanup_s() {
         )
     );
 }
+impl Default for ngx_http_cleanup_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_http_post_subrequest_pt = ::std::option::Option<
     unsafe extern "C" fn(
         r: *mut ngx_http_request_t,
@@ -19170,7 +20478,7 @@ pub type ngx_http_post_subrequest_pt = ::std::option::Option<
     ) -> ngx_int_t,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_post_subrequest_t {
     pub handler: ngx_http_post_subrequest_pt,
     pub data: *mut ::std::os::raw::c_void,
@@ -19211,9 +20519,18 @@ fn bindgen_test_layout_ngx_http_post_subrequest_t() {
         )
     );
 }
+impl Default for ngx_http_post_subrequest_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_http_postponed_request_t = ngx_http_postponed_request_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_postponed_request_s {
     pub request: *mut ngx_http_request_t,
     pub out: *mut ngx_chain_t,
@@ -19265,9 +20582,18 @@ fn bindgen_test_layout_ngx_http_postponed_request_s() {
         )
     );
 }
+impl Default for ngx_http_postponed_request_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_http_posted_request_t = ngx_http_posted_request_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_posted_request_s {
     pub request: *mut ngx_http_request_t,
     pub next: *mut ngx_http_posted_request_t,
@@ -19308,12 +20634,21 @@ fn bindgen_test_layout_ngx_http_posted_request_s() {
         )
     );
 }
+impl Default for ngx_http_posted_request_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_http_handler_pt =
     ::std::option::Option<unsafe extern "C" fn(r: *mut ngx_http_request_t) -> ngx_int_t>;
 pub type ngx_http_event_handler_pt =
     ::std::option::Option<unsafe extern "C" fn(r: *mut ngx_http_request_t)>;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_request_s {
     pub signature: u32,
     pub connection: *mut ngx_connection_t,
@@ -20127,6 +21462,15 @@ fn bindgen_test_layout_ngx_http_request_s() {
             stringify!(port_end)
         )
     );
+}
+impl Default for ngx_http_request_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_http_request_s {
     #[inline]
@@ -21289,7 +22633,7 @@ impl ngx_http_request_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_ephemeral_t {
     pub terminal_posted_request: ngx_http_posted_request_t,
 }
@@ -21318,6 +22662,15 @@ fn bindgen_test_layout_ngx_http_ephemeral_t() {
         )
     );
 }
+impl Default for ngx_http_ephemeral_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub static mut ngx_http_headers_in: [ngx_http_header_t; 0usize];
 }
@@ -21325,7 +22678,7 @@ extern "C" {
     pub static mut ngx_http_headers_out: [ngx_http_header_out_t; 0usize];
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_script_engine_t {
     pub ip: *mut u_char,
     pub pos: *mut u_char,
@@ -21434,6 +22787,15 @@ fn bindgen_test_layout_ngx_http_script_engine_t() {
         )
     );
 }
+impl Default for ngx_http_script_engine_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_script_engine_t {
     #[inline]
     pub fn flushed(&self) -> ::std::os::raw::c_uint {
@@ -21523,7 +22885,7 @@ impl ngx_http_script_engine_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_script_compile_t {
     pub cf: *mut ngx_conf_t,
     pub source: *mut ngx_str_t,
@@ -21654,6 +23016,15 @@ fn bindgen_test_layout_ngx_http_script_compile_t() {
             stringify!(main)
         )
     );
+}
+impl Default for ngx_http_script_compile_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_http_script_compile_t {
     #[inline]
@@ -21837,6 +23208,20 @@ fn bindgen_test_layout_ngx_http_complex_value_t__bindgen_ty_1() {
         )
     );
 }
+impl Default for ngx_http_complex_value_t__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_http_complex_value_t__bindgen_ty_1 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "ngx_http_complex_value_t__bindgen_ty_1 {{ union }}")
+    }
+}
 #[test]
 fn bindgen_test_layout_ngx_http_complex_value_t() {
     const UNINIT: ::std::mem::MaybeUninit<ngx_http_complex_value_t> =
@@ -21903,8 +23288,22 @@ fn bindgen_test_layout_ngx_http_complex_value_t() {
         )
     );
 }
+impl Default for ngx_http_complex_value_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_http_complex_value_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write ! (f , "ngx_http_complex_value_t {{ value: {:?}, flushes: {:?}, lengths: {:?}, values: {:?}, u: {:?} }}" , self . value , self . flushes , self . lengths , self . values , self . u)
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_compile_complex_value_t {
     pub cf: *mut ngx_conf_t,
     pub value: *mut ngx_str_t,
@@ -21961,6 +23360,15 @@ fn bindgen_test_layout_ngx_http_compile_complex_value_t() {
             stringify!(complex_value)
         )
     );
+}
+impl Default for ngx_http_compile_complex_value_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_http_compile_complex_value_t {
     #[inline]
@@ -22023,7 +23431,7 @@ pub type ngx_http_script_code_pt =
 pub type ngx_http_script_len_code_pt =
     ::std::option::Option<unsafe extern "C" fn(e: *mut ngx_http_script_engine_t) -> usize>;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_script_copy_code_t {
     pub code: ngx_http_script_code_pt,
     pub len: usize,
@@ -22065,7 +23473,7 @@ fn bindgen_test_layout_ngx_http_script_copy_code_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_script_var_code_t {
     pub code: ngx_http_script_code_pt,
     pub index: usize,
@@ -22107,7 +23515,7 @@ fn bindgen_test_layout_ngx_http_script_var_code_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_script_var_handler_code_t {
     pub code: ngx_http_script_code_pt,
     pub handler: ngx_http_set_variable_pt,
@@ -22163,7 +23571,7 @@ fn bindgen_test_layout_ngx_http_script_var_handler_code_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_script_copy_capture_code_t {
     pub code: ngx_http_script_code_pt,
     pub n: usize,
@@ -22208,7 +23616,7 @@ fn bindgen_test_layout_ngx_http_script_copy_capture_code_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_script_regex_code_t {
     pub code: ngx_http_script_code_pt,
     pub regex: *mut ngx_http_regex_t,
@@ -22305,6 +23713,15 @@ fn bindgen_test_layout_ngx_http_script_regex_code_t() {
             stringify!(name)
         )
     );
+}
+impl Default for ngx_http_script_regex_code_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_http_script_regex_code_t {
     #[inline]
@@ -22427,7 +23844,7 @@ impl ngx_http_script_regex_code_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_script_regex_end_code_t {
     pub code: ngx_http_script_code_pt,
     pub _bitfield_align_1: [u8; 0],
@@ -22536,7 +23953,7 @@ impl ngx_http_script_regex_end_code_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_script_full_name_code_t {
     pub code: ngx_http_script_code_pt,
     pub conf_prefix: usize,
@@ -22633,6 +24050,24 @@ fn bindgen_test_layout_ngx_http_script_return_code_t() {
         )
     );
 }
+impl Default for ngx_http_script_return_code_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_http_script_return_code_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "ngx_http_script_return_code_t {{ code: {:?}, text: {:?} }}",
+            self.code, self.text
+        )
+    }
+}
 pub const ngx_http_script_file_op_e_ngx_http_script_file_plain: ngx_http_script_file_op_e = 0;
 pub const ngx_http_script_file_op_e_ngx_http_script_file_not_plain: ngx_http_script_file_op_e = 1;
 pub const ngx_http_script_file_op_e_ngx_http_script_file_dir: ngx_http_script_file_op_e = 2;
@@ -22643,7 +24078,7 @@ pub const ngx_http_script_file_op_e_ngx_http_script_file_exec: ngx_http_script_f
 pub const ngx_http_script_file_op_e_ngx_http_script_file_not_exec: ngx_http_script_file_op_e = 7;
 pub type ngx_http_script_file_op_e = ::std::os::raw::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_script_file_code_t {
     pub code: ngx_http_script_code_pt,
     pub op: usize,
@@ -22685,7 +24120,7 @@ fn bindgen_test_layout_ngx_http_script_file_code_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_script_if_code_t {
     pub code: ngx_http_script_code_pt,
     pub next: usize,
@@ -22737,8 +24172,17 @@ fn bindgen_test_layout_ngx_http_script_if_code_t() {
         )
     );
 }
+impl Default for ngx_http_script_if_code_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_script_complex_value_code_t {
     pub code: ngx_http_script_code_pt,
     pub lengths: *mut ngx_array_t,
@@ -22785,8 +24229,17 @@ fn bindgen_test_layout_ngx_http_script_complex_value_code_t() {
         )
     );
 }
+impl Default for ngx_http_script_complex_value_code_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_script_value_code_t {
     pub code: ngx_http_script_code_pt,
     pub value: usize,
@@ -23044,7 +24497,7 @@ pub type ngx_event_save_peer_session_pt = ::std::option::Option<
     unsafe extern "C" fn(pc: *mut ngx_peer_connection_t, data: *mut ::std::os::raw::c_void),
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_peer_connection_s {
     pub connection: *mut ngx_connection_t,
     pub sockaddr: *mut sockaddr,
@@ -23252,6 +24705,15 @@ fn bindgen_test_layout_ngx_peer_connection_s() {
         )
     );
 }
+impl Default for ngx_peer_connection_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_peer_connection_s {
     #[inline]
     pub fn cached(&self) -> ::std::os::raw::c_uint {
@@ -23357,7 +24819,7 @@ pub type ngx_event_pipe_output_filter_pt = ::std::option::Option<
     unsafe extern "C" fn(data: *mut ::std::os::raw::c_void, chain: *mut ngx_chain_t) -> ngx_int_t,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_event_pipe_s {
     pub upstream: *mut ngx_connection_t,
     pub downstream: *mut ngx_connection_t,
@@ -23775,6 +25237,15 @@ fn bindgen_test_layout_ngx_event_pipe_s() {
         )
     );
 }
+impl Default for ngx_event_pipe_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_event_pipe_s {
     #[inline]
     pub fn read(&self) -> ::std::os::raw::c_uint {
@@ -23988,7 +25459,7 @@ extern "C" {
     pub fn ngx_event_pipe_add_free_buf(p: *mut ngx_event_pipe_t, b: *mut ngx_buf_t) -> ngx_int_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_state_t {
     pub status: ngx_uint_t,
     pub response_time: ngx_msec_t,
@@ -24106,8 +25577,17 @@ fn bindgen_test_layout_ngx_http_upstream_state_t() {
         )
     );
 }
+impl Default for ngx_http_upstream_state_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_main_conf_t {
     pub headers_in_hash: ngx_hash_t,
     pub upstreams: ngx_array_t,
@@ -24148,6 +25628,15 @@ fn bindgen_test_layout_ngx_http_upstream_main_conf_t() {
         )
     );
 }
+impl Default for ngx_http_upstream_main_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_http_upstream_srv_conf_t = ngx_http_upstream_srv_conf_s;
 pub type ngx_http_upstream_init_pt = ::std::option::Option<
     unsafe extern "C" fn(cf: *mut ngx_conf_t, us: *mut ngx_http_upstream_srv_conf_t) -> ngx_int_t,
@@ -24159,7 +25648,7 @@ pub type ngx_http_upstream_init_peer_pt = ::std::option::Option<
     ) -> ngx_int_t,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_peer_t {
     pub init_upstream: ngx_http_upstream_init_pt,
     pub init: ngx_http_upstream_init_peer_pt,
@@ -24211,8 +25700,17 @@ fn bindgen_test_layout_ngx_http_upstream_peer_t() {
         )
     );
 }
+impl Default for ngx_http_upstream_peer_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_server_t {
     pub name: ngx_str_t,
     pub addrs: *mut ngx_addr_t,
@@ -24343,6 +25841,15 @@ fn bindgen_test_layout_ngx_http_upstream_server_t() {
         )
     );
 }
+impl Default for ngx_http_upstream_server_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_upstream_server_t {
     #[inline]
     pub fn backup(&self) -> ::std::os::raw::c_uint {
@@ -24366,7 +25873,7 @@ impl ngx_http_upstream_server_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_srv_conf_s {
     pub peer: ngx_http_upstream_peer_t,
     pub srv_conf: *mut *mut ::std::os::raw::c_void,
@@ -24495,8 +26002,17 @@ fn bindgen_test_layout_ngx_http_upstream_srv_conf_s() {
         )
     );
 }
+impl Default for ngx_http_upstream_srv_conf_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_local_t {
     pub addr: *mut ngx_addr_t,
     pub value: *mut ngx_http_complex_value_t,
@@ -24548,8 +26064,17 @@ fn bindgen_test_layout_ngx_http_upstream_local_t() {
         )
     );
 }
+impl Default for ngx_http_upstream_local_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_conf_t {
     pub upstream: *mut ngx_http_upstream_srv_conf_t,
     pub connect_timeout: ngx_msec_t,
@@ -25241,6 +26766,15 @@ fn bindgen_test_layout_ngx_http_upstream_conf_t() {
         )
     );
 }
+impl Default for ngx_http_upstream_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_upstream_conf_t {
     #[inline]
     pub fn cache(&self) -> ::std::os::raw::c_int {
@@ -25346,7 +26880,7 @@ impl ngx_http_upstream_conf_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_header_t {
     pub name: ngx_str_t,
     pub handler: ngx_http_header_handler_pt,
@@ -25431,8 +26965,17 @@ fn bindgen_test_layout_ngx_http_upstream_header_t() {
         )
     );
 }
+impl Default for ngx_http_upstream_header_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_headers_in_t {
     pub headers: ngx_list_t,
     pub trailers: ngx_list_t,
@@ -25729,6 +27272,15 @@ fn bindgen_test_layout_ngx_http_upstream_headers_in_t() {
         )
     );
 }
+impl Default for ngx_http_upstream_headers_in_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_upstream_headers_in_t {
     #[inline]
     pub fn connection_close(&self) -> ::std::os::raw::c_uint {
@@ -25802,7 +27354,7 @@ impl ngx_http_upstream_headers_in_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_resolved_t {
     pub host: ngx_str_t,
     pub port: in_port_t,
@@ -25920,11 +27472,20 @@ fn bindgen_test_layout_ngx_http_upstream_resolved_t() {
         )
     );
 }
+impl Default for ngx_http_upstream_resolved_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_http_upstream_handler_pt = ::std::option::Option<
     unsafe extern "C" fn(r: *mut ngx_http_request_t, u: *mut ngx_http_upstream_t),
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_s {
     pub read_event_handler: ngx_http_upstream_handler_pt,
     pub write_event_handler: ngx_http_upstream_handler_pt,
@@ -26357,6 +27918,15 @@ fn bindgen_test_layout_ngx_http_upstream_s() {
         )
     );
 }
+impl Default for ngx_http_upstream_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_upstream_s {
     #[inline]
     pub fn store(&self) -> ::std::os::raw::c_uint {
@@ -26574,7 +28144,7 @@ impl ngx_http_upstream_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_next_t {
     pub status: ngx_uint_t,
     pub mask: ngx_uint_t,
@@ -26616,7 +28186,7 @@ fn bindgen_test_layout_ngx_http_upstream_next_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_param_t {
     pub key: ngx_str_t,
     pub value: ngx_str_t,
@@ -26667,6 +28237,15 @@ fn bindgen_test_layout_ngx_http_upstream_param_t() {
             stringify!(skip_empty)
         )
     );
+}
+impl Default for ngx_http_upstream_param_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn ngx_http_upstream_create(r: *mut ngx_http_request_t) -> ngx_int_t;
@@ -26726,7 +28305,7 @@ extern "C" {
 }
 pub type ngx_http_upstream_rr_peer_t = ngx_http_upstream_rr_peer_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_rr_peer_s {
     pub sockaddr: *mut sockaddr,
     pub socklen: socklen_t,
@@ -26987,9 +28566,18 @@ fn bindgen_test_layout_ngx_http_upstream_rr_peer_s() {
         )
     );
 }
+impl Default for ngx_http_upstream_rr_peer_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_http_upstream_rr_peers_t = ngx_http_upstream_rr_peers_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_rr_peers_s {
     pub number: ngx_uint_t,
     pub shpool: *mut ngx_slab_pool_t,
@@ -27109,6 +28697,15 @@ fn bindgen_test_layout_ngx_http_upstream_rr_peers_s() {
         )
     );
 }
+impl Default for ngx_http_upstream_rr_peers_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_upstream_rr_peers_s {
     #[inline]
     pub fn single(&self) -> ::std::os::raw::c_uint {
@@ -27150,7 +28747,7 @@ impl ngx_http_upstream_rr_peers_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_upstream_rr_peer_data_t {
     pub config: ngx_uint_t,
     pub peers: *mut ngx_http_upstream_rr_peers_t,
@@ -27227,6 +28824,15 @@ fn bindgen_test_layout_ngx_http_upstream_rr_peer_data_t() {
         )
     );
 }
+impl Default for ngx_http_upstream_rr_peer_data_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_http_upstream_init_round_robin(
         cf: *mut ngx_conf_t,
@@ -27271,7 +28877,7 @@ extern "C" {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_thread_task_s {
     pub next: *mut ngx_thread_task_t,
     pub id: ngx_uint_t,
@@ -27346,6 +28952,15 @@ fn bindgen_test_layout_ngx_thread_task_s() {
         )
     );
 }
+impl Default for ngx_thread_task_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ngx_thread_pool_s {
@@ -27374,7 +28989,7 @@ extern "C" {
 pub type ngx_http_location_tree_node_t = ngx_http_location_tree_node_s;
 pub type ngx_http_core_loc_conf_t = ngx_http_core_loc_conf_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_listen_opt_t {
     pub sockaddr: *mut sockaddr,
     pub socklen: socklen_t,
@@ -27504,6 +29119,15 @@ fn bindgen_test_layout_ngx_http_listen_opt_t() {
             stringify!(tcp_keepcnt)
         )
     );
+}
+impl Default for ngx_http_listen_opt_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_http_listen_opt_t {
     #[inline]
@@ -27709,7 +29333,7 @@ pub type ngx_http_phase_handler_pt = ::std::option::Option<
     ) -> ngx_int_t,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_phase_handler_s {
     pub checker: ngx_http_phase_handler_pt,
     pub handler: ngx_http_handler_pt,
@@ -27762,7 +29386,7 @@ fn bindgen_test_layout_ngx_http_phase_handler_s() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_phase_engine_t {
     pub handlers: *mut ngx_http_phase_handler_t,
     pub server_rewrite_index: ngx_uint_t,
@@ -27814,8 +29438,17 @@ fn bindgen_test_layout_ngx_http_phase_engine_t() {
         )
     );
 }
+impl Default for ngx_http_phase_engine_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_phase_t {
     pub handlers: ngx_array_t,
 }
@@ -27844,8 +29477,17 @@ fn bindgen_test_layout_ngx_http_phase_t() {
         )
     );
 }
+impl Default for ngx_http_phase_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_core_main_conf_t {
     pub servers: ngx_array_t,
     pub phase_engine: ngx_http_phase_engine_t,
@@ -28020,8 +29662,17 @@ fn bindgen_test_layout_ngx_http_core_main_conf_t() {
         )
     );
 }
+impl Default for ngx_http_core_main_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_core_srv_conf_t {
     pub server_names: ngx_array_t,
     pub ctx: *mut ngx_http_conf_ctx_t,
@@ -28196,6 +29847,15 @@ fn bindgen_test_layout_ngx_http_core_srv_conf_t() {
         )
     );
 }
+impl Default for ngx_http_core_srv_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_core_srv_conf_t {
     #[inline]
     pub fn listen(&self) -> ::std::os::raw::c_uint {
@@ -28237,7 +29897,7 @@ impl ngx_http_core_srv_conf_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_server_name_t {
     pub regex: *mut ngx_http_regex_t,
     pub server: *mut ngx_http_core_srv_conf_t,
@@ -28289,8 +29949,17 @@ fn bindgen_test_layout_ngx_http_server_name_t() {
         )
     );
 }
+impl Default for ngx_http_server_name_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_virtual_names_t {
     pub names: ngx_hash_combined_t,
     pub nregex: ngx_uint_t,
@@ -28342,8 +30011,17 @@ fn bindgen_test_layout_ngx_http_virtual_names_t() {
         )
     );
 }
+impl Default for ngx_http_virtual_names_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_addr_conf_s {
     pub default_server: *mut ngx_http_core_srv_conf_t,
     pub virtual_names: *mut ngx_http_virtual_names_t,
@@ -28385,6 +30063,15 @@ fn bindgen_test_layout_ngx_http_addr_conf_s() {
             stringify!(virtual_names)
         )
     );
+}
+impl Default for ngx_http_addr_conf_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_http_addr_conf_s {
     #[inline]
@@ -28443,7 +30130,7 @@ impl ngx_http_addr_conf_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_in_addr_t {
     pub addr: in_addr_t,
     pub conf: ngx_http_addr_conf_t,
@@ -28482,6 +30169,15 @@ fn bindgen_test_layout_ngx_http_in_addr_t() {
             stringify!(conf)
         )
     );
+}
+impl Default for ngx_http_in_addr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -28524,8 +30220,26 @@ fn bindgen_test_layout_ngx_http_in6_addr_t() {
         )
     );
 }
+impl Default for ngx_http_in6_addr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_http_in6_addr_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "ngx_http_in6_addr_t {{ addr6: {:?}, conf: {:?} }}",
+            self.addr6, self.conf
+        )
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_port_t {
     pub addrs: *mut ::std::os::raw::c_void,
     pub naddrs: ngx_uint_t,
@@ -28565,8 +30279,17 @@ fn bindgen_test_layout_ngx_http_port_t() {
         )
     );
 }
+impl Default for ngx_http_port_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_conf_port_t {
     pub family: ngx_int_t,
     pub port: in_port_t,
@@ -28617,8 +30340,17 @@ fn bindgen_test_layout_ngx_http_conf_port_t() {
         )
     );
 }
+impl Default for ngx_http_conf_port_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_conf_addr_t {
     pub opt: ngx_http_listen_opt_t,
     pub _bitfield_align_1: [u8; 0],
@@ -28725,6 +30457,15 @@ fn bindgen_test_layout_ngx_http_conf_addr_t() {
             stringify!(servers)
         )
     );
+}
+impl Default for ngx_http_conf_addr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_http_conf_addr_t {
     #[inline]
@@ -28845,8 +30586,26 @@ fn bindgen_test_layout_ngx_http_err_page_t() {
         )
     );
 }
+impl Default for ngx_http_err_page_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_http_err_page_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "ngx_http_err_page_t {{ value: {:?}, args: {:?} }}",
+            self.value, self.args
+        )
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_core_loc_conf_s {
     pub name: ngx_str_t,
     pub escaped_name: ngx_str_t,
@@ -29784,6 +31543,15 @@ fn bindgen_test_layout_ngx_http_core_loc_conf_s() {
         )
     );
 }
+impl Default for ngx_http_core_loc_conf_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_core_loc_conf_s {
     #[inline]
     pub fn noname(&self) -> ::std::os::raw::c_uint {
@@ -29922,7 +31690,7 @@ impl ngx_http_core_loc_conf_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_location_queue_t {
     pub queue: ngx_queue_t,
     pub exact: *mut ngx_http_core_loc_conf_t,
@@ -30018,8 +31786,17 @@ fn bindgen_test_layout_ngx_http_location_queue_t() {
         )
     );
 }
+impl Default for ngx_http_location_queue_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_location_tree_node_s {
     pub left: *mut ngx_http_location_tree_node_t,
     pub right: *mut ngx_http_location_tree_node_t,
@@ -30125,6 +31902,15 @@ fn bindgen_test_layout_ngx_http_location_tree_node_s() {
             stringify!(name)
         )
     );
+}
+impl Default for ngx_http_location_tree_node_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn ngx_http_core_run_phases(r: *mut ngx_http_request_t);
@@ -30297,7 +32083,7 @@ pub type ngx_http_v2_handler_pt = ::std::option::Option<
     ) -> *mut u_char,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_v2_header_t {
     pub name: ngx_str_t,
     pub value: ngx_str_t,
@@ -30337,8 +32123,17 @@ fn bindgen_test_layout_ngx_http_v2_header_t() {
         )
     );
 }
+impl Default for ngx_http_v2_header_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_v2_state_t {
     pub sid: ngx_uint_t,
     pub length: usize,
@@ -30512,6 +32307,15 @@ fn bindgen_test_layout_ngx_http_v2_state_t() {
         )
     );
 }
+impl Default for ngx_http_v2_state_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_v2_state_t {
     #[inline]
     pub fn flags(&self) -> ::std::os::raw::c_uint {
@@ -30617,7 +32421,7 @@ impl ngx_http_v2_state_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_v2_hpack_t {
     pub entries: *mut *mut ngx_http_v2_header_t,
     pub added: ngx_uint_t,
@@ -30734,8 +32538,17 @@ fn bindgen_test_layout_ngx_http_v2_hpack_t() {
         )
     );
 }
+impl Default for ngx_http_v2_hpack_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_v2_connection_s {
     pub connection: *mut ngx_connection_t,
     pub http_connection: *mut ngx_http_connection_t,
@@ -31065,6 +32878,15 @@ fn bindgen_test_layout_ngx_http_v2_connection_s() {
         )
     );
 }
+impl Default for ngx_http_v2_connection_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_v2_connection_s {
     #[inline]
     pub fn settings_ack(&self) -> ::std::os::raw::c_uint {
@@ -31154,7 +32976,7 @@ impl ngx_http_v2_connection_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_v2_node_s {
     pub id: ngx_uint_t,
     pub index: *mut ngx_http_v2_node_t,
@@ -31282,8 +33104,17 @@ fn bindgen_test_layout_ngx_http_v2_node_s() {
         )
     );
 }
+impl Default for ngx_http_v2_node_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_v2_stream_s {
     pub request: *mut ngx_http_request_t,
     pub connection: *mut ngx_http_v2_connection_t,
@@ -31458,6 +33289,15 @@ fn bindgen_test_layout_ngx_http_v2_stream_s() {
         )
     );
 }
+impl Default for ngx_http_v2_stream_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_v2_stream_s {
     #[inline]
     pub fn waiting(&self) -> ::std::os::raw::c_uint {
@@ -31595,7 +33435,7 @@ impl ngx_http_v2_stream_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_v2_out_frame_s {
     pub next: *mut ngx_http_v2_out_frame_t,
     pub first: *mut ngx_chain_t,
@@ -31687,6 +33527,15 @@ fn bindgen_test_layout_ngx_http_v2_out_frame_s() {
             stringify!(length)
         )
     );
+}
+impl Default for ngx_http_v2_out_frame_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_http_v2_out_frame_s {
     #[inline]
@@ -31781,7 +33630,7 @@ extern "C" {
     ) -> *mut u_char;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_cache_valid_t {
     pub status: ngx_uint_t,
     pub valid: time_t,
@@ -31823,7 +33672,7 @@ fn bindgen_test_layout_ngx_http_cache_valid_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_file_cache_node_t {
     pub node: ngx_rbtree_node_t,
     pub queue: ngx_queue_t,
@@ -31942,6 +33791,15 @@ fn bindgen_test_layout_ngx_http_file_cache_node_t() {
             stringify!(lock_time)
         )
     );
+}
+impl Default for ngx_http_file_cache_node_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_http_file_cache_node_t {
     #[inline]
@@ -32080,7 +33938,7 @@ impl ngx_http_file_cache_node_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_cache_s {
     pub file: ngx_file_t,
     pub keys: ngx_array_t,
@@ -32453,6 +34311,15 @@ fn bindgen_test_layout_ngx_http_cache_s() {
         )
     );
 }
+impl Default for ngx_http_cache_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_cache_s {
     #[inline]
     pub fn lock(&self) -> ::std::os::raw::c_uint {
@@ -32670,7 +34537,7 @@ impl ngx_http_cache_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_file_cache_header_t {
     pub version: ngx_uint_t,
     pub valid_sec: time_t,
@@ -32854,8 +34721,17 @@ fn bindgen_test_layout_ngx_http_file_cache_header_t() {
         )
     );
 }
+impl Default for ngx_http_file_cache_header_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_file_cache_sh_t {
     pub rbtree: ngx_rbtree_t,
     pub sentinel: ngx_rbtree_node_t,
@@ -32962,8 +34838,17 @@ fn bindgen_test_layout_ngx_http_file_cache_sh_t() {
         )
     );
 }
+impl Default for ngx_http_file_cache_sh_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_file_cache_s {
     pub sh: *mut ngx_http_file_cache_sh_t,
     pub shpool: *mut ngx_slab_pool_t,
@@ -33180,6 +35065,15 @@ fn bindgen_test_layout_ngx_http_file_cache_s() {
         )
     );
 }
+impl Default for ngx_http_file_cache_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_http_file_cache_new(r: *mut ngx_http_request_t) -> ngx_int_t;
 }
@@ -33231,7 +35125,7 @@ extern "C" {
     pub static mut ngx_http_cache_status: [ngx_str_t; 0usize];
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_ssi_main_conf_t {
     pub hash: ngx_hash_t,
     pub commands: ngx_hash_keys_arrays_t,
@@ -33272,8 +35166,17 @@ fn bindgen_test_layout_ngx_http_ssi_main_conf_t() {
         )
     );
 }
+impl Default for ngx_http_ssi_main_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_ssi_ctx_t {
     pub buf: *mut ngx_buf_t,
     pub pos: *mut u_char,
@@ -33601,6 +35504,15 @@ fn bindgen_test_layout_ngx_http_ssi_ctx_t() {
         )
     );
 }
+impl Default for ngx_http_ssi_ctx_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_ssi_ctx_t {
     #[inline]
     pub fn shared(&self) -> ::std::os::raw::c_uint {
@@ -33713,7 +35625,7 @@ pub type ngx_http_ssi_command_pt = ::std::option::Option<
     ) -> ngx_int_t,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_ssi_param_t {
     pub name: ngx_str_t,
     pub index: ngx_uint_t,
@@ -33756,6 +35668,15 @@ fn bindgen_test_layout_ngx_http_ssi_param_t() {
         )
     );
 }
+impl Default for ngx_http_ssi_param_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_http_ssi_param_t {
     #[inline]
     pub fn mandatory(&self) -> ::std::os::raw::c_uint {
@@ -33797,7 +35718,7 @@ impl ngx_http_ssi_param_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_ssi_command_t {
     pub name: ngx_str_t,
     pub handler: ngx_http_ssi_command_pt,
@@ -33851,6 +35772,15 @@ fn bindgen_test_layout_ngx_http_ssi_command_t() {
             stringify!(params)
         )
     );
+}
+impl Default for ngx_http_ssi_command_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_http_ssi_command_t {
     #[inline]
@@ -33912,7 +35842,7 @@ extern "C" {
     pub static mut ngx_http_ssi_filter_module: ngx_module_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_ssl_srv_conf_t {
     pub enable: ngx_flag_t,
     pub ssl: ngx_ssl_t,
@@ -34316,11 +36246,20 @@ fn bindgen_test_layout_ngx_http_ssl_srv_conf_t() {
         )
     );
 }
+impl Default for ngx_http_ssl_srv_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub static mut ngx_http_ssl_module: ngx_module_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_log_ctx_s {
     pub connection: *mut ngx_connection_t,
     pub request: *mut ngx_http_request_t,
@@ -34371,8 +36310,17 @@ fn bindgen_test_layout_ngx_http_log_ctx_s() {
         )
     );
 }
+impl Default for ngx_http_log_ctx_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_http_chunked_s {
     pub state: ngx_uint_t,
     pub size: off_t,
@@ -34424,7 +36372,7 @@ fn bindgen_test_layout_ngx_http_chunked_s() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_http_status_t {
     pub http_version: ngx_uint_t,
     pub code: ngx_uint_t,
@@ -34496,6 +36444,15 @@ fn bindgen_test_layout_ngx_http_status_t() {
             stringify!(end)
         )
     );
+}
+impl Default for ngx_http_status_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 extern "C" {
     pub fn ngx_http_add_location(
@@ -34709,6 +36666,9 @@ extern "C" {
     ) -> ngx_int_t;
 }
 extern "C" {
+    pub fn ngx_http_degraded(arg1: *mut ngx_http_request_t) -> ngx_uint_t;
+}
+extern "C" {
     pub fn ngx_http_huff_decode(
         state: *mut u_char,
         src: *mut u_char,
@@ -34742,7 +36702,2223 @@ extern "C" {
     pub static mut ngx_http_top_request_body_filter: ngx_http_request_body_filter_pt;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_ssl_conf_t {
+    pub enable: ngx_flag_t,
+    pub prefer_server_ciphers: ngx_flag_t,
+    pub ssl: ngx_ssl_t,
+    pub starttls: ngx_uint_t,
+    pub listen: ngx_uint_t,
+    pub protocols: ngx_uint_t,
+    pub verify: ngx_uint_t,
+    pub verify_depth: ngx_uint_t,
+    pub builtin_session_cache: isize,
+    pub session_timeout: time_t,
+    pub certificates: *mut ngx_array_t,
+    pub certificate_keys: *mut ngx_array_t,
+    pub dhparam: ngx_str_t,
+    pub ecdh_curve: ngx_str_t,
+    pub client_certificate: ngx_str_t,
+    pub trusted_certificate: ngx_str_t,
+    pub crl: ngx_str_t,
+    pub ciphers: ngx_str_t,
+    pub passwords: *mut ngx_array_t,
+    pub conf_commands: *mut ngx_array_t,
+    pub shm_zone: *mut ngx_shm_zone_t,
+    pub session_tickets: ngx_flag_t,
+    pub session_ticket_keys: *mut ngx_array_t,
+    pub file: *mut u_char,
+    pub line: ngx_uint_t,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_ssl_conf_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_ssl_conf_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_ssl_conf_t>(),
+        264usize,
+        concat!("Size of: ", stringify!(ngx_mail_ssl_conf_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_ssl_conf_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_ssl_conf_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).enable) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(enable)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).prefer_server_ciphers) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(prefer_server_ciphers)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ssl) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(ssl)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).starttls) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(starttls)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).listen) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(listen)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).protocols) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(protocols)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).verify) as usize - ptr as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(verify)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).verify_depth) as usize - ptr as usize },
+        72usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(verify_depth)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).builtin_session_cache) as usize - ptr as usize },
+        80usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(builtin_session_cache)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).session_timeout) as usize - ptr as usize },
+        88usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(session_timeout)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).certificates) as usize - ptr as usize },
+        96usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(certificates)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).certificate_keys) as usize - ptr as usize },
+        104usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(certificate_keys)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).dhparam) as usize - ptr as usize },
+        112usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(dhparam)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ecdh_curve) as usize - ptr as usize },
+        128usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(ecdh_curve)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).client_certificate) as usize - ptr as usize },
+        144usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(client_certificate)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).trusted_certificate) as usize - ptr as usize },
+        160usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(trusted_certificate)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).crl) as usize - ptr as usize },
+        176usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(crl)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ciphers) as usize - ptr as usize },
+        192usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(ciphers)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).passwords) as usize - ptr as usize },
+        208usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(passwords)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).conf_commands) as usize - ptr as usize },
+        216usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(conf_commands)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).shm_zone) as usize - ptr as usize },
+        224usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(shm_zone)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).session_tickets) as usize - ptr as usize },
+        232usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(session_tickets)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).session_ticket_keys) as usize - ptr as usize },
+        240usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(session_ticket_keys)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).file) as usize - ptr as usize },
+        248usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(file)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).line) as usize - ptr as usize },
+        256usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_ssl_conf_t),
+            "::",
+            stringify!(line)
+        )
+    );
+}
+impl Default for ngx_mail_ssl_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+extern "C" {
+    pub static mut ngx_mail_ssl_module: ngx_module_t;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_conf_ctx_t {
+    pub main_conf: *mut *mut ::std::os::raw::c_void,
+    pub srv_conf: *mut *mut ::std::os::raw::c_void,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_conf_ctx_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_conf_ctx_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_conf_ctx_t>(),
+        16usize,
+        concat!("Size of: ", stringify!(ngx_mail_conf_ctx_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_conf_ctx_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_conf_ctx_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).main_conf) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_conf_ctx_t),
+            "::",
+            stringify!(main_conf)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).srv_conf) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_conf_ctx_t),
+            "::",
+            stringify!(srv_conf)
+        )
+    );
+}
+impl Default for ngx_mail_conf_ctx_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_listen_t {
+    pub sockaddr: *mut sockaddr,
+    pub socklen: socklen_t,
+    pub addr_text: ngx_str_t,
+    pub ctx: *mut ngx_mail_conf_ctx_t,
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 1usize]>,
+    pub tcp_keepidle: ::std::os::raw::c_int,
+    pub tcp_keepintvl: ::std::os::raw::c_int,
+    pub tcp_keepcnt: ::std::os::raw::c_int,
+    pub backlog: ::std::os::raw::c_int,
+    pub rcvbuf: ::std::os::raw::c_int,
+    pub sndbuf: ::std::os::raw::c_int,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_listen_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_listen_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_listen_t>(),
+        72usize,
+        concat!("Size of: ", stringify!(ngx_mail_listen_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_listen_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_listen_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).sockaddr) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_listen_t),
+            "::",
+            stringify!(sockaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).socklen) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_listen_t),
+            "::",
+            stringify!(socklen)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).addr_text) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_listen_t),
+            "::",
+            stringify!(addr_text)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ctx) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_listen_t),
+            "::",
+            stringify!(ctx)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).tcp_keepidle) as usize - ptr as usize },
+        44usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_listen_t),
+            "::",
+            stringify!(tcp_keepidle)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).tcp_keepintvl) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_listen_t),
+            "::",
+            stringify!(tcp_keepintvl)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).tcp_keepcnt) as usize - ptr as usize },
+        52usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_listen_t),
+            "::",
+            stringify!(tcp_keepcnt)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).backlog) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_listen_t),
+            "::",
+            stringify!(backlog)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).rcvbuf) as usize - ptr as usize },
+        60usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_listen_t),
+            "::",
+            stringify!(rcvbuf)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).sndbuf) as usize - ptr as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_listen_t),
+            "::",
+            stringify!(sndbuf)
+        )
+    );
+}
+impl Default for ngx_mail_listen_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ngx_mail_listen_t {
+    #[inline]
+    pub fn bind(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_bind(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn wildcard(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_wildcard(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn ssl(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(2usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_ssl(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(2usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn ipv6only(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(3usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_ipv6only(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(3usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn so_keepalive(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(4usize, 2u8) as u32) }
+    }
+    #[inline]
+    pub fn set_so_keepalive(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(4usize, 2u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn proxy_protocol(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(6usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_proxy_protocol(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(6usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        bind: ::std::os::raw::c_uint,
+        wildcard: ::std::os::raw::c_uint,
+        ssl: ::std::os::raw::c_uint,
+        ipv6only: ::std::os::raw::c_uint,
+        so_keepalive: ::std::os::raw::c_uint,
+        proxy_protocol: ::std::os::raw::c_uint,
+    ) -> __BindgenBitfieldUnit<[u8; 1usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 1usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let bind: u32 = unsafe { ::std::mem::transmute(bind) };
+            bind as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let wildcard: u32 = unsafe { ::std::mem::transmute(wildcard) };
+            wildcard as u64
+        });
+        __bindgen_bitfield_unit.set(2usize, 1u8, {
+            let ssl: u32 = unsafe { ::std::mem::transmute(ssl) };
+            ssl as u64
+        });
+        __bindgen_bitfield_unit.set(3usize, 1u8, {
+            let ipv6only: u32 = unsafe { ::std::mem::transmute(ipv6only) };
+            ipv6only as u64
+        });
+        __bindgen_bitfield_unit.set(4usize, 2u8, {
+            let so_keepalive: u32 = unsafe { ::std::mem::transmute(so_keepalive) };
+            so_keepalive as u64
+        });
+        __bindgen_bitfield_unit.set(6usize, 1u8, {
+            let proxy_protocol: u32 = unsafe { ::std::mem::transmute(proxy_protocol) };
+            proxy_protocol as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_addr_conf_t {
+    pub ctx: *mut ngx_mail_conf_ctx_t,
+    pub addr_text: ngx_str_t,
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 1usize]>,
+    pub __bindgen_padding_0: [u8; 7usize],
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_addr_conf_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_addr_conf_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_addr_conf_t>(),
+        32usize,
+        concat!("Size of: ", stringify!(ngx_mail_addr_conf_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_addr_conf_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_addr_conf_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ctx) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_addr_conf_t),
+            "::",
+            stringify!(ctx)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).addr_text) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_addr_conf_t),
+            "::",
+            stringify!(addr_text)
+        )
+    );
+}
+impl Default for ngx_mail_addr_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ngx_mail_addr_conf_t {
+    #[inline]
+    pub fn ssl(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_ssl(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn proxy_protocol(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_proxy_protocol(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        ssl: ::std::os::raw::c_uint,
+        proxy_protocol: ::std::os::raw::c_uint,
+    ) -> __BindgenBitfieldUnit<[u8; 1usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 1usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let ssl: u32 = unsafe { ::std::mem::transmute(ssl) };
+            ssl as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let proxy_protocol: u32 = unsafe { ::std::mem::transmute(proxy_protocol) };
+            proxy_protocol as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_in_addr_t {
+    pub addr: in_addr_t,
+    pub conf: ngx_mail_addr_conf_t,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_in_addr_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_in_addr_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_in_addr_t>(),
+        40usize,
+        concat!("Size of: ", stringify!(ngx_mail_in_addr_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_in_addr_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_in_addr_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).addr) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_in_addr_t),
+            "::",
+            stringify!(addr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).conf) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_in_addr_t),
+            "::",
+            stringify!(conf)
+        )
+    );
+}
+impl Default for ngx_mail_in_addr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct ngx_mail_in6_addr_t {
+    pub addr6: in6_addr,
+    pub conf: ngx_mail_addr_conf_t,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_in6_addr_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_in6_addr_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_in6_addr_t>(),
+        48usize,
+        concat!("Size of: ", stringify!(ngx_mail_in6_addr_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_in6_addr_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_in6_addr_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).addr6) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_in6_addr_t),
+            "::",
+            stringify!(addr6)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).conf) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_in6_addr_t),
+            "::",
+            stringify!(conf)
+        )
+    );
+}
+impl Default for ngx_mail_in6_addr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_mail_in6_addr_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "ngx_mail_in6_addr_t {{ addr6: {:?}, conf: {:?} }}",
+            self.addr6, self.conf
+        )
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_port_t {
+    pub addrs: *mut ::std::os::raw::c_void,
+    pub naddrs: ngx_uint_t,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_port_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_port_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_port_t>(),
+        16usize,
+        concat!("Size of: ", stringify!(ngx_mail_port_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_port_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_port_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).addrs) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_port_t),
+            "::",
+            stringify!(addrs)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).naddrs) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_port_t),
+            "::",
+            stringify!(naddrs)
+        )
+    );
+}
+impl Default for ngx_mail_port_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_conf_port_t {
+    pub family: ::std::os::raw::c_int,
+    pub port: in_port_t,
+    pub addrs: ngx_array_t,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_conf_port_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_conf_port_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_conf_port_t>(),
+        48usize,
+        concat!("Size of: ", stringify!(ngx_mail_conf_port_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_conf_port_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_conf_port_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).family) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_conf_port_t),
+            "::",
+            stringify!(family)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).port) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_conf_port_t),
+            "::",
+            stringify!(port)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).addrs) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_conf_port_t),
+            "::",
+            stringify!(addrs)
+        )
+    );
+}
+impl Default for ngx_mail_conf_port_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_conf_addr_t {
+    pub opt: ngx_mail_listen_t,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_conf_addr_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_conf_addr_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_conf_addr_t>(),
+        72usize,
+        concat!("Size of: ", stringify!(ngx_mail_conf_addr_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_conf_addr_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_conf_addr_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).opt) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_conf_addr_t),
+            "::",
+            stringify!(opt)
+        )
+    );
+}
+impl Default for ngx_mail_conf_addr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_core_main_conf_t {
+    pub servers: ngx_array_t,
+    pub listen: ngx_array_t,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_core_main_conf_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_core_main_conf_t> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_core_main_conf_t>(),
+        80usize,
+        concat!("Size of: ", stringify!(ngx_mail_core_main_conf_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_core_main_conf_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_core_main_conf_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).servers) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_core_main_conf_t),
+            "::",
+            stringify!(servers)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).listen) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_core_main_conf_t),
+            "::",
+            stringify!(listen)
+        )
+    );
+}
+impl Default for ngx_mail_core_main_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type ngx_mail_protocol_t = ngx_mail_protocol_s;
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_core_srv_conf_t {
+    pub protocol: *mut ngx_mail_protocol_t,
+    pub timeout: ngx_msec_t,
+    pub resolver_timeout: ngx_msec_t,
+    pub max_errors: ngx_uint_t,
+    pub server_name: ngx_str_t,
+    pub file_name: *mut u_char,
+    pub line: ngx_uint_t,
+    pub resolver: *mut ngx_resolver_t,
+    pub error_log: *mut ngx_log_t,
+    pub ctx: *mut ngx_mail_conf_ctx_t,
+    pub listen: ngx_uint_t,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_core_srv_conf_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_core_srv_conf_t> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_core_srv_conf_t>(),
+        96usize,
+        concat!("Size of: ", stringify!(ngx_mail_core_srv_conf_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_core_srv_conf_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_core_srv_conf_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).protocol) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_core_srv_conf_t),
+            "::",
+            stringify!(protocol)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).timeout) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_core_srv_conf_t),
+            "::",
+            stringify!(timeout)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).resolver_timeout) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_core_srv_conf_t),
+            "::",
+            stringify!(resolver_timeout)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).max_errors) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_core_srv_conf_t),
+            "::",
+            stringify!(max_errors)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).server_name) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_core_srv_conf_t),
+            "::",
+            stringify!(server_name)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).file_name) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_core_srv_conf_t),
+            "::",
+            stringify!(file_name)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).line) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_core_srv_conf_t),
+            "::",
+            stringify!(line)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).resolver) as usize - ptr as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_core_srv_conf_t),
+            "::",
+            stringify!(resolver)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).error_log) as usize - ptr as usize },
+        72usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_core_srv_conf_t),
+            "::",
+            stringify!(error_log)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ctx) as usize - ptr as usize },
+        80usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_core_srv_conf_t),
+            "::",
+            stringify!(ctx)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).listen) as usize - ptr as usize },
+        88usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_core_srv_conf_t),
+            "::",
+            stringify!(listen)
+        )
+    );
+}
+impl Default for ngx_mail_core_srv_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub const ngx_pop3_state_e_ngx_pop3_start: ngx_pop3_state_e = 0;
+pub const ngx_pop3_state_e_ngx_pop3_user: ngx_pop3_state_e = 1;
+pub const ngx_pop3_state_e_ngx_pop3_passwd: ngx_pop3_state_e = 2;
+pub const ngx_pop3_state_e_ngx_pop3_auth_login_username: ngx_pop3_state_e = 3;
+pub const ngx_pop3_state_e_ngx_pop3_auth_login_password: ngx_pop3_state_e = 4;
+pub const ngx_pop3_state_e_ngx_pop3_auth_plain: ngx_pop3_state_e = 5;
+pub const ngx_pop3_state_e_ngx_pop3_auth_cram_md5: ngx_pop3_state_e = 6;
+pub const ngx_pop3_state_e_ngx_pop3_auth_external: ngx_pop3_state_e = 7;
+pub type ngx_pop3_state_e = ::std::os::raw::c_uint;
+pub const ngx_imap_state_e_ngx_imap_start: ngx_imap_state_e = 0;
+pub const ngx_imap_state_e_ngx_imap_auth_login_username: ngx_imap_state_e = 1;
+pub const ngx_imap_state_e_ngx_imap_auth_login_password: ngx_imap_state_e = 2;
+pub const ngx_imap_state_e_ngx_imap_auth_plain: ngx_imap_state_e = 3;
+pub const ngx_imap_state_e_ngx_imap_auth_cram_md5: ngx_imap_state_e = 4;
+pub const ngx_imap_state_e_ngx_imap_auth_external: ngx_imap_state_e = 5;
+pub const ngx_imap_state_e_ngx_imap_login: ngx_imap_state_e = 6;
+pub const ngx_imap_state_e_ngx_imap_user: ngx_imap_state_e = 7;
+pub const ngx_imap_state_e_ngx_imap_passwd: ngx_imap_state_e = 8;
+pub type ngx_imap_state_e = ::std::os::raw::c_uint;
+pub const ngx_smtp_state_e_ngx_smtp_start: ngx_smtp_state_e = 0;
+pub const ngx_smtp_state_e_ngx_smtp_auth_login_username: ngx_smtp_state_e = 1;
+pub const ngx_smtp_state_e_ngx_smtp_auth_login_password: ngx_smtp_state_e = 2;
+pub const ngx_smtp_state_e_ngx_smtp_auth_plain: ngx_smtp_state_e = 3;
+pub const ngx_smtp_state_e_ngx_smtp_auth_cram_md5: ngx_smtp_state_e = 4;
+pub const ngx_smtp_state_e_ngx_smtp_auth_external: ngx_smtp_state_e = 5;
+pub const ngx_smtp_state_e_ngx_smtp_helo: ngx_smtp_state_e = 6;
+pub const ngx_smtp_state_e_ngx_smtp_helo_xclient: ngx_smtp_state_e = 7;
+pub const ngx_smtp_state_e_ngx_smtp_helo_auth: ngx_smtp_state_e = 8;
+pub const ngx_smtp_state_e_ngx_smtp_helo_from: ngx_smtp_state_e = 9;
+pub const ngx_smtp_state_e_ngx_smtp_xclient: ngx_smtp_state_e = 10;
+pub const ngx_smtp_state_e_ngx_smtp_xclient_from: ngx_smtp_state_e = 11;
+pub const ngx_smtp_state_e_ngx_smtp_xclient_helo: ngx_smtp_state_e = 12;
+pub const ngx_smtp_state_e_ngx_smtp_xclient_auth: ngx_smtp_state_e = 13;
+pub const ngx_smtp_state_e_ngx_smtp_from: ngx_smtp_state_e = 14;
+pub const ngx_smtp_state_e_ngx_smtp_to: ngx_smtp_state_e = 15;
+pub type ngx_smtp_state_e = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_proxy_ctx_t {
+    pub upstream: ngx_peer_connection_t,
+    pub buffer: *mut ngx_buf_t,
+    pub proxy_protocol: ngx_uint_t,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_proxy_ctx_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_proxy_ctx_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_proxy_ctx_t>(),
+        160usize,
+        concat!("Size of: ", stringify!(ngx_mail_proxy_ctx_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_proxy_ctx_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_proxy_ctx_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).upstream) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_proxy_ctx_t),
+            "::",
+            stringify!(upstream)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).buffer) as usize - ptr as usize },
+        144usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_proxy_ctx_t),
+            "::",
+            stringify!(buffer)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).proxy_protocol) as usize - ptr as usize },
+        152usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_proxy_ctx_t),
+            "::",
+            stringify!(proxy_protocol)
+        )
+    );
+}
+impl Default for ngx_mail_proxy_ctx_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_session_t {
+    pub signature: u32,
+    pub connection: *mut ngx_connection_t,
+    pub out: ngx_str_t,
+    pub buffer: *mut ngx_buf_t,
+    pub ctx: *mut *mut ::std::os::raw::c_void,
+    pub main_conf: *mut *mut ::std::os::raw::c_void,
+    pub srv_conf: *mut *mut ::std::os::raw::c_void,
+    pub resolver_ctx: *mut ngx_resolver_ctx_t,
+    pub proxy: *mut ngx_mail_proxy_ctx_t,
+    pub mail_state: ngx_uint_t,
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 2usize]>,
+    pub login: ngx_str_t,
+    pub passwd: ngx_str_t,
+    pub salt: ngx_str_t,
+    pub tag: ngx_str_t,
+    pub tagged_line: ngx_str_t,
+    pub text: ngx_str_t,
+    pub addr_text: *mut ngx_str_t,
+    pub host: ngx_str_t,
+    pub smtp_helo: ngx_str_t,
+    pub smtp_from: ngx_str_t,
+    pub smtp_to: ngx_str_t,
+    pub cmd: ngx_str_t,
+    pub command: ngx_uint_t,
+    pub args: ngx_array_t,
+    pub errors: ngx_uint_t,
+    pub login_attempt: ngx_uint_t,
+    pub state: ngx_uint_t,
+    pub tag_start: *mut u_char,
+    pub cmd_start: *mut u_char,
+    pub arg_start: *mut u_char,
+    pub literal_len: ngx_uint_t,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_session_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_session_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_session_t>(),
+        384usize,
+        concat!("Size of: ", stringify!(ngx_mail_session_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_session_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_session_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).signature) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(signature)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).connection) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(connection)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).out) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(out)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).buffer) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(buffer)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ctx) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(ctx)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).main_conf) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(main_conf)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).srv_conf) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(srv_conf)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).resolver_ctx) as usize - ptr as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(resolver_ctx)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).proxy) as usize - ptr as usize },
+        72usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(proxy)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).mail_state) as usize - ptr as usize },
+        80usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(mail_state)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).login) as usize - ptr as usize },
+        96usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(login)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).passwd) as usize - ptr as usize },
+        112usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(passwd)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).salt) as usize - ptr as usize },
+        128usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(salt)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).tag) as usize - ptr as usize },
+        144usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(tag)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).tagged_line) as usize - ptr as usize },
+        160usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(tagged_line)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).text) as usize - ptr as usize },
+        176usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(text)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).addr_text) as usize - ptr as usize },
+        192usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(addr_text)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).host) as usize - ptr as usize },
+        200usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(host)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).smtp_helo) as usize - ptr as usize },
+        216usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(smtp_helo)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).smtp_from) as usize - ptr as usize },
+        232usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(smtp_from)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).smtp_to) as usize - ptr as usize },
+        248usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(smtp_to)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).cmd) as usize - ptr as usize },
+        264usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(cmd)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).command) as usize - ptr as usize },
+        280usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(command)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).args) as usize - ptr as usize },
+        288usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(args)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).errors) as usize - ptr as usize },
+        328usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(errors)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).login_attempt) as usize - ptr as usize },
+        336usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(login_attempt)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).state) as usize - ptr as usize },
+        344usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(state)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).tag_start) as usize - ptr as usize },
+        352usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(tag_start)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).cmd_start) as usize - ptr as usize },
+        360usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(cmd_start)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).arg_start) as usize - ptr as usize },
+        368usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(arg_start)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).literal_len) as usize - ptr as usize },
+        376usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_session_t),
+            "::",
+            stringify!(literal_len)
+        )
+    );
+}
+impl Default for ngx_mail_session_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ngx_mail_session_t {
+    #[inline]
+    pub fn ssl(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_ssl(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn protocol(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(1usize, 3u8) as u32) }
+    }
+    #[inline]
+    pub fn set_protocol(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(1usize, 3u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn blocked(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(4usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_blocked(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(4usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn quit(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(5usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_quit(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(5usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn quoted(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(6usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_quoted(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(6usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn backslash(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(7usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_backslash(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(7usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn no_sync_literal(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(8usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_no_sync_literal(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(8usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn starttls(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(9usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_starttls(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(9usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn esmtp(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(10usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_esmtp(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(10usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn auth_method(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(11usize, 3u8) as u32) }
+    }
+    #[inline]
+    pub fn set_auth_method(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(11usize, 3u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn auth_wait(&self) -> ::std::os::raw::c_uint {
+        unsafe { ::std::mem::transmute(self._bitfield_1.get(14usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_auth_wait(&mut self, val: ::std::os::raw::c_uint) {
+        unsafe {
+            let val: u32 = ::std::mem::transmute(val);
+            self._bitfield_1.set(14usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        ssl: ::std::os::raw::c_uint,
+        protocol: ::std::os::raw::c_uint,
+        blocked: ::std::os::raw::c_uint,
+        quit: ::std::os::raw::c_uint,
+        quoted: ::std::os::raw::c_uint,
+        backslash: ::std::os::raw::c_uint,
+        no_sync_literal: ::std::os::raw::c_uint,
+        starttls: ::std::os::raw::c_uint,
+        esmtp: ::std::os::raw::c_uint,
+        auth_method: ::std::os::raw::c_uint,
+        auth_wait: ::std::os::raw::c_uint,
+    ) -> __BindgenBitfieldUnit<[u8; 2usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 2usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let ssl: u32 = unsafe { ::std::mem::transmute(ssl) };
+            ssl as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 3u8, {
+            let protocol: u32 = unsafe { ::std::mem::transmute(protocol) };
+            protocol as u64
+        });
+        __bindgen_bitfield_unit.set(4usize, 1u8, {
+            let blocked: u32 = unsafe { ::std::mem::transmute(blocked) };
+            blocked as u64
+        });
+        __bindgen_bitfield_unit.set(5usize, 1u8, {
+            let quit: u32 = unsafe { ::std::mem::transmute(quit) };
+            quit as u64
+        });
+        __bindgen_bitfield_unit.set(6usize, 1u8, {
+            let quoted: u32 = unsafe { ::std::mem::transmute(quoted) };
+            quoted as u64
+        });
+        __bindgen_bitfield_unit.set(7usize, 1u8, {
+            let backslash: u32 = unsafe { ::std::mem::transmute(backslash) };
+            backslash as u64
+        });
+        __bindgen_bitfield_unit.set(8usize, 1u8, {
+            let no_sync_literal: u32 = unsafe { ::std::mem::transmute(no_sync_literal) };
+            no_sync_literal as u64
+        });
+        __bindgen_bitfield_unit.set(9usize, 1u8, {
+            let starttls: u32 = unsafe { ::std::mem::transmute(starttls) };
+            starttls as u64
+        });
+        __bindgen_bitfield_unit.set(10usize, 1u8, {
+            let esmtp: u32 = unsafe { ::std::mem::transmute(esmtp) };
+            esmtp as u64
+        });
+        __bindgen_bitfield_unit.set(11usize, 3u8, {
+            let auth_method: u32 = unsafe { ::std::mem::transmute(auth_method) };
+            auth_method as u64
+        });
+        __bindgen_bitfield_unit.set(14usize, 1u8, {
+            let auth_wait: u32 = unsafe { ::std::mem::transmute(auth_wait) };
+            auth_wait as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_log_ctx_t {
+    pub client: *mut ngx_str_t,
+    pub session: *mut ngx_mail_session_t,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_log_ctx_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_log_ctx_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_log_ctx_t>(),
+        16usize,
+        concat!("Size of: ", stringify!(ngx_mail_log_ctx_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_log_ctx_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_log_ctx_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).client) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_log_ctx_t),
+            "::",
+            stringify!(client)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).session) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_log_ctx_t),
+            "::",
+            stringify!(session)
+        )
+    );
+}
+impl Default for ngx_mail_log_ctx_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type ngx_mail_init_session_pt = ::std::option::Option<
+    unsafe extern "C" fn(s: *mut ngx_mail_session_t, c: *mut ngx_connection_t),
+>;
+pub type ngx_mail_init_protocol_pt =
+    ::std::option::Option<unsafe extern "C" fn(rev: *mut ngx_event_t)>;
+pub type ngx_mail_auth_state_pt =
+    ::std::option::Option<unsafe extern "C" fn(rev: *mut ngx_event_t)>;
+pub type ngx_mail_parse_command_pt =
+    ::std::option::Option<unsafe extern "C" fn(s: *mut ngx_mail_session_t) -> ngx_int_t>;
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_protocol_s {
+    pub name: ngx_str_t,
+    pub alpn: ngx_str_t,
+    pub port: [in_port_t; 4usize],
+    pub type_: ngx_uint_t,
+    pub init_session: ngx_mail_init_session_pt,
+    pub init_protocol: ngx_mail_init_protocol_pt,
+    pub parse_command: ngx_mail_parse_command_pt,
+    pub auth_state: ngx_mail_auth_state_pt,
+    pub internal_server_error: ngx_str_t,
+    pub cert_error: ngx_str_t,
+    pub no_cert: ngx_str_t,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_protocol_s() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_protocol_s> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_protocol_s>(),
+        128usize,
+        concat!("Size of: ", stringify!(ngx_mail_protocol_s))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_protocol_s>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_protocol_s))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).name) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_protocol_s),
+            "::",
+            stringify!(name)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).alpn) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_protocol_s),
+            "::",
+            stringify!(alpn)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).port) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_protocol_s),
+            "::",
+            stringify!(port)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_protocol_s),
+            "::",
+            stringify!(type_)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).init_session) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_protocol_s),
+            "::",
+            stringify!(init_session)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).init_protocol) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_protocol_s),
+            "::",
+            stringify!(init_protocol)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).parse_command) as usize - ptr as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_protocol_s),
+            "::",
+            stringify!(parse_command)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).auth_state) as usize - ptr as usize },
+        72usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_protocol_s),
+            "::",
+            stringify!(auth_state)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).internal_server_error) as usize - ptr as usize },
+        80usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_protocol_s),
+            "::",
+            stringify!(internal_server_error)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).cert_error) as usize - ptr as usize },
+        96usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_protocol_s),
+            "::",
+            stringify!(cert_error)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).no_cert) as usize - ptr as usize },
+        112usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_protocol_s),
+            "::",
+            stringify!(no_cert)
+        )
+    );
+}
+impl Default for ngx_mail_protocol_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ngx_mail_module_t {
+    pub protocol: *mut ngx_mail_protocol_t,
+    pub create_main_conf: ::std::option::Option<
+        unsafe extern "C" fn(cf: *mut ngx_conf_t) -> *mut ::std::os::raw::c_void,
+    >,
+    pub init_main_conf: ::std::option::Option<
+        unsafe extern "C" fn(
+            cf: *mut ngx_conf_t,
+            conf: *mut ::std::os::raw::c_void,
+        ) -> *mut ::std::os::raw::c_char,
+    >,
+    pub create_srv_conf: ::std::option::Option<
+        unsafe extern "C" fn(cf: *mut ngx_conf_t) -> *mut ::std::os::raw::c_void,
+    >,
+    pub merge_srv_conf: ::std::option::Option<
+        unsafe extern "C" fn(
+            cf: *mut ngx_conf_t,
+            prev: *mut ::std::os::raw::c_void,
+            conf: *mut ::std::os::raw::c_void,
+        ) -> *mut ::std::os::raw::c_char,
+    >,
+}
+#[test]
+fn bindgen_test_layout_ngx_mail_module_t() {
+    const UNINIT: ::std::mem::MaybeUninit<ngx_mail_module_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<ngx_mail_module_t>(),
+        40usize,
+        concat!("Size of: ", stringify!(ngx_mail_module_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ngx_mail_module_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ngx_mail_module_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).protocol) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_module_t),
+            "::",
+            stringify!(protocol)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).create_main_conf) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_module_t),
+            "::",
+            stringify!(create_main_conf)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).init_main_conf) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_module_t),
+            "::",
+            stringify!(init_main_conf)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).create_srv_conf) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_module_t),
+            "::",
+            stringify!(create_srv_conf)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).merge_srv_conf) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ngx_mail_module_t),
+            "::",
+            stringify!(merge_srv_conf)
+        )
+    );
+}
+impl Default for ngx_mail_module_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+extern "C" {
+    pub fn ngx_mail_starttls_handler(rev: *mut ngx_event_t);
+}
+extern "C" {
+    pub fn ngx_mail_starttls_only(
+        s: *mut ngx_mail_session_t,
+        c: *mut ngx_connection_t,
+    ) -> ngx_int_t;
+}
+extern "C" {
+    pub fn ngx_mail_init_connection(c: *mut ngx_connection_t);
+}
+extern "C" {
+    pub fn ngx_mail_salt(
+        s: *mut ngx_mail_session_t,
+        c: *mut ngx_connection_t,
+        cscf: *mut ngx_mail_core_srv_conf_t,
+    ) -> ngx_int_t;
+}
+extern "C" {
+    pub fn ngx_mail_auth_plain(
+        s: *mut ngx_mail_session_t,
+        c: *mut ngx_connection_t,
+        n: ngx_uint_t,
+    ) -> ngx_int_t;
+}
+extern "C" {
+    pub fn ngx_mail_auth_login_username(
+        s: *mut ngx_mail_session_t,
+        c: *mut ngx_connection_t,
+        n: ngx_uint_t,
+    ) -> ngx_int_t;
+}
+extern "C" {
+    pub fn ngx_mail_auth_login_password(
+        s: *mut ngx_mail_session_t,
+        c: *mut ngx_connection_t,
+    ) -> ngx_int_t;
+}
+extern "C" {
+    pub fn ngx_mail_auth_cram_md5_salt(
+        s: *mut ngx_mail_session_t,
+        c: *mut ngx_connection_t,
+        prefix: *mut ::std::os::raw::c_char,
+        len: usize,
+    ) -> ngx_int_t;
+}
+extern "C" {
+    pub fn ngx_mail_auth_cram_md5(
+        s: *mut ngx_mail_session_t,
+        c: *mut ngx_connection_t,
+    ) -> ngx_int_t;
+}
+extern "C" {
+    pub fn ngx_mail_auth_external(
+        s: *mut ngx_mail_session_t,
+        c: *mut ngx_connection_t,
+        n: ngx_uint_t,
+    ) -> ngx_int_t;
+}
+extern "C" {
+    pub fn ngx_mail_auth_parse(s: *mut ngx_mail_session_t, c: *mut ngx_connection_t) -> ngx_int_t;
+}
+extern "C" {
+    pub fn ngx_mail_send(wev: *mut ngx_event_t);
+}
+extern "C" {
+    pub fn ngx_mail_read_command(s: *mut ngx_mail_session_t, c: *mut ngx_connection_t)
+        -> ngx_int_t;
+}
+extern "C" {
+    pub fn ngx_mail_auth(s: *mut ngx_mail_session_t, c: *mut ngx_connection_t);
+}
+extern "C" {
+    pub fn ngx_mail_close_connection(c: *mut ngx_connection_t);
+}
+extern "C" {
+    pub fn ngx_mail_session_internal_server_error(s: *mut ngx_mail_session_t);
+}
+extern "C" {
+    pub fn ngx_mail_log_error(log: *mut ngx_log_t, buf: *mut u_char, len: usize) -> *mut u_char;
+}
+extern "C" {
+    pub fn ngx_mail_capabilities(
+        cf: *mut ngx_conf_t,
+        cmd: *mut ngx_command_t,
+        conf: *mut ::std::os::raw::c_void,
+    ) -> *mut ::std::os::raw::c_char;
+}
+extern "C" {
+    pub fn ngx_mail_proxy_init(s: *mut ngx_mail_session_t, peer: *mut ngx_addr_t);
+}
+extern "C" {
+    pub fn ngx_mail_auth_http_init(s: *mut ngx_mail_session_t);
+}
+extern "C" {
+    pub fn ngx_mail_realip_handler(s: *mut ngx_mail_session_t) -> ngx_int_t;
+}
+extern "C" {
+    pub static mut ngx_mail_max_module: ngx_uint_t;
+}
+extern "C" {
+    pub static mut ngx_mail_core_module: ngx_module_t;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_ssl_conf_t {
     pub handshake_timeout: ngx_msec_t,
     pub prefer_server_ciphers: ngx_flag_t,
@@ -35058,6 +39234,15 @@ fn bindgen_test_layout_ngx_stream_ssl_conf_t() {
         )
     );
 }
+impl Default for ngx_stream_ssl_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub static mut ngx_stream_ssl_module: ngx_module_t;
 }
@@ -35079,7 +39264,7 @@ pub type ngx_stream_get_variable_pt = ::std::option::Option<
     ) -> ngx_int_t,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_variable_s {
     pub name: ngx_str_t,
     pub set_handler: ngx_stream_set_variable_pt,
@@ -35164,6 +39349,15 @@ fn bindgen_test_layout_ngx_stream_variable_s() {
         )
     );
 }
+impl Default for ngx_stream_variable_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_stream_add_variable(
         cf: *mut ngx_conf_t,
@@ -35194,7 +39388,7 @@ extern "C" {
     ) -> *mut ngx_stream_variable_value_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_stream_regex_variable_t {
     pub capture: ngx_uint_t,
     pub index: ngx_int_t,
@@ -35236,7 +39430,7 @@ fn bindgen_test_layout_ngx_stream_regex_variable_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_regex_t {
     pub regex: *mut ngx_regex_t,
     pub ncaptures: ngx_uint_t,
@@ -35309,8 +39503,17 @@ fn bindgen_test_layout_ngx_stream_regex_t() {
         )
     );
 }
+impl Default for ngx_stream_regex_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_map_regex_t {
     pub regex: *mut ngx_stream_regex_t,
     pub value: *mut ::std::os::raw::c_void,
@@ -35351,6 +39554,15 @@ fn bindgen_test_layout_ngx_stream_map_regex_t() {
         )
     );
 }
+impl Default for ngx_stream_map_regex_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_stream_regex_compile(
         cf: *mut ngx_conf_t,
@@ -35365,7 +39577,7 @@ extern "C" {
     ) -> ngx_int_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_map_t {
     pub hash: ngx_hash_combined_t,
     pub regex: *mut ngx_stream_map_regex_t,
@@ -35416,6 +39628,15 @@ fn bindgen_test_layout_ngx_stream_map_t() {
         )
     );
 }
+impl Default for ngx_stream_map_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_stream_map_find(
         s: *mut ngx_stream_session_t,
@@ -35436,7 +39657,7 @@ extern "C" {
     pub static mut ngx_stream_variable_true_value: ngx_stream_variable_value_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_script_engine_t {
     pub ip: *mut u_char,
     pub pos: *mut u_char,
@@ -35523,6 +39744,15 @@ fn bindgen_test_layout_ngx_stream_script_engine_t() {
         )
     );
 }
+impl Default for ngx_stream_script_engine_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_stream_script_engine_t {
     #[inline]
     pub fn flushed(&self) -> ::std::os::raw::c_uint {
@@ -35564,7 +39794,7 @@ impl ngx_stream_script_engine_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_script_compile_t {
     pub cf: *mut ngx_conf_t,
     pub source: *mut ngx_str_t,
@@ -35684,6 +39914,15 @@ fn bindgen_test_layout_ngx_stream_script_compile_t() {
             stringify!(main)
         )
     );
+}
+impl Default for ngx_stream_script_compile_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_stream_script_compile_t {
     #[inline]
@@ -35819,6 +40058,20 @@ fn bindgen_test_layout_ngx_stream_complex_value_t__bindgen_ty_1() {
         )
     );
 }
+impl Default for ngx_stream_complex_value_t__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_stream_complex_value_t__bindgen_ty_1 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "ngx_stream_complex_value_t__bindgen_ty_1 {{ union }}")
+    }
+}
 #[test]
 fn bindgen_test_layout_ngx_stream_complex_value_t() {
     const UNINIT: ::std::mem::MaybeUninit<ngx_stream_complex_value_t> =
@@ -35885,8 +40138,22 @@ fn bindgen_test_layout_ngx_stream_complex_value_t() {
         )
     );
 }
+impl Default for ngx_stream_complex_value_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_stream_complex_value_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write ! (f , "ngx_stream_complex_value_t {{ value: {:?}, flushes: {:?}, lengths: {:?}, values: {:?}, u: {:?} }}" , self . value , self . flushes , self . lengths , self . values , self . u)
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_compile_complex_value_t {
     pub cf: *mut ngx_conf_t,
     pub value: *mut ngx_str_t,
@@ -35943,6 +40210,15 @@ fn bindgen_test_layout_ngx_stream_compile_complex_value_t() {
             stringify!(complex_value)
         )
     );
+}
+impl Default for ngx_stream_compile_complex_value_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 impl ngx_stream_compile_complex_value_t {
     #[inline]
@@ -36005,7 +40281,7 @@ pub type ngx_stream_script_code_pt =
 pub type ngx_stream_script_len_code_pt =
     ::std::option::Option<unsafe extern "C" fn(e: *mut ngx_stream_script_engine_t) -> usize>;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_stream_script_copy_code_t {
     pub code: ngx_stream_script_code_pt,
     pub len: usize,
@@ -36047,7 +40323,7 @@ fn bindgen_test_layout_ngx_stream_script_copy_code_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_stream_script_var_code_t {
     pub code: ngx_stream_script_code_pt,
     pub index: usize,
@@ -36089,7 +40365,7 @@ fn bindgen_test_layout_ngx_stream_script_var_code_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_stream_script_copy_capture_code_t {
     pub code: ngx_stream_script_code_pt,
     pub n: usize,
@@ -36137,7 +40413,7 @@ fn bindgen_test_layout_ngx_stream_script_copy_capture_code_t() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_stream_script_full_name_code_t {
     pub code: ngx_stream_script_code_pt,
     pub conf_prefix: usize,
@@ -36274,7 +40550,7 @@ extern "C" {
     pub fn ngx_stream_script_copy_capture_code(e: *mut ngx_stream_script_engine_t);
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_upstream_main_conf_t {
     pub upstreams: ngx_array_t,
 }
@@ -36304,6 +40580,15 @@ fn bindgen_test_layout_ngx_stream_upstream_main_conf_t() {
         )
     );
 }
+impl Default for ngx_stream_upstream_main_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_stream_upstream_srv_conf_t = ngx_stream_upstream_srv_conf_s;
 pub type ngx_stream_upstream_init_pt = ::std::option::Option<
     unsafe extern "C" fn(cf: *mut ngx_conf_t, us: *mut ngx_stream_upstream_srv_conf_t) -> ngx_int_t,
@@ -36315,7 +40600,7 @@ pub type ngx_stream_upstream_init_peer_pt = ::std::option::Option<
     ) -> ngx_int_t,
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_upstream_peer_t {
     pub init_upstream: ngx_stream_upstream_init_pt,
     pub init: ngx_stream_upstream_init_peer_pt,
@@ -36367,8 +40652,17 @@ fn bindgen_test_layout_ngx_stream_upstream_peer_t() {
         )
     );
 }
+impl Default for ngx_stream_upstream_peer_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_upstream_server_t {
     pub name: ngx_str_t,
     pub addrs: *mut ngx_addr_t,
@@ -36499,6 +40793,15 @@ fn bindgen_test_layout_ngx_stream_upstream_server_t() {
         )
     );
 }
+impl Default for ngx_stream_upstream_server_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_stream_upstream_server_t {
     #[inline]
     pub fn backup(&self) -> ::std::os::raw::c_uint {
@@ -36522,7 +40825,7 @@ impl ngx_stream_upstream_server_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_upstream_srv_conf_s {
     pub peer: ngx_stream_upstream_peer_t,
     pub srv_conf: *mut *mut ::std::os::raw::c_void,
@@ -36651,8 +40954,17 @@ fn bindgen_test_layout_ngx_stream_upstream_srv_conf_s() {
         )
     );
 }
+impl Default for ngx_stream_upstream_srv_conf_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_upstream_state_t {
     pub response_time: ngx_msec_t,
     pub connect_time: ngx_msec_t,
@@ -36737,8 +41049,17 @@ fn bindgen_test_layout_ngx_stream_upstream_state_t() {
         )
     );
 }
+impl Default for ngx_stream_upstream_state_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_upstream_resolved_t {
     pub host: ngx_str_t,
     pub port: in_port_t,
@@ -36856,8 +41177,17 @@ fn bindgen_test_layout_ngx_stream_upstream_resolved_t() {
         )
     );
 }
+impl Default for ngx_stream_upstream_resolved_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_upstream_t {
     pub peer: ngx_peer_connection_t,
     pub downstream_buf: ngx_buf_t,
@@ -37088,6 +41418,15 @@ fn bindgen_test_layout_ngx_stream_upstream_t() {
         )
     );
 }
+impl Default for ngx_stream_upstream_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_stream_upstream_t {
     #[inline]
     pub fn connected(&self) -> ::std::os::raw::c_uint {
@@ -37156,7 +41495,7 @@ extern "C" {
 }
 pub type ngx_stream_upstream_rr_peer_t = ngx_stream_upstream_rr_peer_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_upstream_rr_peer_s {
     pub sockaddr: *mut sockaddr,
     pub socklen: socklen_t,
@@ -37417,9 +41756,18 @@ fn bindgen_test_layout_ngx_stream_upstream_rr_peer_s() {
         )
     );
 }
+impl Default for ngx_stream_upstream_rr_peer_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type ngx_stream_upstream_rr_peers_t = ngx_stream_upstream_rr_peers_s;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_upstream_rr_peers_s {
     pub number: ngx_uint_t,
     pub shpool: *mut ngx_slab_pool_t,
@@ -37539,6 +41887,15 @@ fn bindgen_test_layout_ngx_stream_upstream_rr_peers_s() {
         )
     );
 }
+impl Default for ngx_stream_upstream_rr_peers_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_stream_upstream_rr_peers_s {
     #[inline]
     pub fn single(&self) -> ::std::os::raw::c_uint {
@@ -37580,7 +41937,7 @@ impl ngx_stream_upstream_rr_peers_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_upstream_rr_peer_data_t {
     pub config: ngx_uint_t,
     pub peers: *mut ngx_stream_upstream_rr_peers_t,
@@ -37657,6 +42014,15 @@ fn bindgen_test_layout_ngx_stream_upstream_rr_peer_data_t() {
         )
     );
 }
+impl Default for ngx_stream_upstream_rr_peer_data_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 extern "C" {
     pub fn ngx_stream_upstream_init_round_robin(
         cf: *mut ngx_conf_t,
@@ -37689,7 +42055,7 @@ extern "C" {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_conf_ctx_t {
     pub main_conf: *mut *mut ::std::os::raw::c_void,
     pub srv_conf: *mut *mut ::std::os::raw::c_void,
@@ -37730,8 +42096,17 @@ fn bindgen_test_layout_ngx_stream_conf_ctx_t() {
         )
     );
 }
+impl Default for ngx_stream_conf_ctx_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_listen_t {
     pub sockaddr: *mut sockaddr,
     pub socklen: socklen_t,
@@ -37883,6 +42258,15 @@ fn bindgen_test_layout_ngx_stream_listen_t() {
         )
     );
 }
+impl Default for ngx_stream_listen_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_stream_listen_t {
     #[inline]
     pub fn bind(&self) -> ::std::os::raw::c_uint {
@@ -38004,7 +42388,7 @@ impl ngx_stream_listen_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_addr_conf_t {
     pub ctx: *mut ngx_stream_conf_ctx_t,
     pub addr_text: ngx_str_t,
@@ -38048,6 +42432,15 @@ fn bindgen_test_layout_ngx_stream_addr_conf_t() {
         )
     );
 }
+impl Default for ngx_stream_addr_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_stream_addr_conf_t {
     #[inline]
     pub fn ssl(&self) -> ::std::os::raw::c_uint {
@@ -38089,7 +42482,7 @@ impl ngx_stream_addr_conf_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_in_addr_t {
     pub addr: in_addr_t,
     pub conf: ngx_stream_addr_conf_t,
@@ -38128,6 +42521,15 @@ fn bindgen_test_layout_ngx_stream_in_addr_t() {
             stringify!(conf)
         )
     );
+}
+impl Default for ngx_stream_in_addr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -38171,8 +42573,26 @@ fn bindgen_test_layout_ngx_stream_in6_addr_t() {
         )
     );
 }
+impl Default for ngx_stream_in6_addr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for ngx_stream_in6_addr_t {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "ngx_stream_in6_addr_t {{ addr6: {:?}, conf: {:?} }}",
+            self.addr6, self.conf
+        )
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_port_t {
     pub addrs: *mut ::std::os::raw::c_void,
     pub naddrs: ngx_uint_t,
@@ -38212,8 +42632,17 @@ fn bindgen_test_layout_ngx_stream_port_t() {
         )
     );
 }
+impl Default for ngx_stream_port_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_conf_port_t {
     pub family: ::std::os::raw::c_int,
     pub type_: ::std::os::raw::c_int,
@@ -38276,8 +42705,17 @@ fn bindgen_test_layout_ngx_stream_conf_port_t() {
         )
     );
 }
+impl Default for ngx_stream_conf_port_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_conf_addr_t {
     pub opt: ngx_stream_listen_t,
 }
@@ -38307,6 +42745,15 @@ fn bindgen_test_layout_ngx_stream_conf_addr_t() {
         )
     );
 }
+impl Default for ngx_stream_conf_addr_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub const ngx_stream_phases_NGX_STREAM_POST_ACCEPT_PHASE: ngx_stream_phases = 0;
 pub const ngx_stream_phases_NGX_STREAM_PREACCESS_PHASE: ngx_stream_phases = 1;
 pub const ngx_stream_phases_NGX_STREAM_ACCESS_PHASE: ngx_stream_phases = 2;
@@ -38327,7 +42774,7 @@ pub type ngx_stream_handler_pt =
 pub type ngx_stream_content_handler_pt =
     ::std::option::Option<unsafe extern "C" fn(s: *mut ngx_stream_session_t)>;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_stream_phase_handler_s {
     pub checker: ngx_stream_phase_handler_pt,
     pub handler: ngx_stream_handler_pt,
@@ -38380,7 +42827,7 @@ fn bindgen_test_layout_ngx_stream_phase_handler_s() {
     );
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_phase_engine_t {
     pub handlers: *mut ngx_stream_phase_handler_t,
 }
@@ -38410,8 +42857,17 @@ fn bindgen_test_layout_ngx_stream_phase_engine_t() {
         )
     );
 }
+impl Default for ngx_stream_phase_engine_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_phase_t {
     pub handlers: ngx_array_t,
 }
@@ -38440,8 +42896,17 @@ fn bindgen_test_layout_ngx_stream_phase_t() {
         )
     );
 }
+impl Default for ngx_stream_phase_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_core_main_conf_t {
     pub servers: ngx_array_t,
     pub listen: ngx_array_t,
@@ -38581,8 +43046,17 @@ fn bindgen_test_layout_ngx_stream_core_main_conf_t() {
         )
     );
 }
+impl Default for ngx_stream_core_main_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_core_srv_conf_t {
     pub handler: ngx_stream_content_handler_pt,
     pub ctx: *mut ngx_stream_conf_ctx_t,
@@ -38733,8 +43207,17 @@ fn bindgen_test_layout_ngx_stream_core_srv_conf_t() {
         )
     );
 }
+impl Default for ngx_stream_core_srv_conf_t {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ngx_stream_session_s {
     pub signature: u32,
     pub connection: *mut ngx_connection_t,
@@ -38942,6 +43425,15 @@ fn bindgen_test_layout_ngx_stream_session_s() {
         )
     );
 }
+impl Default for ngx_stream_session_s {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 impl ngx_stream_session_s {
     #[inline]
     pub fn ssl(&self) -> ::std::os::raw::c_uint {
@@ -39015,7 +43507,7 @@ impl ngx_stream_session_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct ngx_stream_module_t {
     pub preconfiguration:
         ::std::option::Option<unsafe extern "C" fn(cf: *mut ngx_conf_t) -> ngx_int_t>,
@@ -39168,10 +43660,14 @@ extern "C" {
 pub const NGX_RS_HTTP_MAIN_CONF_OFFSET: usize = 0;
 pub const NGX_RS_HTTP_SRV_CONF_OFFSET: usize = 8;
 pub const NGX_RS_HTTP_LOC_CONF_OFFSET: usize = 16;
+pub const NGX_RS_MAIL_MAIN_CONF_OFFSET: usize = 0;
+pub const NGX_RS_MAIL_SRV_CONF_OFFSET: usize = 8;
+pub const NGX_RS_STREAM_MAIN_CONF_OFFSET: usize = 0;
+pub const NGX_RS_STREAM_SRV_CONF_OFFSET: usize = 8;
 pub const NGX_RS_MODULE_SIGNATURE: &[u8; 41] = b"8,4,8,0011111111010111001111111111111111\0";
 pub type __builtin_va_list = [__va_list_tag; 1usize];
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct __va_list_tag {
     pub gp_offset: ::std::os::raw::c_uint,
     pub fp_offset: ::std::os::raw::c_uint,
@@ -39232,4 +43728,13 @@ fn bindgen_test_layout___va_list_tag() {
             stringify!(reg_save_area)
         )
     );
+}
+impl Default for __va_list_tag {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }

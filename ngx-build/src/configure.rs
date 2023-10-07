@@ -1,5 +1,6 @@
 use std::{fs, path::PathBuf, process::Command};
 
+use pathdiff::diff_paths;
 use tracing::instrument;
 
 use crate::{CommandExt, Make, Result};
@@ -32,8 +33,18 @@ impl Configure {
     #[instrument]
     pub fn run(self) -> Result<Make> {
         let mut args = vec![
-            format!("--builddir={}", self.build_dir.display()),
-            format!("--prefix={}", self.out_dir.display()),
+            format!(
+                "--builddir={}",
+                diff_paths(&self.build_dir, &self.src_dir)
+                    .expect("builddir")
+                    .display()
+            ),
+            format!(
+                "--prefix={}",
+                diff_paths(&self.out_dir, &self.src_dir)
+                    .expect("prefix")
+                    .display()
+            ),
         ];
 
         if self.debug {

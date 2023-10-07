@@ -161,6 +161,17 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
                 merge_loc_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::merge_loc_conf),
             };
         }),
+        Type::Stream(_) => Some(parse_quote! {
+            #[no_mangle]
+            static #ngx_module_ctx_name: ::ngx_mod::rt::ffi::ngx_stream_module_t = ::ngx_mod::rt::ffi::ngx_stream_module_t {
+                preconfiguration: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::preconfiguration),
+                postconfiguration: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::postconfiguration),
+                create_main_conf: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::create_main_conf),
+                init_main_conf: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::init_main_conf),
+                create_srv_conf: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::create_srv_conf),
+                merge_srv_conf: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::merge_srv_conf),
+            };
+        }),
         _ => None,
     };
 
