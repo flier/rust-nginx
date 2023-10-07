@@ -216,7 +216,7 @@ debug-log = ["ngx-src/debug-log"]
 
 # optional features for build
 
-gen = ["bindgen"]
+gen = ["ngx-build/gen"]
 static-link = ["ngx-src/static-lib"]
 
 [dependencies]
@@ -224,7 +224,6 @@ cfg-if = "1.0"
 
 [build-dependencies]
 anyhow = "1.0"
-bindgen = { version = "0.68", optional = true }
 cfg-if = "1.0"
 cargo-emit = "0.2"
 pkg-config = "0.3"
@@ -232,6 +231,7 @@ tracing = "0.1"
 tracing-subscriber = "0.3"
 
 ngx-src = { version = "0.1", path = "../ngx-src", optional = true }
+ngx-build = { version = "0.1", path = "../ngx-build", optional = true }
 
 [package.metadata.docs.rs]
 features = ["docsrs"]

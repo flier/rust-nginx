@@ -17,4 +17,8 @@ pub enum Error {
 
     #[error(transparent)]
     IoError(#[from] std::io::Error),
+
+    #[cfg(feature = "gen")]
+    #[error(transparent)]
+    BindgenError(#[from] bindgen::BindgenError),
 }

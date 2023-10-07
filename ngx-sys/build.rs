@@ -60,58 +60,20 @@ mod gen {
 
         cargo_emit::rerun_if_changed!("nginx.h");
 
-        let src_dir = nginx_dir.join("src");
-        let mut bindings = bindgen::builder()
-            .header("nginx.h")
-            .clang_args(&[
-                format!("-I{}", build_dir.display()),
-                format!("-I{}", src_dir.join("core").display()),
-                #[cfg(target_family = "unix")]
-                format!("-I{}", src_dir.join("os/unix").display()),
-                #[cfg(target_family = "windows")]
-                format!("-I{}", src_dir.join("os/win32").display()),
-            ])
-            .allowlist_type("^(NGX|ngx)_.*$")
-            .allowlist_function("^(NGX|ngx)_.*$")
-            .allowlist_var("^(NGX|ngx|NGINX|nginx)_.*$")
-            .parse_callbacks(Box::new(bindgen::CargoCallbacks));
-
-        if cfg!(feature = "event") {
-            bindings = bindings.clang_args(&[
-                "-DNGX_EVENT".to_string(),
-                format!("-I{}", src_dir.join("event").display()),
-            ]);
-        }
-
-        if cfg!(feature = "http") {
-            bindings = bindings.clang_args(&[
-                "-DNGX_HTTP".to_string(),
-                format!("-I{}", src_dir.join("http").display()),
-                format!("-I{}", src_dir.join("http/modules").display()),
-                format!("-I{}", src_dir.join("http/v2").display()),
-            ]);
-        }
-
-        if cfg!(feature = "mail") {
-            bindings = bindings.clang_args(&[
-                "-DNGX_MAIL".to_string(),
-                format!("-I{}", src_dir.join("mail").display()),
-            ]);
-        }
-
-        if cfg!(feature = "stream") {
-            bindings = bindings.clang_args(&[
-                "-DNGX_STREAM".to_string(),
-                format!("-I{}", src_dir.join("stream").display()),
-            ]);
-        }
-
-        let builder = bindings.generate()?;
-
         let out_dir = env::var("OUT_DIR").unwrap();
-        let out_dir = Path::new(out_dir.as_str());
 
-        builder.write_to_file(out_dir.join("bindings.rs"))?;
+        let binding = ngx_build::binding::Binding {
+            header: "nginx.h",
+            src_dir: &nginx_dir.join("src"),
+            build_dir: &build_dir,
+            out_file: &Path::new(out_dir.as_str()).join("bindings.rs"),
+            event: cfg!(feature = "event"),
+            http: cfg!(feature = "http"),
+            mail: cfg!(feature = "mail"),
+            stream: cfg!(feature = "stream"),
+        };
+
+        binding.generate()?;
 
         Ok(())
     }

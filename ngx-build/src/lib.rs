@@ -1,3 +1,5 @@
+#[cfg(feature = "gen")]
+pub mod binding;
 mod builder;
 mod configure;
 mod error;
