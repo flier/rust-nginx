@@ -41,7 +41,7 @@ impl<T: Module> UnsafeModule for T {
     }
 }
 
-pub trait Module {
+pub trait Module: crate::Module {
     type Error: From<<Self::Conf as Merge>::Error>;
     type Conf: Default + Merge;
 
