@@ -1,5 +1,8 @@
+use cfg_if::cfg_if;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
+
+use super::Type;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Offset {
@@ -17,6 +20,44 @@ pub enum Offset {
     MailMain,
     #[cfg(feature = "mail")]
     MailServer,
+}
+
+impl Offset {
+    pub fn for_conf(conf_types: &[Type]) -> Option<Offset> {
+        cfg_if! {
+            if #[cfg(feature = "http")] {
+                if conf_types.contains(&Type::HttpLocation) || conf_types.contains(&Type::HttpLocationIf) ||conf_types.contains(&Type::HttpLimitExcept)  {
+                    return Some(Offset::HttpLocation)
+                } else if conf_types.contains(&Type::HttpServer) || conf_types.contains(&Type::HttpServerIf) ||conf_types.contains(&Type::HttpUpstream) {
+                    return Some(Offset::HttpServer)
+                } else if conf_types.contains(&Type::HttpMain) {
+                    return Some(Offset::HttpMain)
+                }
+            }
+        }
+
+        cfg_if! {
+            if #[cfg(feature = "stream")] {
+                if conf_types.contains(&Type::StreamServer) || conf_types.contains(&Type::StreamUpstream) {
+                    return Some(Offset::StreamServer)
+                } else if conf_types.contains(&Type::StreamMain) {
+                    return Some(Offset::StreamMain)
+                }
+            }
+        }
+
+        cfg_if! {
+            if #[cfg(feature = "mail")] {
+                if conf_types.contains(&Type::MailSever) {
+                    return Some(Offset::MailSever)
+                } else if conf_types.contains(&Type::MailMain) {
+                    return Some(Offset::MailMain)
+                }
+            }
+        }
+
+        None
+    }
 }
 
 impl ToTokens for Offset {

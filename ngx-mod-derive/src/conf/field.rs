@@ -13,8 +13,7 @@ use super::{Args, Offset};
 
 #[derive(Clone, Debug, Default, Merge, StructMeta)]
 pub struct FieldArgs {
-    #[struct_meta(unnamed)]
-    pub conf: Option<Path>,
+    pub conf: Option<NameValue<Path>>,
     pub name: Option<NameValue<Ident>>,
     pub args: Option<NameArgs<Vec<Arg>>>,
     #[merge(strategy = merge_flag)]
@@ -34,7 +33,7 @@ impl FieldArgs {
     pub fn conf_offset(&self) -> Option<Offset> {
         use Offset::*;
 
-        self.conf.as_ref().map(|p| {
+        self.conf.as_ref().map(|arg| &arg.value).map(|p| {
             let name = quote! { #p }.to_string().to_lowercase();
 
             if name.starts_with("http") {

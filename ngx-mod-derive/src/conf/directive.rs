@@ -23,6 +23,7 @@ impl<'a> ToTokens for Directive<'a> {
         let conf_off = self
             .args
             .conf_offset()
+            .or_else(|| Offset::for_conf(&conf_ty))
             .map_or_else(|| quote! { 0 }, |off: Offset| quote! { #off });
         let args = conf_ty
             .into_iter()
