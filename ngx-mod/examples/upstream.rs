@@ -8,7 +8,6 @@ use foreign_types::ForeignTypeRef;
 use merge::Merge as AutoMerge;
 
 use ngx_mod::{
-    core::Setter,
     http,
     rt::{
         core::{
@@ -21,7 +20,7 @@ use ngx_mod::{
             upstream::{self, InitPeerFn},
             RequestRef,
         },
-        native_handler,
+        native_handler, native_setter,
     },
     Conf, Merge, Module, ModuleMetadata as _,
 };
@@ -54,7 +53,7 @@ impl http::Module for Custom {
 #[derive(Clone, Debug, AutoMerge, Conf)]
 #[conf(http::upstream)]
 struct SrvConfig {
-    #[directive(args(0, 1), set = num)]
+    #[directive(args(0, 1), set = ngx_http_upstream_custom)]
     #[merge(strategy = merge::num::overwrite_zero)]
     max: usize,
     original_init_upstream: Option<upstream::InitFn>,
@@ -81,57 +80,53 @@ impl Merge for SrvConfig {
     }
 }
 
-impl Setter for SrvConfig {
-    type Error = ();
-    type Conf = SrvConfig;
+#[native_setter(name = ngx_http_upstream_custom)]
+fn set_custom(cf: &ConfRef, cmd: &CmdRef, conf: &mut SrvConfig) -> Result<(), ()> {
+    cf.log().http().debug("custom init upstream");
 
-    fn set(cf: &ConfRef, cmd: &CmdRef, conf: &mut Self::Conf) -> Result<(), Self::Error> {
-        cf.log().http().debug("custom init upstream");
-
-        if cf.args().len() == 2 {
-            let s = cf.args().get(1).unwrap().to_str().expect("max");
-            match s.parse() {
-                Ok(n) => {
-                    if n > 0 {
-                        conf.max = n;
-                    } else {
-                        cf.emerg(format!(
-                            "invalid value `{}` in `{}` directive, {}",
-                            s,
-                            cmd.name().unwrap(),
-                            "max must be greater than 0"
-                        ));
-
-                        return Err(());
-                    }
-                }
-                Err(err) => {
+    if cf.args().len() == 2 {
+        let s = cf.args().get(1).unwrap().to_str().expect("max");
+        match s.parse() {
+            Ok(n) => {
+                if n > 0 {
+                    conf.max = n;
+                } else {
                     cf.emerg(format!(
                         "invalid value `{}` in `{}` directive, {}",
                         s,
                         cmd.name().unwrap(),
-                        err
+                        "max must be greater than 0"
                     ));
 
                     return Err(());
                 }
             }
+            Err(err) => {
+                cf.emerg(format!(
+                    "invalid value `{}` in `{}` directive, {}",
+                    s,
+                    cmd.name().unwrap(),
+                    err
+                ));
+
+                return Err(());
+            }
         }
-
-        let uscf = cf
-            .as_http_context()
-            .expect("ctx")
-            .srv_conf_for::<upstream::SrvConfRef>(Custom::module())
-            .expect("srvConf");
-
-        conf.original_init_upstream = uscf.peer().init_upstream().or(Some(upstream::InitFn(
-            ffi::ngx_http_upstream_init_round_robin,
-        )));
-
-        uscf.peer_mut().init_upstream = Some(ngx_http_upstream_init_custom);
-
-        Ok(())
     }
+
+    let uscf = cf
+        .as_http_context()
+        .expect("ctx")
+        .srv_conf_for::<upstream::SrvConfRef>(Custom::module())
+        .expect("srvConf");
+
+    conf.original_init_upstream = uscf.peer().init_upstream().or(Some(upstream::InitFn(
+        ffi::ngx_http_upstream_init_round_robin,
+    )));
+
+    uscf.peer_mut().init_upstream = Some(ngx_http_upstream_init_custom);
+
+    Ok(())
 }
 
 #[native_handler(name = ngx_http_upstream_init_custom, log_err = cf.emerg)]

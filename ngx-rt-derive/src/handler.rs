@@ -17,7 +17,12 @@ pub struct Args {
     log_err: Option<NameValue<Expr>>,
 }
 
-pub fn expand(args: Args, f: ItemFn) -> TokenStream {
+pub enum Style {
+    Handler,
+    Setter,
+}
+
+pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
     let ItemFn {
         attrs,
         vis,
@@ -85,36 +90,68 @@ pub fn expand(args: Args, f: ItemFn) -> TokenStream {
     let (result, result_ty) = if matches!(output, ReturnType::Default) {
         (Expr::Call(handler), ReturnType::Default)
     } else {
-        (
-            if is_result(&output) {
-                if let Some(log_err) = args.log_err.as_ref().map(|arg| &arg.value) {
-                    parse_quote_spanned! { output.span() =>
-                        match #handler {
-                            Ok(_) => { ::ngx_mod::rt::ffi::NGX_OK as isize }
-                            Err(err) => {
-                                #log_err (err.to_string().as_str());
+        match style {
+            Style::Handler => (
+                if is_result(&output) {
+                    if let Some(log_err) = args.log_err.as_ref().map(|arg| &arg.value) {
+                        parse_quote_spanned! { output.span() =>
+                            match #handler {
+                                Ok(_) => { ::ngx_mod::rt::ffi::NGX_OK as isize }
+                                Err(err) => {
+                                    #log_err (err.to_string().as_str());
 
-                                ::ngx_mod::rt::ffi::NGX_ERROR as isize
+                                    ::ngx_mod::rt::ffi::NGX_ERROR as isize
+                                }
+                            }
+                        }
+                    } else {
+                        parse_quote_spanned! { output.span() =>
+                            match #handler {
+                                Ok(_) => { ::ngx_mod::rt::ffi::NGX_OK as isize }
+                                Err(_) => { ::ngx_mod::rt::ffi::NGX_ERROR as isize }
                             }
                         }
                     }
                 } else {
                     parse_quote_spanned! { output.span() =>
-                        match #handler {
-                            Ok(_) => { ::ngx_mod::rt::ffi::NGX_OK as isize }
-                            Err(_) => { ::ngx_mod::rt::ffi::NGX_ERROR as isize }
+                        isize::from(#handler)
+                    }
+                },
+                parse_quote_spanned! { output.span() =>
+                    -> ::ngx_mod::rt::ffi::ngx_int_t
+                },
+            ),
+            Style::Setter => (
+                if is_result(&output) {
+                    if let Some(log_err) = args.log_err.as_ref().map(|arg| &arg.value) {
+                        parse_quote_spanned! { output.span() =>
+                            match #handler {
+                                Ok(_) => { ::ngx_mod::rt::core::NGX_CONF_OK }
+                                Err(err) => {
+                                    #log_err (err.to_string().as_str());
+
+                                    ::ngx_mod::rt::core::NGX_CONF_ERROR
+                                }
+                            }
+                        }
+                    } else {
+                        parse_quote_spanned! { output.span() =>
+                            match #handler {
+                                Ok(_) => { ::ngx_mod::rt::core::NGX_CONF_OK }
+                                Err(_) => { ::ngx_mod::rt::core::NGX_CONF_ERROR }
+                            }
                         }
                     }
-                }
-            } else {
+                } else {
+                    parse_quote_spanned! { output.span() =>
+                        #handler as *mut _
+                    }
+                },
                 parse_quote_spanned! { output.span() =>
-                    isize::from(#handler)
-                }
-            },
-            parse_quote_spanned! { output.span() =>
-                -> ::ngx_mod::rt::ffi::ngx_int_t
-            },
-        )
+                    -> *mut ::std::ffi::c_char
+                },
+            ),
+        }
     };
 
     quote! {
