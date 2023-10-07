@@ -1,10 +1,6 @@
 #![cfg(feature = "static-link")]
 
-use ngx_mod::{
-    http,
-    rt::{core::Type, ffi, ngx_command},
-    Module, ModuleMetadata,
-};
+use ngx_mod::{http, rt::core::Type, Module, ModuleMetadata};
 
 #[derive(Module)]
 #[module(name = foobar, type = http)]
@@ -19,10 +15,7 @@ impl http::Module for M {
     type LocConf = ();
 }
 
-#[no_mangle]
-static mut ngx_foobar_commands: [ffi::ngx_command_t; 1] = [ngx_command!()];
-
 #[test]
-fn module() {
+fn http_module() {
     assert_eq!(M::module().ty(), Type::Http);
 }

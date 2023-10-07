@@ -24,7 +24,7 @@ impl<'a> ToTokens for Directive<'a> {
             .args
             .conf_offset()
             .or_else(|| Offset::for_conf(&conf_ty))
-            .map_or_else(|| quote! { 0 }, |off: Offset| quote! { #off });
+            .map_or_else(|| quote! { 0usize }, |off: Offset| quote! { #off });
         let args = conf_ty
             .into_iter()
             .map(|ty| quote! { #ty })
@@ -34,9 +34,9 @@ impl<'a> ToTokens for Directive<'a> {
         tokens.append_all(quote! {
             ::ngx_mod::rt::ffi::ngx_command_t {
                 name: ::ngx_mod::rt::ngx_str!( #name ),
-                type_: #( #args )|*,
+                type_: ( #( #args )|* ) as usize,
                 set: Some( #set ),
-                conf: #conf_off,
+                conf: #conf_off as usize,
                 offset: ::ngx_mod::memoffset::offset_of!( #struct_name , #field_name ) as usize,
                 post: ::std::ptr::null_mut(),
             }

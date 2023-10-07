@@ -16,12 +16,12 @@ use ngx_mod::{
             CmdRef, ConfRef, ConnRef,
         },
         event::{FreePeerFn, GetPeerFn, PeerConnRef},
-        ffi::{self, ngx_command_t},
+        ffi,
         http::{
             upstream::{self, InitPeerFn},
             RequestRef,
         },
-        native_handler, ngx_str,
+        native_handler,
     },
     Conf, Merge, Module, ModuleMetadata as _,
 };
@@ -52,9 +52,11 @@ impl http::Module for Custom {
 }
 
 #[derive(Clone, Debug, AutoMerge, Conf)]
+#[conf(http::upstream)]
 struct SrvConfig {
+    #[directive(args(0, 1), set = num)]
     #[merge(strategy = merge::num::overwrite_zero)]
-    max: u32,
+    max: usize,
     original_init_upstream: Option<upstream::InitFn>,
     original_init_peer: Option<upstream::InitPeerFn>,
 }
@@ -62,7 +64,7 @@ struct SrvConfig {
 impl Default for SrvConfig {
     fn default() -> Self {
         SrvConfig {
-            max: u32::MAX,
+            max: conf::unset(),
             original_init_upstream: None,
             original_init_peer: None,
         }
@@ -232,23 +234,3 @@ pub struct UpstreamPeerData<'a> {
     original_free_peer: Option<FreePeerFn>,
     data: Option<NonNull<()>>,
 }
-
-#[no_mangle]
-static mut ngx_http_upstream_custom_commands: [ngx_command_t; 1] = [
-    // ngx_command_t {
-    //     name: ngx_string!("custom"),
-    //     type_: (NGX_HTTP_UPS_CONF | NGX_CONF_NOARGS | NGX_CONF_TAKE1) as ngx_uint_t,
-    //     set: Some(ngx_http_upstream_commands_set_custom),
-    //     conf: NGX_RS_HTTP_SRV_CONF_OFFSET,
-    //     offset: 0,
-    //     post: std::ptr::null_mut(),
-    // },
-    ngx_command_t {
-        name: ngx_str!(),
-        type_: 0,
-        set: None,
-        conf: 0,
-        offset: 0,
-        post: ::std::ptr::null_mut(),
-    },
-];

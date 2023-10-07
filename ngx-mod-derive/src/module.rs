@@ -139,40 +139,85 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
         |arg| arg.value.clone(),
     );
 
-    let ngx_module_ctx: Option<ItemStatic> = match ty {
-        Type::Core(_) => Some(parse_quote! {
-            #[no_mangle]
-            static #ngx_module_ctx_name: ::ngx_mod::rt::ffi::ngx_core_module_t = ::ngx_mod::rt::ffi::ngx_core_module_t {
-                name: ::ngx_mod::rt::ngx_str!( #mod_name ),
-                create_conf: Some(<#ident as ::ngx_mod::core::UnsafeModule>::create_conf),
-                init_conf: Some(<#ident as ::ngx_mod::core::UnsafeModule>::init_conf),
-            };
-        }),
-        Type::Http(_) => Some(parse_quote! {
-            #[no_mangle]
-            static #ngx_module_ctx_name: ::ngx_mod::rt::ffi::ngx_http_module_t = ::ngx_mod::rt::ffi::ngx_http_module_t {
-                preconfiguration: Some(<#ident as ::ngx_mod::http::UnsafeModule>::preconfiguration),
-                postconfiguration: Some(<#ident as ::ngx_mod::http::UnsafeModule>::postconfiguration),
-                create_main_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::create_main_conf),
-                init_main_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::init_main_conf),
-                create_srv_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::create_srv_conf),
-                merge_srv_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::merge_srv_conf),
-                create_loc_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::create_loc_conf),
-                merge_loc_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::merge_loc_conf),
-            };
-        }),
-        Type::Stream(_) => Some(parse_quote! {
-            #[no_mangle]
-            static #ngx_module_ctx_name: ::ngx_mod::rt::ffi::ngx_stream_module_t = ::ngx_mod::rt::ffi::ngx_stream_module_t {
-                preconfiguration: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::preconfiguration),
-                postconfiguration: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::postconfiguration),
-                create_main_conf: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::create_main_conf),
-                init_main_conf: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::init_main_conf),
-                create_srv_conf: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::create_srv_conf),
-                merge_srv_conf: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::merge_srv_conf),
-            };
-        }),
-        _ => None,
+    let (ngx_module_ctx, ngx_module_cmds): (Option<ItemStatic>, Option<ItemStatic>) = match ty {
+        Type::Core(_) => (
+            Some(parse_quote! {
+                #[no_mangle]
+                static #ngx_module_ctx_name: ::ngx_mod::rt::ffi::ngx_core_module_t = ::ngx_mod::rt::ffi::ngx_core_module_t {
+                    name: ::ngx_mod::rt::ngx_str!( #mod_name ),
+                    create_conf: Some(<#ident as ::ngx_mod::core::UnsafeModule>::create_conf),
+                    init_conf: Some(<#ident as ::ngx_mod::core::UnsafeModule>::init_conf),
+                };
+            }),
+            Some(parse_quote! {
+                #[no_mangle]
+                static mut #ngx_module_cmds_name: [::ngx_mod::rt::ffi::ngx_command_t;
+                    <<#ident as ::ngx_mod::core::Module>::Conf as ::ngx_mod::UnsafeConf>::COMMANDS.len() +
+                1] = unsafe {
+                    ::ngx_mod::const_concat!(
+                        <<#ident as ::ngx_mod::core::Module> :: Conf as ::ngx_mod::UnsafeConf>::COMMANDS,
+                        [ ::ngx_mod::rt::ngx_command!() ]
+                    )
+                };
+            }),
+        ),
+        Type::Http(_) => (
+            Some(parse_quote! {
+                #[no_mangle]
+                static #ngx_module_ctx_name: ::ngx_mod::rt::ffi::ngx_http_module_t = ::ngx_mod::rt::ffi::ngx_http_module_t {
+                    preconfiguration: Some(<#ident as ::ngx_mod::http::UnsafeModule>::preconfiguration),
+                    postconfiguration: Some(<#ident as ::ngx_mod::http::UnsafeModule>::postconfiguration),
+                    create_main_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::create_main_conf),
+                    init_main_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::init_main_conf),
+                    create_srv_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::create_srv_conf),
+                    merge_srv_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::merge_srv_conf),
+                    create_loc_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::create_loc_conf),
+                    merge_loc_conf: Some(<#ident as ::ngx_mod::http::UnsafeModule>::merge_loc_conf),
+                };
+            }),
+            Some(parse_quote! {
+                #[no_mangle]
+                static mut #ngx_module_cmds_name: [::ngx_mod::rt::ffi::ngx_command_t;
+                    <<#ident as ::ngx_mod::http::Module> :: MainConf as ::ngx_mod::UnsafeConf>::COMMANDS.len() +
+                    <<#ident as ::ngx_mod::http::Module> :: SrvConf as ::ngx_mod::UnsafeConf>::COMMANDS.len() +
+                    <<#ident as ::ngx_mod::http::Module> :: LocConf as ::ngx_mod::UnsafeConf>::COMMANDS.len() +
+                1] = unsafe {
+                    ::ngx_mod::const_concat!(
+                        <<#ident as ::ngx_mod::http::Module> :: MainConf as ::ngx_mod::UnsafeConf>::COMMANDS,
+                        <<#ident as ::ngx_mod::http::Module> :: SrvConf as ::ngx_mod::UnsafeConf>::COMMANDS,
+                        <<#ident as ::ngx_mod::http::Module> :: LocConf as ::ngx_mod::UnsafeConf>::COMMANDS,
+                        [ ::ngx_mod::rt::ngx_command!() ]
+                    )
+                };
+            }),
+        ),
+        Type::Stream(_) => (
+            Some(parse_quote! {
+                #[no_mangle]
+                static #ngx_module_ctx_name: ::ngx_mod::rt::ffi::ngx_stream_module_t = ::ngx_mod::rt::ffi::ngx_stream_module_t {
+                    preconfiguration: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::preconfiguration),
+                    postconfiguration: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::postconfiguration),
+                    create_main_conf: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::create_main_conf),
+                    init_main_conf: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::init_main_conf),
+                    create_srv_conf: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::create_srv_conf),
+                    merge_srv_conf: Some(<#ident as ::ngx_mod::stream::UnsafeModule>::merge_srv_conf),
+                };
+            }),
+            Some(parse_quote! {
+                #[no_mangle]
+                static mut #ngx_module_cmds_name: [::ngx_mod::rt::ffi::ngx_command_t;
+                    <<#ident as ::ngx_mod::stream::Module> :: MainConf as ::ngx_mod::UnsafeConf>::COMMANDS.len() +
+                    <<#ident as ::ngx_mod::stream::Module> :: SrvConf as ::ngx_mod::UnsafeConf>::COMMANDS.len() +
+                1] = unsafe {
+                    ::ngx_mod::const_concat!(
+                        <<#ident as ::ngx_mod::stream::Module> :: MainConf as ::ngx_mod::UnsafeConf>::COMMANDS,
+                        <<#ident as ::ngx_mod::stream::Module> :: SrvConf as ::ngx_mod::UnsafeConf>::COMMANDS,
+                        [ ::ngx_mod::rt::ngx_command!() ]
+                    )
+                };
+            }),
+        ),
+        _ => (None, None),
     };
 
     let ngx_modules: ItemStatic = parse_quote! {
@@ -202,6 +247,7 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
         #impl_module
 
         #ngx_module_ctx
+        #ngx_module_cmds
 
         #ngx_modules
         #ngx_module_names
