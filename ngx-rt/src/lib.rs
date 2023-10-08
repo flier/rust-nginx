@@ -1,3 +1,4 @@
+#[doc(hidden)]
 pub extern crate foreign_types;
 pub extern crate ngx_sys as ffi;
 
@@ -16,5 +17,7 @@ pub mod http;
 pub mod stream;
 
 pub use self::error::{Error, Result};
-pub(crate) use self::raw::never_drop;
 pub use self::raw::{AsRawMut, AsRawRef, AsResult, FromRaw, FromRawMut, FromRawRef};
+
+#[doc(hidden)]
+pub(crate) use self::raw::never_drop;

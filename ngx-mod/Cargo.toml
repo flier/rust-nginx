@@ -33,8 +33,13 @@ ngx-mod-derive = { version = "0.1", path = "../ngx-mod-derive" }
 anyhow = "1.0"
 cfg-if = "1.0"
 doc-comment = "0.3"
+http = "0.2"
 trybuild = "1"
 merge = "0.1"
+
+[[example]]
+name = "curl"
+crate-type = ["dylib"]
 
 [[example]]
 name = "upstream"

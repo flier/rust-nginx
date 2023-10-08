@@ -1,16 +1,12 @@
-use std::{
-    ffi::CStr,
-    ops::{Deref, DerefMut},
-    ptr::NonNull,
-};
+use std::{ffi::CStr, ops::Deref, ptr::NonNull};
 
 use bitflags::bitflags;
 use cfg_if::cfg_if;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{
-    core::{BufRef, ConnRef, PoolRef, Str},
-    ffi, flag, never_drop, property, str, AsRawMut, AsRawRef,
+    core::{BufRef, ConnRef, ModuleRef, PoolRef, Str},
+    ffi, flag, never_drop, property, str, AsRawRef,
 };
 
 use super::upstream::UpstreamRef;
@@ -52,21 +48,61 @@ foreign_type! {
 }
 
 impl Deref for RequestRef {
-    type Target = <Self as ForeignTypeRef>::CType;
+    type Target = HeadersInRef;
 
     fn deref(&self) -> &Self::Target {
-        unsafe { self.as_raw() }
-    }
-}
-
-impl DerefMut for RequestRef {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        unsafe { self.as_raw_mut() }
+        self.headers_in()
     }
 }
 
 impl RequestRef {
     property!(connection: &ConnRef);
+
+    /// Get the main configuration for the module.
+    pub fn main_conf_for<T>(&self, m: &ModuleRef) -> Option<&mut T> {
+        unsafe { self.main_conf(m.context_index()) }
+    }
+
+    /// Get the server configuration for the module.
+    pub fn srv_conf_for<T>(&self, m: &ModuleRef) -> Option<&mut T> {
+        unsafe { self.srv_conf(m.context_index()) }
+    }
+
+    /// Get the location configuration for the module.
+    pub fn loc_conf_for<T>(&self, m: &ModuleRef) -> Option<&mut T> {
+        unsafe { self.loc_conf(m.context_index()) }
+    }
+
+    /// Get the main configuration from context.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
+    /// The caller must ensure that `idx` is within the bounds of the `main_conf` array.
+    pub unsafe fn main_conf<T>(&self, idx: usize) -> Option<&mut T> {
+        self.as_raw().main_conf.add(idx).read().cast::<T>().as_mut()
+    }
+
+    /// Get the server configuration from context.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
+    /// The caller must ensure that `idx` is within the bounds of the `srv_conf` array.
+    pub unsafe fn srv_conf<T>(&self, idx: usize) -> Option<&mut T> {
+        self.as_raw().srv_conf.add(idx).read().cast::<T>().as_mut()
+    }
+
+    /// Get the location configuration from context.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
+    /// The caller must ensure that `idx` is within the bounds of the `loc_conf` array.
+    pub unsafe fn loc_conf<T>(&self, idx: usize) -> Option<&mut T> {
+        self.as_raw().loc_conf.add(idx).read().cast::<T>().as_mut()
+    }
+
     property!(upstream as &mut UpstreamRef);
     property!(pool: &PoolRef);
     property!(header_in: &BufRef);
