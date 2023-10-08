@@ -70,8 +70,8 @@ impl RequestRef {
     property!(upstream as &mut UpstreamRef);
     property!(pool: &PoolRef);
     property!(header_in: &BufRef);
-    property!(headers_in: &HeadersInRef);
-    property!(headers_out: &HeadersOutRef);
+    property!(&headers_in: &HeadersInRef);
+    property!(&headers_out: &HeadersOutRef);
     property!(request_body as &BodyRef);
 
     pub fn method(&self) -> Method {

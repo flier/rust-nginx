@@ -117,7 +117,7 @@ pub trait Module: crate::Module {
     }
 
     fn create_main_conf(cf: &ConfRef) -> Option<&mut Self::MainConf> {
-        cf.pool().allocate(Self::MainConf::default())
+        cf.pool().allocate_default()
     }
 
     fn init_main_conf(_cf: &ConfRef, _conf: &Self::MainConf) -> Result<(), Self::Error> {
@@ -125,7 +125,7 @@ pub trait Module: crate::Module {
     }
 
     fn create_srv_conf(cf: &ConfRef) -> Option<&mut Self::SrvConf> {
-        cf.pool().allocate(Self::SrvConf::default())
+        cf.pool().allocate_default()
     }
 
     fn merge_srv_conf(

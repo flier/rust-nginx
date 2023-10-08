@@ -1,4 +1,5 @@
 use std::{
+    fmt,
     ops::{Deref, DerefMut},
     ptr::{self, NonNull},
 };
@@ -15,6 +16,14 @@ foreign_type! {
         type CType = ffi::ngx_peer_connection_t;
 
         fn drop = never_drop::<ffi::ngx_peer_connection_t>;
+    }
+}
+
+impl fmt::Pointer for PeerConnRef {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let p = self.as_ptr();
+
+        fmt::Pointer::fmt(&p, f)
     }
 }
 
@@ -49,8 +58,8 @@ impl PeerConnRef {
         unsafe { self.as_raw().notify.map(NotifyPeerFn) }
     }
 
-    pub fn data<T>(&self) -> Option<NonNull<T>> {
-        NonNull::new(unsafe { self.as_raw().data.cast() })
+    pub fn data<T>(&self) -> Option<&T> {
+        unsafe { NonNull::new(self.as_raw().data.cast()).map(|p| p.as_ref()) }
     }
 
     property!(type_: i32);

@@ -84,7 +84,7 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
         .unzip::<Option<Stmt>, &Ident, Vec<_>, Vec<_>>();
 
     let handler: ExprCall = parse_quote_spanned! { ident.span() =>
-        handler( #( #unsafe_params ),* )
+        #ident ( #( #unsafe_params ),* )
     };
 
     let (result, result_ty) = if matches!(output, ReturnType::Default) {
@@ -155,6 +155,8 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
     };
 
     quote! {
+        #vis fn #ident #ty_generics ( #inputs ) #output #where_clause #block
+
         #( #attrs )*
         #[no_mangle]
         #vis unsafe extern "C" fn #name #ty_generics ( #( #unsafe_args ),* ) #result_ty #where_clause {

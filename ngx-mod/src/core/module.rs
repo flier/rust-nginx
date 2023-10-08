@@ -46,7 +46,7 @@ pub trait Module: crate::Module {
     type Conf: Default + Merge;
 
     fn create_conf(cycle: &CycleRef) -> Option<&mut Self::Conf> {
-        cycle.pool().allocate(Self::Conf::default())
+        cycle.pool().allocate_default()
     }
 
     fn init_conf(_cycle: &CycleRef, _conf: &mut Self::Conf) -> Result<(), Self::Error> {

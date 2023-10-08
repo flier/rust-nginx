@@ -4,7 +4,6 @@
 use std::ptr::NonNull;
 
 use anyhow::{anyhow, bail, Context};
-use foreign_types::ForeignTypeRef;
 use merge::Merge as AutoMerge;
 
 use ngx_mod::{
@@ -16,10 +15,7 @@ use ngx_mod::{
         },
         event::{FreePeerFn, GetPeerFn, PeerConnRef},
         ffi,
-        http::{
-            upstream::{self, InitPeerFn},
-            RequestRef,
-        },
+        http::{upstream, RequestRef},
         native_handler, native_setter,
     },
     Conf, Merge, Module, ModuleMetadata as _,
@@ -36,28 +32,24 @@ impl http::Module for Custom {
     type MainConf = ();
     type SrvConf = SrvConfig;
     type LocConf = ();
-
-    fn create_srv_conf(cf: &ConfRef) -> Option<&mut Self::SrvConf> {
-        if let Some(p) = cf.pool().allocate_default::<SrvConfig>() {
-            p.max = conf::unset();
-
-            Some(p)
-        } else {
-            cf.emerg("could not allocate memory for config, out of memory");
-
-            None
-        }
-    }
 }
 
 #[derive(Clone, Debug, AutoMerge, Conf)]
 #[conf(http::upstream)]
 struct SrvConfig {
     #[directive(name = "custom", args(0, 1), set = ngx_http_upstream_custom)]
-    #[merge(strategy = merge::num::overwrite_zero)]
+    #[merge(strategy = overwrite_unset)]
     max: usize,
     original_init_upstream: Option<upstream::InitFn>,
     original_init_peer: Option<upstream::InitPeerFn>,
+}
+fn overwrite_unset<T>(left: &mut T, right: T)
+where
+    T: Sized + PartialEq + Unset,
+{
+    if left.is_unset() {
+        *left = right;
+    }
 }
 
 impl Default for SrvConfig {
@@ -82,27 +74,24 @@ impl Merge for SrvConfig {
 
 #[native_setter(name = ngx_http_upstream_custom, log_err = cf.emerg)]
 fn set_custom(cf: &ConfRef, _cmd: &CmdRef, conf: &mut SrvConfig) -> anyhow::Result<()> {
-    cf.log().http().debug("custom init upstream");
+    cf.notice("CUSTOM init module");
 
-    if cf.args().len() == 2 {
-        let n = cf
-            .args()
-            .get(1)
-            .ok_or_else(|| anyhow!("missing `max`"))?
+    if let Some(s) = cf.args().get(1) {
+        let n = s
             .to_str()?
             .parse()
-            .context("parse `max`")?;
+            .context("expect `custom` value to be a number")?;
         if n > 0 {
             conf.max = n;
         } else {
-            bail!("max must be greater than 0");
+            bail!("expect `custom` value to be greater than 0");
         }
     }
 
     let uscf = cf
         .as_http_context()
         .and_then(|ctx| ctx.srv_conf_for::<upstream::SrvConfRef>(upstream::module()))
-        .ok_or_else(|| anyhow!("missing `ctx.srvConf`"))?;
+        .ok_or_else(|| anyhow!("`srv_conf` not found"))?;
 
     conf.original_init_upstream = uscf.peer().init_upstream().or(Some(upstream::InitFn(
         ffi::ngx_http_upstream_init_round_robin,
@@ -115,12 +104,12 @@ fn set_custom(cf: &ConfRef, _cmd: &CmdRef, conf: &mut SrvConfig) -> anyhow::Resu
 
 #[native_handler(name = ngx_http_upstream_init_custom, log_err = cf.emerg)]
 fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()> {
-    cf.log().http().debug("custom init upstream");
+    cf.notice("CUSTOM init upstream");
 
     let original_init_upstream = {
         let hccf = us
             .srv_conf_mut::<SrvConfig>(Custom::module())
-            .ok_or_else(|| anyhow!("no upstream srv_conf"))?;
+            .ok_or_else(|| anyhow!("no upstream `srv_conf`"))?;
 
         hccf.max.get_or_set(100);
         hccf.original_init_upstream
@@ -128,13 +117,13 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
 
     if let Some(f) = original_init_upstream {
         f.call(cf, us)
-            .map_err(|_| anyhow!("failed calling init_upstream"))?;
+            .map_err(|_| anyhow!("failed calling `init_upstream`"))?;
     }
 
     let original_init_peer = us.peer_mut().init.replace(http_upstream_init_custom_peer);
 
     if let Some(hccf) = us.srv_conf_mut::<SrvConfig>(Custom::module()) {
-        hccf.original_init_peer = original_init_peer.map(InitPeerFn)
+        hccf.original_init_peer = original_init_peer.map(upstream::InitPeerFn)
     }
 
     Ok(())
@@ -142,7 +131,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
 
 #[native_handler(name = http_upstream_init_custom_peer, log_err = req.connection().log().http().emerg)]
 fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::Result<()> {
-    req.connection().log().http().debug("custom init peer");
+    req.connection().log().http().debug("CUSTOM init peer");
 
     let hccf = us.srv_conf::<SrvConfig>(Custom::module());
 
@@ -151,7 +140,7 @@ fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::
         .original_init_peer
     {
         f.call(req, us)
-            .map_err(|_| anyhow!("failed calling init_peer"))?;
+            .map_err(|_| anyhow!("failed calling `init_peer`"))?;
     }
 
     let hcpd = req
@@ -179,13 +168,12 @@ fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::
 #[native_handler(name = ngx_http_upstream_get_custom_peer, log_err = conn.log().http().emerg)]
 fn get_custom_peer(conn: &PeerConnRef, data: &UpstreamPeerData) -> anyhow::Result<()> {
     conn.log().http().debug(format!(
-        "custom get peer, try: {}, conn: {:p}",
-        conn.tries,
-        conn.as_ptr()
+        "CUSTOM get peer, try: {}, conn: {:p}",
+        conn.tries, conn
     ));
 
     if let Some(f) = data.original_get_peer {
-        f.call(conn, Some(data))
+        f.call(conn, data.data)
             .map_err(|_| anyhow!("failed calling get_peer"))?;
     }
 
@@ -195,11 +183,13 @@ fn get_custom_peer(conn: &PeerConnRef, data: &UpstreamPeerData) -> anyhow::Resul
 }
 
 #[native_handler(name = ngx_http_upstream_free_custom_peer)]
-fn free_custom_peer(pc: &PeerConnRef, data: &UpstreamPeerData, state: usize) {
-    pc.log().http().debug("custom free peer");
+fn free_custom_peer(conn: &PeerConnRef, data: &UpstreamPeerData, state: usize) {
+    conn.log()
+        .http()
+        .debug(format!("CUSTOM free peer, conn: {:p}", conn));
 
     if let Some(f) = data.original_free_peer {
-        f.call(pc, Some(data), state);
+        f.call(conn, data.data, state);
     }
 }
 
@@ -211,5 +201,5 @@ pub struct UpstreamPeerData<'a> {
     client_connection: Option<&'a ConnRef>,
     original_get_peer: Option<GetPeerFn>,
     original_free_peer: Option<FreePeerFn>,
-    data: Option<NonNull<()>>,
+    data: Option<&'a ()>,
 }

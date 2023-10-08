@@ -1,6 +1,6 @@
-use foreign_types::{foreign_type, ForeignTypeRef};
+use foreign_types::foreign_type;
 
-use crate::{event::PeerConnRef, ffi, never_drop, AsRawMut, AsRawRef};
+use crate::{event::PeerConnRef, ffi, never_drop};
 
 foreign_type! {
     pub unsafe type Upstream: Send {
@@ -11,11 +11,5 @@ foreign_type! {
 }
 
 impl UpstreamRef {
-    pub fn peer(&self) -> &PeerConnRef {
-        unsafe { PeerConnRef::from_ptr(&self.as_raw().peer as *const _ as *mut _) }
-    }
-
-    pub fn peer_mut(&mut self) -> &mut PeerConnRef {
-        unsafe { PeerConnRef::from_ptr_mut(&mut self.as_raw_mut().peer as *mut _) }
-    }
+    property!(&mut peer: &mut PeerConnRef);
 }

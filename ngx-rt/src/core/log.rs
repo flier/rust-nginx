@@ -105,22 +105,27 @@ impl LogRef {
     }
 
     #[cfg(feature = "debug_log")]
-    pub fn debug_core(&self, err: Option<i32>, msg: &CStr) {
-        unsafe { ffi::ngx_log_debug_core(self.as_ptr(), err.unwrap_or_default(), msg.as_ptr()) }
+    pub fn debug_core(&self, err: Option<i32>, fmt: &CStr, msg: &CStr) {
+        unsafe {
+            ffi::ngx_log_debug_core(
+                self.as_ptr(),
+                err.unwrap_or_default(),
+                fmt.as_ptr(),
+                msg.as_ptr(),
+            )
+        }
     }
 
-    pub fn error_core<S: Into<Vec<u8>>>(&self, level: Level, err: Option<i32>, msg: S) {
-        if self.level() >= level {
+    pub unsafe fn error_core<S: Into<Vec<u8>>>(&self, level: Level, err: Option<i32>, msg: S) {
+        if self.as_raw().log_level >= level as usize {
             let msg = CString::new(msg).expect("msg");
 
-            unsafe {
-                ffi::ngx_log_error_core(
-                    level as usize,
-                    self.as_ptr(),
-                    err.unwrap_or_default(),
-                    msg.as_ptr(),
-                )
-            }
+            ffi::ngx_log_error_core(
+                level as usize,
+                self.as_ptr(),
+                err.unwrap_or_default(),
+                msg.as_ptr(),
+            )
         }
     }
 }
@@ -178,7 +183,7 @@ impl<'a> WithModule<'a> {
 
     pub fn log<S: Into<Vec<u8>>>(&self, level: Level, msg: S) {
         if self.0.module().contains(self.1) {
-            self.0.error_core(level, None, msg);
+            unsafe { self.0.error_core(level, None, msg) }
         }
     }
 }

@@ -21,7 +21,7 @@ foreign_type! {
 }
 
 impl SrvConfRef {
-    property!(peer: &mut PeerRef);
+    property!(&mut peer: &mut PeerRef);
 
     /// Get the reference of server configuration for the module.
     ///
@@ -30,11 +30,10 @@ impl SrvConfRef {
     /// The caller must ensure that the module is initialized.
     pub fn srv_conf<T>(&self, m: &ModuleRef) -> Option<&T> {
         unsafe {
-            self.as_raw()
-                .srv_conf
-                .add(m.context_index())
-                .cast::<T>()
-                .as_ref()
+            let idx = m.context_index();
+            let p = self.as_raw().srv_conf.add(idx).read().cast::<T>();
+
+            p.as_ref()
         }
     }
 
@@ -45,11 +44,10 @@ impl SrvConfRef {
     /// The caller must ensure that the module is initialized.
     pub fn srv_conf_mut<T>(&mut self, m: &ModuleRef) -> Option<&mut T> {
         unsafe {
-            self.as_raw()
-                .srv_conf
-                .add(m.context_index())
-                .cast::<T>()
-                .as_mut()
+            let idx = m.context_index();
+            let p = self.as_raw().srv_conf.add(idx).read().cast::<T>();
+
+            p.as_mut()
         }
     }
 }
