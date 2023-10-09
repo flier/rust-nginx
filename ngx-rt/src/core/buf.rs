@@ -119,7 +119,14 @@ impl ChainRef {
 }
 
 impl PoolRef {
-    pub fn create_chain_of_bufs(&mut self, num: isize, size: usize) -> Option<&ChainRef> {
+    pub fn alloc_chain_link(&mut self) -> Option<&mut ChainRef> {
+        unsafe {
+            NonNull::new(ffi::ngx_alloc_chain_link(self.as_ptr()))
+                .map(|p| ChainRef::from_ptr_mut(p.as_ptr()))
+        }
+    }
+
+    pub fn create_chain_of_bufs(&mut self, num: isize, size: usize) -> Option<&mut ChainRef> {
         let bufs = ffi::ngx_bufs_t { num, size };
 
         unsafe {
@@ -127,7 +134,7 @@ impl PoolRef {
                 self.as_ptr(),
                 &bufs as *const _ as *mut _,
             ))
-            .map(|p| ChainRef::from_ptr(p.as_ptr()))
+            .map(|p| ChainRef::from_ptr_mut(p.as_ptr()))
         }
     }
 
