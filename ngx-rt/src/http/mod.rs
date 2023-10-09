@@ -5,7 +5,10 @@ mod header;
 mod req;
 pub mod upstream;
 
-pub use self::conf::{Context, ContextRef};
+pub use self::conf::{
+    Context, ContextRef, LocConfFor, MainConfFor, SrvConfFor, UnsafeLocConf, UnsafeMainConf,
+    UnsafeSrvConf,
+};
 pub use self::header::{Header, Headers};
 pub use self::req::{
     Body, BodyRef, ConnectionType, HeadersIn, HeadersInRef, HeadersOut, HeadersOutRef, Method,

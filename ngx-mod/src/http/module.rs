@@ -8,7 +8,7 @@ use foreign_types::ForeignTypeRef;
 use crate::{
     rt::{
         core::{Code, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK},
-        ffi,
+        ffi, http,
     },
     Merge,
 };
@@ -183,5 +183,26 @@ pub trait Module: crate::Module {
         conf: &mut Self::LocConf,
     ) -> Result<(), Self::Error> {
         conf.merge(prev).map_err(Self::Error::from)
+    }
+
+    fn main_conf<T>(cf: &T) -> Option<&mut Self::MainConf>
+    where
+        T: http::MainConfFor,
+    {
+        cf.main_conf_for(Self::module())
+    }
+
+    fn srv_conf<T>(cf: &T) -> Option<&mut Self::SrvConf>
+    where
+        T: http::SrvConfFor,
+    {
+        cf.srv_conf_for(Self::module())
+    }
+
+    fn loc_conf<T>(cf: &T) -> Option<&mut Self::LocConf>
+    where
+        T: http::LocConfFor,
+    {
+        cf.loc_conf_for(Self::module())
     }
 }

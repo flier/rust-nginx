@@ -7,7 +7,7 @@ use anyhow::{anyhow, bail, Context};
 use merge::Merge as AutoMerge;
 
 use ngx_mod::{
-    http,
+    http::{self, Module as _},
     rt::{
         core::{
             conf::{self, Unset},
@@ -19,7 +19,7 @@ use ngx_mod::{
         http::{upstream, RequestRef},
         native_handler, native_setter, notice,
     },
-    Conf, Merge, Module, ModuleMetadata as _,
+    Conf, Merge, Module,
 };
 
 #[derive(Module)]
@@ -91,7 +91,7 @@ fn set_custom(cf: &ConfRef, _cmd: &CmdRef, conf: &mut SrvConfig) -> anyhow::Resu
 
     let uscf = cf
         .as_http_context()
-        .and_then(|ctx| ctx.srv_conf_for::<upstream::SrvConfRef>(upstream::module()))
+        .and_then(upstream::srv_conf)
         .ok_or_else(|| anyhow!("`srv_conf` not found"))?;
 
     conf.original_init_upstream = uscf.peer().init_upstream().or(Some(upstream::InitFn(
@@ -108,9 +108,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
     notice!(cf, "CUSTOM init upstream");
 
     let original_init_upstream = {
-        let hccf = us
-            .srv_conf_for::<SrvConfig>(Custom::module())
-            .ok_or_else(|| anyhow!("no upstream `srv_conf`"))?;
+        let hccf = Custom::srv_conf(us).ok_or_else(|| anyhow!("no upstream `srv_conf`"))?;
 
         hccf.max.get_or_set(100);
         hccf.original_init_upstream
@@ -123,7 +121,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
 
     let original_init_peer = us.peer_mut().init.replace(http_upstream_init_custom_peer);
 
-    if let Some(hccf) = us.srv_conf_for::<SrvConfig>(Custom::module()) {
+    if let Some(hccf) = Custom::srv_conf(us) {
         hccf.original_init_peer = original_init_peer.map(upstream::InitPeerFn)
     }
 
@@ -134,7 +132,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
 fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::Result<()> {
     debug!(req.connection().log().http(), "CUSTOM init peer");
 
-    let hccf = us.srv_conf_for::<SrvConfig>(Custom::module());
+    let hccf = Custom::srv_conf(us);
 
     if let Some(f) = hccf
         .as_ref()

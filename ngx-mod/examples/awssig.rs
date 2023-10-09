@@ -9,10 +9,10 @@ use ngx_mod::{
     rt::{
         core::{CmdRef, Code, ConfRef},
         debug,
-        http::core::{self, MainConfRef, Phases},
+        http::core::{self, Phases},
         native_setter, notice,
     },
-    Conf, Merge, Module, ModuleMetadata,
+    Conf, Merge, Module,
 };
 use ngx_rt::{http::RequestRef, native_handler};
 
@@ -33,7 +33,7 @@ impl HttpModule for AwsSig {
 
         let cmcf = cf
             .as_http_context()
-            .and_then(|ctx| ctx.main_conf_for::<MainConfRef>(core::module()))
+            .and_then(core::main_conf)
             .ok_or(Code::ERROR)?;
 
         cmcf.phases_mut(Phases::Precontent)
@@ -141,9 +141,7 @@ fn set_s3_endpoint(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Re
 
 #[native_handler(name = awssigv4_header_handler, embedded)]
 fn header_handler(req: &mut RequestRef) -> Result<Code, Code> {
-    let conf = req
-        .loc_conf_for::<Config>(AwsSig::module())
-        .ok_or(Code::ERROR)?;
+    let conf = AwsSig::loc_conf(req).ok_or(Code::ERROR)?;
 
     debug!(req.connection().log().http(), "AwsSig module: {:?}", conf);
 

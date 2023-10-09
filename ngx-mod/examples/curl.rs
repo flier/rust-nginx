@@ -9,10 +9,10 @@ use ngx_mod::{
     rt::{
         core::{CmdRef, Code, ConfRef},
         debug,
-        http::core::{self, MainConfRef, Phases},
+        http::core::{self, Phases},
         native_setter, notice,
     },
-    Conf, Merge, Module, ModuleMetadata,
+    Conf, Merge, Module,
 };
 use ngx_rt::{http::RequestRef, native_handler};
 
@@ -33,7 +33,7 @@ impl HttpModule for Curl {
 
         let cmcf = cf
             .as_http_context()
-            .and_then(|ctx| ctx.main_conf_for::<MainConfRef>(core::module()))
+            .and_then(core::main_conf)
             .ok_or(Code::ERROR)?;
 
         cmcf.phases_mut(Phases::Access)
@@ -77,9 +77,7 @@ fn set_enable(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::Resu
 
 #[native_handler(name = ngx_http_curl_access_handler)]
 fn curl_access(req: &RequestRef) -> Result<StatusCode, Code> {
-    let lc = req
-        .loc_conf_for::<LocConfig>(Curl::module())
-        .ok_or(Code::ERROR)?;
+    let lc = Curl::loc_conf(req).ok_or(Code::ERROR)?;
 
     debug!(req.connection().log().http(), "CURL enabled: {}", lc.enable);
 

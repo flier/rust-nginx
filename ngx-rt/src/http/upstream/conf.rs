@@ -2,7 +2,7 @@ use std::ptr::NonNull;
 
 use foreign_types::foreign_type;
 
-use crate::{core::ModuleRef, ffi, never_drop, property, AsRawRef};
+use crate::{ffi, http::UnsafeSrvConf, never_drop, property, AsRawRef};
 
 use super::PeerRef;
 
@@ -22,25 +22,12 @@ foreign_type! {
     }
 }
 
-impl SrvConfRef {
-    property!(&mut peer: &mut PeerRef);
-
-    /// Get the reference of server configuration for the module.
-    ///
-    /// # Safety
-    ///
-    /// The caller must ensure that the module is initialized.
-    pub fn srv_conf_for<T>(&self, m: &ModuleRef) -> Option<&mut T> {
-        unsafe { self.srv_conf(m.context_index()) }
-    }
-
-    /// Get the server configuration from context.
-    ///
-    /// # Safety
-    ///
-    /// This function is unsafe because it dereferences raw pointers.
-    /// The caller must ensure that `idx` is within the bounds of the `srv_conf` array.
-    pub unsafe fn srv_conf<T>(&self, idx: usize) -> Option<&mut T> {
+impl UnsafeSrvConf for SrvConfRef {
+    unsafe fn srv_conf<T>(&self, idx: usize) -> Option<&mut T> {
         NonNull::new(self.as_raw().srv_conf.add(idx).read()).map(|p| p.cast::<T>().as_mut())
     }
+}
+
+impl SrvConfRef {
+    property!(&mut peer: &mut PeerRef);
 }
