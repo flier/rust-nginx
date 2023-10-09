@@ -139,53 +139,53 @@ pub struct WithModule<'a>(&'a LogRef, Module);
 impl<'a> WithModule<'a> {
     pub fn stderr<S: Into<Vec<u8>>>(&self, msg: S) {
         if self.0.module().contains(self.1) {
-            self.log(Level::StdErr, msg)
+            self.core(Level::StdErr, msg)
         }
     }
 
     pub fn emerg<S: Into<Vec<u8>>>(&self, msg: S) {
         if self.0.module().contains(self.1) {
-            self.log(Level::Emerg, msg)
+            self.core(Level::Emerg, msg)
         }
     }
 
     pub fn alert<S: Into<Vec<u8>>>(&self, msg: S) {
         if self.0.module().contains(self.1) {
-            self.log(Level::Alert, msg)
+            self.core(Level::Alert, msg)
         }
     }
 
     pub fn critical<S: Into<Vec<u8>>>(&self, msg: S) {
         if self.0.module().contains(self.1) {
-            self.log(Level::Critical, msg)
+            self.core(Level::Critical, msg)
         }
     }
 
     pub fn error<S: Into<Vec<u8>>>(&self, msg: S) {
         if self.0.module().contains(self.1) {
-            self.log(Level::Error, msg)
+            self.core(Level::Error, msg)
         }
     }
 
     pub fn warn<S: Into<Vec<u8>>>(&self, msg: S) {
         if self.0.module().contains(self.1) {
-            self.log(Level::Warn, msg)
+            self.core(Level::Warn, msg)
         }
     }
 
     pub fn notice<S: Into<Vec<u8>>>(&self, msg: S) {
         if self.0.module().contains(self.1) {
-            self.log(Level::Notice, msg)
+            self.core(Level::Notice, msg)
         }
     }
 
     pub fn debug<S: Into<Vec<u8>>>(&self, msg: S) {
         if self.0.module().contains(self.1) {
-            self.log(Level::Debug, msg)
+            self.core(Level::Debug, msg)
         }
     }
 
-    pub fn log<S: Into<Vec<u8>>>(&self, level: Level, msg: S) {
+    pub fn core<S: Into<Vec<u8>>>(&self, level: Level, msg: S) {
         if self.0.module().contains(self.1) {
             self.0.error_core(level, None, msg)
         }
@@ -204,6 +204,39 @@ pub enum Level {
     Notice = ffi::NGX_LOG_NOTICE,
     Info = ffi::NGX_LOG_INFO,
     Debug = ffi::NGX_LOG_DEBUG,
+}
+
+macro_rules! define_logger {
+    ( $( $name:ident => $level:ident ,)* ) => {
+        define_logger! { __impl =>
+            ($d:tt) => {
+                $(
+                    #[macro_export]
+                    macro_rules! $name {
+                        ($d log:expr, $d( $d args:tt )*) => {
+                            $d log.core($crate::core::LogLevel::$level, format!($d ($d args)*))
+                        };
+                    }
+                )*
+            }
+        }
+    };
+    ( __impl => $($body:tt)* ) => {
+        macro_rules! __with_dollar_sign { $($body)* }
+        __with_dollar_sign!($);
+    }
+}
+
+define_logger! {
+    stderr => StdErr,
+    emerg => Emerg,
+    alert => Alert,
+    critical => Critical,
+    error => Error,
+    warn => Warn,
+    notice => Notice,
+    info => Info,
+    debug => Debug,
 }
 
 bitflags! {
@@ -236,7 +269,7 @@ mod tests {
         assert_ne!(log.file().as_raw_fd(), 0);
 
         log.with_module(Module::CORE);
-        log.core().notice("some test log");
+        notice!(log.core(), "some test log");
     }
 
     #[test]
@@ -247,6 +280,6 @@ mod tests {
         assert_eq!(log.level(), Level::Notice);
         assert_ne!(log.file().as_raw_fd(), 0);
 
-        log.core().debug("test");
+        debug!(log.core(), "test");
     }
 }

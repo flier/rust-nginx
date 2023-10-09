@@ -48,6 +48,10 @@ impl ConfRef {
         self.log_error(log::Level::Debug, None, msg)
     }
 
+    pub fn core<S: Into<Vec<u8>>>(&self, level: log::Level, msg: S) {
+        self.log_error(level, None, msg)
+    }
+
     pub fn log_error<S: Into<Vec<u8>>>(&self, level: log::Level, err: Option<i32>, msg: S) {
         let msg = CString::new(msg).expect("msg");
 

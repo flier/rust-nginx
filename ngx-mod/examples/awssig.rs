@@ -8,8 +8,9 @@ use ngx_mod::{
     http::Module as HttpModule,
     rt::{
         core::{CmdRef, Code, ConfRef},
+        debug,
         http::core::{self, MainConfRef, Phases},
-        native_setter,
+        native_setter, notice,
     },
     Conf, Merge, Module, ModuleMetadata,
 };
@@ -28,7 +29,7 @@ impl HttpModule for AwsSig {
     type LocConf = Config;
 
     fn postconfiguration(cf: &ConfRef) -> Result<(), Code> {
-        cf.notice("AwsSig init module");
+        notice!(cf, "AwsSig init module");
 
         let cmcf = cf
             .as_http_context()
@@ -77,7 +78,7 @@ fn set_enable(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Result<
         false
     };
 
-    cf.notice(format!("AwsSig set enable: {}", conf.enable));
+    notice!(cf, "AwsSig set enable: {}", conf.enable);
 
     Ok(())
 }
@@ -91,7 +92,7 @@ fn set_access_key(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Res
         .transpose()?
         .map(|s| s.to_string());
 
-    cf.notice(format!("AwsSig set access key: {:?}", conf.access_key));
+    notice!(cf, "AwsSig set access key: {:?}", conf.access_key);
 
     Ok(())
 }
@@ -105,7 +106,7 @@ fn set_secret_key(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Res
         .transpose()?
         .map(|s| s.to_string());
 
-    cf.notice(format!("AwsSig set secret key: {:?}", conf.secret_key));
+    notice!(cf, "AwsSig set secret key: {:?}", conf.secret_key);
 
     Ok(())
 }
@@ -119,7 +120,7 @@ fn set_s3_bucket(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Resu
         .transpose()?
         .map(|s| s.to_string());
 
-    cf.notice(format!("AwsSig set S3 bucket: {:?}", conf.s3_bucket));
+    notice!(cf, "AwsSig set S3 bucket: {:?}", conf.s3_bucket);
 
     Ok(())
 }
@@ -133,7 +134,7 @@ fn set_s3_endpoint(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Re
         .transpose()?
         .map(|s| s.to_string());
 
-    cf.notice(format!("AwsSig set S3 bucket: {:?}", conf.s3_endpoint));
+    notice!(cf, "AwsSig set S3 bucket: {:?}", conf.s3_endpoint);
 
     Ok(())
 }
@@ -144,10 +145,7 @@ fn header_handler(req: &mut RequestRef) -> Result<Code, Code> {
         .loc_conf_for::<Config>(AwsSig::module())
         .ok_or(Code::ERROR)?;
 
-    req.connection()
-        .log()
-        .http()
-        .debug(format!("AwsSig module: {:?}", conf));
+    debug!(req.connection().log().http(), "AwsSig module: {:?}", conf);
 
     if !conf.enable {
         return Err(Code::DECLINED);

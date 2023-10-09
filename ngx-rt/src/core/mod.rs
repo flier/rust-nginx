@@ -8,6 +8,7 @@ mod err;
 mod file;
 pub mod hash;
 pub mod list;
+#[macro_use]
 mod log;
 mod module;
 mod pool;

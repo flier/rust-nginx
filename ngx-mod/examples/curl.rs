@@ -8,8 +8,9 @@ use ngx_mod::{
     http::Module as HttpModule,
     rt::{
         core::{CmdRef, Code, ConfRef},
+        debug,
         http::core::{self, MainConfRef, Phases},
-        native_setter,
+        native_setter, notice,
     },
     Conf, Merge, Module, ModuleMetadata,
 };
@@ -28,7 +29,7 @@ impl HttpModule for Curl {
     type LocConf = LocConfig;
 
     fn postconfiguration(cf: &ConfRef) -> Result<(), Code> {
-        cf.notice("CURL init module");
+        notice!(cf, "CURL init module");
 
         let cmcf = cf
             .as_http_context()
@@ -63,7 +64,7 @@ impl Merge for LocConfig {
 
 #[native_setter(name = ngx_http_curl_commands_set_enable, log_err = cf.emerg)]
 fn set_enable(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::Result<()> {
-    cf.notice("CURL set enable");
+    notice!(cf, "CURL set enable");
 
     conf.enable = if let Some(s) = cf.args().get(1) {
         s.to_str()?.eq_ignore_ascii_case("on")
@@ -80,10 +81,7 @@ fn curl_access(req: &RequestRef) -> Result<StatusCode, Code> {
         .loc_conf_for::<LocConfig>(Curl::module())
         .ok_or(Code::ERROR)?;
 
-    req.connection()
-        .log()
-        .http()
-        .debug(format!("CURL enabled: {}", lc.enable));
+    debug!(req.connection().log().http(), "CURL enabled: {}", lc.enable);
 
     if lc.enable
         && req
