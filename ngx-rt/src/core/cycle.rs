@@ -1,8 +1,10 @@
+use std::{ptr::NonNull, slice};
+
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{ffi, never_drop, AsRawRef};
+use crate::{ffi, never_drop, property, str, AsRawRef};
 
-use super::{conf::OpenFile, shm, ListRef, LogRef, ModuleRef, PoolRef, Str};
+use super::{conf::OpenFile, shm, ConnList, ConnSlice, ListRef, LogRef, ModuleRef, PoolRef};
 
 foreign_type! {
     pub unsafe type Cycle: Send {
@@ -13,12 +15,24 @@ foreign_type! {
 }
 
 impl CycleRef {
-    pub fn pool(&self) -> &PoolRef {
-        unsafe { PoolRef::from_ptr(self.as_raw().pool) }
+    property!(pool: &PoolRef);
+    property!(log: &LogRef);
+    property!(&new_log: &LogRef);
+
+    pub fn conns(&self) -> ConnSlice {
+        unsafe {
+            let r = self.as_raw();
+
+            ConnSlice(slice::from_raw_parts(r.connections, r.connection_n))
+        }
     }
 
-    pub fn log(&self) -> &LogRef {
-        unsafe { LogRef::from_ptr(self.as_raw().log) }
+    pub fn free_conns(&self) -> ConnList {
+        unsafe {
+            let r = self.as_raw();
+
+            ConnList::new(NonNull::new(r.free_connections), r.free_connection_n)
+        }
     }
 
     pub fn modules(&self) -> &[&ModuleRef] {
@@ -37,31 +51,13 @@ impl CycleRef {
         unsafe { ListRef::from_ptr(&self.as_raw().shared_memory as *const _ as *mut _) }
     }
 
-    pub fn conf_file(&self) -> Option<Str> {
-        unsafe { Str::from_raw(self.as_raw().conf_file) }
-    }
+    property!(old_cycle as &CycleRef);
 
-    pub fn conf_param(&self) -> Option<Str> {
-        unsafe { Str::from_raw(self.as_raw().conf_param) }
-    }
-
-    pub fn conf_prefix(&self) -> Option<Str> {
-        unsafe { Str::from_raw(self.as_raw().conf_prefix) }
-    }
-
-    pub fn prefix(&self) -> Option<Str> {
-        unsafe { Str::from_raw(self.as_raw().prefix) }
-    }
-
-    pub fn error_log(&self) -> Option<Str> {
-        unsafe { Str::from_raw(self.as_raw().error_log) }
-    }
-
-    pub fn lock_file(&self) -> Option<Str> {
-        unsafe { Str::from_raw(self.as_raw().lock_file) }
-    }
-
-    pub fn hostname(&self) -> Option<Str> {
-        unsafe { Str::from_raw(self.as_raw().hostname) }
-    }
+    str!(conf_file);
+    str!(conf_param);
+    str!(conf_prefix);
+    str!(prefix);
+    str!(error_log);
+    str!(lock_file);
+    str!(hostname);
 }

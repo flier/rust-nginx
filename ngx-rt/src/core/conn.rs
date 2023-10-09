@@ -1,4 +1,7 @@
-use foreign_types::foreign_type;
+use std::slice;
+use std::{marker::PhantomData, ptr::NonNull};
+
+use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{ffi, flag, never_drop, property, AsRawRef};
 
@@ -85,4 +88,64 @@ pub enum TcpNoDelay {
 pub enum TcpNoPush {
     Set = 1,
     Disabled,
+}
+
+pub struct ConnSlice<'a>(pub(crate) &'a [ffi::ngx_connection_t]);
+
+impl<'a> IntoIterator for &'a ConnSlice<'a> {
+    type Item = &'a ConnRef;
+    type IntoIter = ConnsIter<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        ConnsIter(self.0.iter())
+    }
+}
+
+pub struct ConnsIter<'a>(slice::Iter<'a, ffi::ngx_connection_t>);
+
+impl<'a> Iterator for ConnsIter<'a> {
+    type Item = &'a ConnRef;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.0
+            .next()
+            .map(|c| unsafe { ConnRef::from_ptr(c as *const _ as *mut _) })
+    }
+}
+
+pub struct ConnList<'a> {
+    next: Option<NonNull<ffi::ngx_connection_t>>,
+    n: usize,
+    phantom: PhantomData<&'a u8>,
+}
+
+impl<'a> ConnList<'a> {
+    pub fn new(p: Option<NonNull<ffi::ngx_connection_t>>, n: usize) -> Self {
+        ConnList {
+            next: p,
+            n,
+            phantom: PhantomData,
+        }
+    }
+}
+
+impl<'a> Iterator for ConnList<'a> {
+    type Item = &'a ConnRef;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let c = self.next.take();
+
+        if let Some(p) = c {
+            self.next = NonNull::new(unsafe { p.as_ref().data.cast() });
+            self.n -= 1;
+
+            Some(unsafe { ConnRef::from_ptr(p.as_ptr()) })
+        } else {
+            None
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.n, Some(self.n))
+    }
 }
