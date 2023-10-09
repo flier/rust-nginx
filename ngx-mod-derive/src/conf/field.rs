@@ -81,7 +81,7 @@ impl FieldArgs {
 
     pub fn args(&self) -> Vec<Args> {
         let mut args = self.args.as_ref().map_or_else(
-            || vec![Args::NoArgs],
+            || vec![Args::None],
             |arg| {
                 arg.args
                     .iter()

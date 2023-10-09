@@ -4,7 +4,7 @@ use quote::{quote, ToTokens, TokenStreamExt};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Args {
-    NoArgs = 0,
+    None = 0,
     Take1,
     Take2,
     Take3,
@@ -19,7 +19,7 @@ pub enum Args {
 impl From<usize> for Args {
     fn from(value: usize) -> Self {
         match value {
-            0 => Self::NoArgs,
+            0 => Self::None,
             1 => Self::Take1,
             2 => Self::Take2,
             3 => Self::Take3,
@@ -37,7 +37,7 @@ impl ToTokens for Args {
         use Args::*;
 
         tokens.append_all(match self {
-            NoArgs => quote! { ::ngx_mod::rt::ffi::NGX_CONF_NOARGS },
+            Args::None => quote! { ::ngx_mod::rt::ffi::NGX_CONF_NOARGS },
             Take1 => quote! { ::ngx_mod::rt::ffi::NGX_CONF_TAKE1 },
             Take2 => quote! { ::ngx_mod::rt::ffi::NGX_CONF_TAKE2 },
             Take3 => quote! { ::ngx_mod::rt::ffi::NGX_CONF_TAKE3 },
