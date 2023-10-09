@@ -44,9 +44,11 @@ impl PoolRef {
         ffi::ngx_palloc(self.as_ptr(), size)
     }
 
-    /// Allocates non-aligned memory from the pool of the specified size.
+    /// Allocate unaligned memory from the specified pool.
     ///
     /// Returns a raw pointer to the allocated memory.
+    ///
+    /// Mostly used for allocating strings.
     ///
     /// # Safety
     ///
@@ -56,7 +58,7 @@ impl PoolRef {
         ffi::ngx_pnalloc(self.as_ptr(), size)
     }
 
-    /// Allocates aligned and zeroed memory from the pool of the specified size.
+    /// Allocate aligned memory from the specified pool and fill it with zeroes.
     ///
     /// Returns a raw pointer to the allocated memory.
     ///

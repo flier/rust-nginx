@@ -158,7 +158,7 @@ impl PoolRef {
         let s = s.as_ref();
 
         unsafe {
-            NonNull::new(self.palloc(s.len())).map(|p| {
+            NonNull::new(self.pnalloc(s.len())).map(|p| {
                 let p = p.cast();
 
                 ptr::copy_nonoverlapping(s.as_ptr(), p.as_ptr(), s.len());
