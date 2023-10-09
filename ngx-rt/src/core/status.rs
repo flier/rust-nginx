@@ -9,12 +9,23 @@ use crate::{core::strerror, ffi, RawErr, RawOk};
 pub struct Code(i32);
 
 impl Code {
+    /// Operation succeeded.
     pub const OK: Code = Code(ffi::NGX_OK as i32);
+    /// Operation failed.
     pub const ERROR: Code = Code(ffi::NGX_ERROR);
+    /// Operation incomplete; call the function again.
     pub const AGAIN: Code = Code(ffi::NGX_AGAIN);
+    /// Resource is not available.
     pub const BUSY: Code = Code(ffi::NGX_BUSY);
+    /// Operation complete or continued elsewhere.
+    ///
+    /// Also used as an alternative success code.
     pub const DONE: Code = Code(ffi::NGX_DONE);
+    /// Operation rejected
     pub const DECLINED: Code = Code(ffi::NGX_DECLINED);
+    /// Function was aborted.
+    ///
+    /// Also used as an alternative error code.
     pub const ABORT: Code = Code(ffi::NGX_ABORT);
 
     pub fn is_ok(&self) -> bool {

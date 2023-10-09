@@ -41,7 +41,7 @@ impl Str {
     /// The caller has provided a valid `ngx_str_t` with a `data` pointer that points
     /// to range of bytes of at least `len` bytes, whose content remains valid and doesn't
     /// change for the lifetime of the returned `Str`.
-    pub unsafe fn from_ptr<'a>(str: *mut ngx_str_t) -> Option<Self> {
+    pub unsafe fn from_ptr(str: *mut ngx_str_t) -> Option<Self> {
         NonNull::new(str).and_then(|p| {
             let s = p.as_ref();
 

@@ -45,7 +45,7 @@ impl<'a> Headers<'a> {
 
             let key = self.0.pool().strdup(key)?;
             let value = self.0.pool().strdup(value)?;
-            let lowcase_key = self.0.pool().strdup(&lowcase_key)?;
+            let lowcase_key = self.0.pool().strdup(lowcase_key)?;
 
             ffi::ngx_table_elt_t {
                 hash: 0,

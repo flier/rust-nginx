@@ -118,16 +118,18 @@ impl LogRef {
         }
     }
 
-    pub unsafe fn error_core<S: Into<Vec<u8>>>(&self, level: Level, err: Option<i32>, msg: S) {
-        if self.as_raw().log_level >= level as usize {
-            let msg = CString::new(msg).expect("msg");
+    pub fn error_core<S: Into<Vec<u8>>>(&self, level: Level, err: Option<i32>, msg: S) {
+        unsafe {
+            if self.as_raw().log_level >= level as usize {
+                let msg = CString::new(msg).expect("msg");
 
-            ffi::ngx_log_error_core(
-                level as usize,
-                self.as_ptr(),
-                err.unwrap_or_default(),
-                msg.as_ptr(),
-            )
+                ffi::ngx_log_error_core(
+                    level as usize,
+                    self.as_ptr(),
+                    err.unwrap_or_default(),
+                    msg.as_ptr(),
+                )
+            }
         }
     }
 }
@@ -185,7 +187,7 @@ impl<'a> WithModule<'a> {
 
     pub fn log<S: Into<Vec<u8>>>(&self, level: Level, msg: S) {
         if self.0.module().contains(self.1) {
-            unsafe { self.0.error_core(level, None, msg) }
+            self.0.error_core(level, None, msg)
         }
     }
 }
