@@ -26,6 +26,10 @@ pub use self::conn::{
 };
 pub use self::cycle::{Cycle, CycleRef};
 pub use self::err::strerror;
+pub use self::file::{
+    CopyFile, CopyFileRef, ExtRenameFile, ExtRenameFileRef, File, FileRef, Path, PathRef, TempFile,
+    TempFileRef,
+};
 pub use self::list::{List, ListRef};
 pub use self::log::{Level as LogLevel, Log, LogRef};
 pub use self::module::{Module, ModuleRef, Type};

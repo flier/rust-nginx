@@ -15,9 +15,24 @@ foreign_type! {
 }
 
 impl CycleRef {
-    property!(pool: &PoolRef);
-    property!(log: &LogRef);
-    property!(&new_log: &LogRef);
+    property! {
+        /// Cycle pool.
+        ///
+        /// Created for each new cycle.
+        pool: &PoolRef;
+
+        /// Cycle log.
+        ///
+        /// Initially inherited from the old cycle, it is set to point to new_log after the configuration is read.
+        log: &LogRef;
+
+        /// Cycle log, created by the configuration.
+        ///
+        /// It's affected by the root-scope error_log directive.
+        &new_log: &LogRef;
+
+        old_cycle as &CycleRef;
+    }
 
     pub fn conns(&self) -> ConnSlice {
         unsafe {
@@ -27,6 +42,7 @@ impl CycleRef {
         }
     }
 
+    /// currently available connections
     pub fn free_conns(&self) -> ConnList {
         unsafe {
             let r = self.as_raw();
@@ -43,21 +59,23 @@ impl CycleRef {
         }
     }
 
+    /// open file objects
     pub fn open_files(&self) -> &ListRef<OpenFile> {
         unsafe { ListRef::from_ptr(&self.as_raw().open_files as *const _ as *mut _) }
     }
 
+    /// hared memory zones
     pub fn shared_memory(&self) -> &ListRef<shm::Zone> {
         unsafe { ListRef::from_ptr(&self.as_raw().shared_memory as *const _ as *mut _) }
     }
 
-    property!(old_cycle as &CycleRef);
-
-    str!(conf_file);
-    str!(conf_param);
-    str!(conf_prefix);
-    str!(prefix);
-    str!(error_log);
-    str!(lock_file);
-    str!(hostname);
+    str! {
+        conf_file;
+        conf_param;
+        conf_prefix;
+        prefix;
+        error_log;
+        lock_file;
+        hostname;
+    }
 }

@@ -42,9 +42,20 @@ impl DerefMut for PeerConnRef {
 }
 
 impl PeerConnRef {
-    property!(connection: &ConnRef);
+    property! {
+        connection: &ConnRef;
+        tries: usize;
+        type_: i32;
+        rcvbuf: i32;
+        log: &LogRef;
+    }
 
-    property!(tries: usize);
+    flag! {
+        cached();
+        transparent();
+        so_keepalive();
+        down();
+    }
 
     pub fn get(&self) -> Option<GetPeerFn> {
         unsafe { self.as_raw().get.map(GetPeerFn) }
@@ -61,15 +72,6 @@ impl PeerConnRef {
     pub fn data<T>(&self) -> Option<&T> {
         unsafe { NonNull::new(self.as_raw().data.cast()).map(|p| p.as_ref()) }
     }
-
-    property!(type_: i32);
-    property!(rcvbuf: i32);
-    property!(log: &LogRef);
-
-    flag!(cached());
-    flag!(transparent());
-    flag!(so_keepalive());
-    flag!(down());
 
     pub fn log_error(&self) -> LogError {
         match unsafe { self.as_raw().log_error() } {

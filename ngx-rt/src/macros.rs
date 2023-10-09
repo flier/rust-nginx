@@ -1,18 +1,33 @@
 #[macro_export]
 macro_rules! property {
-    ($name:ident () : bool) => {
+    () => {};
+
+    ($(#[$attr:meta])* $name:ident () : bool ) => {
+        $(#[$attr])*
         #[inline(always)]
         pub fn $name(&self) -> bool {
             unsafe { $crate::AsRawRef::as_raw(self).$name() != 0 }
         }
     };
-    ($name:ident : bool) => {
+    ($(#[$attr:meta])* $name:ident () : bool ; $($rest:tt)* ) => {
+        $crate::property!( $(#[$attr])* $name () : bool );
+        $crate::property!( $($rest)* );
+    };
+
+    ($(#[$attr:meta])* $name:ident : bool ) => {
+        $(#[$attr])*
         #[inline(always)]
         pub fn $name(&self) -> bool {
             unsafe { $crate::AsRawRef::as_raw(self).$name != 0 }
         }
     };
-    ($name:ident : Str) => {
+    ($(#[$attr:meta])* $name:ident : bool ; $($rest:tt)* ) => {
+        $crate::property!( $(#[$attr])* $name : bool );
+        $crate::property!( $($rest)* );
+    };
+
+    ($(#[$attr:meta])* $name:ident : Str ) => {
+        $(#[$attr])*
         #[inline(always)]
         pub fn $name(&self) -> Option<$crate::core::Str> {
             unsafe {
@@ -22,7 +37,13 @@ macro_rules! property {
             }
         }
     };
-    ($name:ident as Header) => {
+    ($(#[$attr:meta])* $name:ident : Str ; $($rest:tt)* ) => {
+        $crate::property!( $(#[$attr])* $name : Str );
+        $crate::property!( $($rest)* );
+    };
+
+    ($(#[$attr:meta])* $name:ident as Header ) => {
+        $(#[$attr])*
         #[inline(always)]
         pub fn $name(&self) -> Option<$crate::http::Header> {
             unsafe {
@@ -32,7 +53,13 @@ macro_rules! property {
             }
         }
     };
-    ($name:ident : Headers) => {
+    ($(#[$attr:meta])* $name:ident as Header ; $($rest:tt)* ) => {
+        $crate::property!( $(#[$attr])* $name as Header );
+        $crate::property!( $($rest)* );
+    };
+
+    ($(#[$attr:meta])* $name:ident : Headers ) => {
+        $(#[$attr])*
         #[inline(always)]
         pub fn $name(&self) -> $crate::http::Headers {
             $crate::http::Headers::from(
@@ -44,7 +71,14 @@ macro_rules! property {
             )
         }
     };
-    ($name:ident as & $ty:ty) => {
+
+    ($(#[$attr:meta])* $name:ident : Headers ; $($rest:tt)* ) => {
+        $crate::property!( $(#[$attr])* $name : Headers );
+        $crate::property!( $($rest)* );
+    };
+
+    ($(#[$attr:meta])* $name:ident as & $ty:ty ) => {
+        $(#[$attr])*
         #[inline(always)]
         pub fn $name(&self) -> Option<&$ty> {
             unsafe {
@@ -54,10 +88,16 @@ macro_rules! property {
             }
         }
     };
-    ($name:ident as &mut $ty:ty) => {
-        property!($name as & $ty);
+    ($(#[$attr:meta])* $name:ident as & $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!($(#[$attr])* $name as & $ty);
+        $crate::property!( $($rest)* );
+    };
+
+    ($(#[$attr:meta])* $name:ident as &mut $ty:ty ) => {
+        $crate::property!($(#[$attr])* $name as & $ty);
 
         ::paste::paste! {
+            $(#[$attr])*
             #[inline(always)]
             pub fn [< $name _mut >](&mut self) -> Option<&mut $ty> {
                 unsafe {
@@ -68,7 +108,13 @@ macro_rules! property {
             }
         }
     };
-    ($name:ident () as $ty:ty) => {
+    ($(#[$attr:meta])* $name:ident as &mut $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!($(#[$attr])* $name as &mut $ty);
+        $crate::property!( $($rest)* );
+    };
+
+    ($(#[$attr:meta])* $name:ident () as $ty:ty ) => {
+        $(#[$attr])*
         #[inline(always)]
         pub fn $name(&self) -> Option<$ty> {
             unsafe {
@@ -78,7 +124,13 @@ macro_rules! property {
             }
         }
     };
-    ($name:ident as $ty:ty) => {
+    ($(#[$attr:meta])* $name:ident () as $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!( $(#[$attr])* $name () as $ty );
+        $crate::property!( $($rest)* );
+    };
+
+    ($(#[$attr:meta])* $name:ident as $ty:ty ) => {
+        $(#[$attr])*
         #[inline(always)]
         pub fn $name(&self) -> Option<$ty> {
             unsafe {
@@ -88,7 +140,13 @@ macro_rules! property {
             }
         }
     };
-    (& $name:ident : & $ty:ty) => {
+    ($(#[$attr:meta])* $name:ident as $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!( $(#[$attr])* $name as $ty );
+        $crate::property!( $($rest)* );
+    };
+
+    ($(#[$attr:meta])* & $name:ident : & $ty:ty ) => {
+        $(#[$attr])*
         #[inline(always)]
         pub fn $name(&self) -> & $ty {
             unsafe {
@@ -98,10 +156,16 @@ macro_rules! property {
             }
         }
     };
-    (&mut $name:ident : &mut $ty:ty) => {
-        property!(& $name : & $ty);
+    ($(#[$attr:meta])* & $name:ident : & $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!($(#[$attr])* & $name : & $ty);
+        $crate::property!( $($rest)* );
+    };
+
+    ($(#[$attr:meta])* &mut $name:ident : &mut $ty:ty ) => {
+        $crate::property!($(#[$attr])* & $name : & $ty);
 
         ::paste::paste! {
+            $(#[$attr])*
             #[inline(always)]
             pub fn [< $name _mut >](&mut self) -> &mut $ty {
                 unsafe {
@@ -112,7 +176,13 @@ macro_rules! property {
             }
         }
     };
-    ($name:ident : & $ty:ty) => {
+    ($(#[$attr:meta])* &mut $name:ident : &mut $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!($(#[$attr])* &mut $name : &mut $ty);
+        $crate::property!( $($rest)* );
+    };
+
+    ($(#[$attr:meta])* $name:ident : & $ty:ty ) => {
+        $(#[$attr])*
         #[inline(always)]
         pub fn $name(&self) -> &$ty {
             unsafe {
@@ -122,10 +192,16 @@ macro_rules! property {
             }
         }
     };
-    ($name:ident : &mut $ty:ty) => {
-        property!($name : & $ty);
+    ($(#[$attr:meta])* $name:ident : & $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!($(#[$attr])* $name : & $ty);
+        $crate::property!( $($rest)* );
+    };
+
+    ($(#[$attr:meta])* $name:ident : &mut $ty:ty ) => {
+        $crate::property!($(#[$attr])* $name : & $ty);
 
         ::paste::paste! {
+            $(#[$attr])*
             #[inline(always)]
             pub fn [< $name _mut >](&mut self) -> &mut $ty {
                 unsafe {
@@ -136,24 +212,48 @@ macro_rules! property {
             }
         }
     };
-    ($name:ident : $ty:ty) => {
+    ($(#[$attr:meta])* $name:ident : &mut $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!($(#[$attr])* $name : &mut $ty);
+        $crate::property!( $($rest)* );
+    };
+
+    ($(#[$attr:meta])* $name:ident : $ty:ty ) => {
+        $(#[$attr])*
         #[inline(always)]
         pub fn $name(&self) -> $ty {
             unsafe { $crate::AsRawRef::as_raw(self).$name }
         }
     };
+    ($(#[$attr:meta])* $name:ident : $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!($(#[$attr])* $name : $ty);
+        $crate::property!( $($rest)* );
+    };
 }
 
 #[macro_export]
 macro_rules! flag {
-    ($name:ident ()) => {
-        $crate::property!($name (): bool);
+    () => {};
+
+    ($(#[$attr:meta])* $name:ident ()) => {
+        $crate::property!($(#[$attr])* $name (): bool);
+    };
+
+    ($(#[$attr:meta])* $name:ident () ; $($rest:tt)* ) => {
+        $crate::flag!($(#[$attr])* $name ());
+        $crate::flag!( $($rest)* );
     };
 }
 
 #[macro_export]
 macro_rules! str {
-    ($name:ident) => {
-        $crate::property!($name: Str);
+    () => {};
+
+    ($(#[$attr:meta])* $name:ident ) => {
+        $crate::property!($(#[$attr])* $name: Str);
+    };
+
+    ($(#[$attr:meta])* $name:ident ; $($rest:tt)* ) => {
+        $crate::str!($(#[$attr])* $name);
+        $crate::str!( $($rest)* );
     };
 }

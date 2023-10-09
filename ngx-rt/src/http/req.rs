@@ -1,7 +1,6 @@
 use std::{ffi::CStr, ops::Deref, ptr::NonNull, slice};
 
 use bitflags::bitflags;
-use cfg_if::cfg_if;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{
@@ -59,8 +58,15 @@ impl Method {
 }
 
 macro_rules! header {
-    ($name:ident) => {
-        property!($name as Header);
+    () => {};
+
+    ($(#[$attr:meta])* $name:ident) => {
+        $crate::property!($(#[$attr])* $name as Header);
+    };
+
+    ($(#[$attr:meta])* $name:ident ; $($rest:tt)* ) => {
+        header!($(#[$attr])* $name);
+        header!( $($rest)* );
     };
 }
 
@@ -99,13 +105,28 @@ impl UnsafeLocConf for RequestRef {
 }
 
 impl RequestRef {
-    property!(connection: &ConnRef);
-    property!(upstream as &mut UpstreamRef);
-    property!(pool: &PoolRef);
-    property!(header_in: &BufRef);
-    property!(&headers_in: &HeadersInRef);
-    property!(&headers_out: &HeadersOutRef);
-    property!(request_body as &BodyRef);
+    property! {
+        connection: &ConnRef;
+        upstream as &mut UpstreamRef;
+        pool: &PoolRef;
+        header_in: &BufRef;
+        &headers_in: &HeadersInRef;
+        &headers_out: &HeadersOutRef;
+        request_body as &BodyRef;
+        main as &Self;
+        parent as &Self;
+    }
+
+    str! {
+        request_line;
+        uri;
+        args;
+        exten;
+        unparsed_uri;
+        method_name;
+        http_protocol;
+        schema;
+    }
 
     pub fn method(&self) -> Method {
         Method::from_bits_truncate(unsafe { self.as_raw().method as u32 })
@@ -132,17 +153,6 @@ impl RequestRef {
             ((v >> 16) as u32, (v & 0xFFFF) as u32)
         }
     }
-
-    str!(request_line);
-    str!(uri);
-    str!(args);
-    str!(exten);
-    str!(unparsed_uri);
-    str!(method_name);
-    str!(http_protocol);
-    str!(schema);
-    property!(main as &Self);
-    property!(parent as &Self);
 }
 
 foreign_type! {
@@ -154,38 +164,34 @@ foreign_type! {
 }
 
 impl HeadersInRef {
-    property!(headers: Headers);
-
-    header!(host);
-    header!(connection);
-    header!(if_modified_since);
-    header!(if_unmodified_since);
-    header!(if_match);
-    header!(if_none_match);
-    header!(user_agent);
-    header!(referer);
-    header!(content_length);
-    header!(content_range);
-    header!(content_type);
-
-    header!(range);
-    header!(if_range);
-
-    header!(transfer_encoding);
-    header!(te);
-    header!(expect);
-    header!(upgrade);
-
-    cfg_if! {
-        if #[cfg(any(feature = "http_gzip", feature = "http_headers"))] {
-            header!(accept_encoding);
-            header!(via);
-        }
+    header! {
+        authorization;
+        connection;
+        content_length;
+        content_range;
+        content_type;
+        cookie;
+        expect;
+        host;
+        if_match;
+        if_modified_since;
+        if_none_match;
+        if_range;
+        if_unmodified_since;
+        keep_alive;
+        range;
+        referer;
+        te;
+        transfer_encoding;
+        upgrade;
+        user_agent;
     }
 
-    header!(authorization);
-
-    header!(keep_alive);
+    #[cfg(any(feature = "http_gzip", feature = "http_headers"))]
+    header! {
+        accept_encoding;
+        via;
+    }
 
     #[cfg(feature = "http_x_forwarded_for")]
     header!(x_forwarded_for);
@@ -193,40 +199,45 @@ impl HeadersInRef {
     #[cfg(feature = "http_realip")]
     header!(x_real_ip);
 
-    cfg_if! {
-        if #[cfg(feature = "http_headers")] {
-            header!(accept);
-            header!(accept_language);
-        }
+    #[cfg(feature = "http_headers")]
+    header! {
+        accept;
+        accept_language;
     }
 
-    cfg_if! {
-        if #[cfg(feature = "http_dav")] {
-            header!(depth);
-            header!(destination);
-            header!(overwrite);
-            header!(date);
-        }
+    #[cfg(feature = "http_dav")]
+    header! {
+        depth;
+        destination;
+        overwrite;
+        date;
     }
 
-    header!(cookie);
+    str! {
+        user;
+        passwd;
+        server;
+    }
 
-    str!(user);
-    str!(passwd);
-    str!(server);
-    property!(content_length_n: i64);
-    property!(keep_alive_n: i64);
-    property!(connection_type() as ConnectionType);
-    flag!(chunked());
-    flag!(multi());
-    flag!(multi_linked());
-    flag!(msie());
-    flag!(msie6());
-    flag!(opera());
-    flag!(gecko());
-    flag!(chrome());
-    flag!(safari());
-    flag!(konqueror());
+    property! {
+        connection_type() as ConnectionType;
+        content_length_n: i64;
+        headers: Headers;
+        keep_alive_n: i64;
+    }
+
+    flag! {
+        chunked();
+        multi();
+        multi_linked();
+        msie();
+        msie6();
+        opera();
+        gecko();
+        chrome();
+        safari();
+        konqueror();
+    }
 }
 
 #[repr(u32)]
@@ -255,35 +266,44 @@ foreign_type! {
 }
 
 impl HeadersOutRef {
-    property!(headers: Headers);
-    property!(trailers: Headers);
+    property! {
+        headers: Headers;
+        trailers: Headers;
 
-    property!(status: usize);
-    property!(status_line: Str);
+        status: usize;
+        status_line: Str;
 
-    header!(server);
-    header!(date);
-    header!(content_length);
-    header!(content_encoding);
-    header!(location);
-    header!(refresh);
-    header!(last_modified);
-    header!(content_range);
-    header!(accept_ranges);
-    header!(www_authenticate);
-    header!(expires);
-    header!(etag);
+        content_type_len: usize;
+        content_type: Str;
+        charset: Str;
 
-    header!(cache_control);
-    header!(link);
+        content_type_hash: usize;
+        content_length_n: i64;
+        content_offset: i64;
+        date_time: i64;
+        last_modified_time: i64;
+    }
+
+    header! {
+        accept_ranges;
+        cache_control;
+        content_encoding;
+        content_length;
+        content_range;
+        date;
+        etag;
+        expires;
+        last_modified;
+        link;
+        location;
+        refresh;
+        server;
+        www_authenticate;
+    }
 
     pub fn override_charset(&self) -> Option<Str> {
         unsafe { Str::from_ptr(self.as_raw().override_charset) }
     }
-
-    property!(content_type_len: usize);
-    property!(content_type: Str);
-    property!(charset: Str);
 
     pub fn content_type_lowcase(&self) -> Option<&CStr> {
         unsafe {
@@ -291,12 +311,6 @@ impl HeadersOutRef {
                 .map(|p| CStr::from_ptr(p.as_ptr() as *const _))
         }
     }
-
-    property!(content_type_hash: usize);
-    property!(content_length_n: i64);
-    property!(content_offset: i64);
-    property!(date_time: i64);
-    property!(last_modified_time: i64);
 }
 
 foreign_type! {
@@ -308,9 +322,14 @@ foreign_type! {
 }
 
 impl BodyRef {
-    property!(rest: i64);
-    property!(received: i64);
-    flag!(filter_need_buffering());
-    flag!(last_sent());
-    flag!(last_saved());
+    property! {
+        rest: i64;
+        received: i64;
+    }
+
+    flag! {
+        filter_need_buffering();
+        last_sent();
+        last_saved();
+    }
 }

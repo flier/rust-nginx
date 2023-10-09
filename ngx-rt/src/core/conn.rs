@@ -16,11 +16,30 @@ foreign_type! {
 }
 
 impl ConnRef {
-    property!(log: &LogRef);
-    property!(pool: &PoolRef);
-    property!(buffer: &BufRef);
+    property! {
+        log: &LogRef;
+        pool: &PoolRef;
+        buffer: &BufRef;
+        requests: usize;
+    }
 
-    property!(requests: usize);
+    flag! {
+        timedout();
+        error();
+        destroyed();
+        pipeline();
+
+        idle();
+        reusable();
+        close();
+        shared();
+
+        sendfile();
+        sndlowat();
+
+        need_last_buf();
+        need_flush_buf();
+    }
 
     pub fn log_error(&self) -> LogError {
         match unsafe { self.as_raw().log_error() } {
@@ -33,19 +52,6 @@ impl ConnRef {
             _ => unreachable!(),
         }
     }
-
-    flag!(timedout());
-    flag!(error());
-    flag!(destroyed());
-    flag!(pipeline());
-
-    flag!(idle());
-    flag!(reusable());
-    flag!(close());
-    flag!(shared());
-
-    flag!(sendfile());
-    flag!(sndlowat());
 
     pub fn tcp_nodelay(&self) -> Option<TcpNoDelay> {
         match unsafe { self.as_raw().tcp_nodelay() } {
@@ -62,9 +68,6 @@ impl ConnRef {
             _ => None,
         }
     }
-
-    flag!(need_last_buf());
-    flag!(need_flush_buf());
 }
 
 pub enum LogError {

@@ -5,7 +5,7 @@ use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{ffi, flag, never_drop, property, AsRawMut, AsRawRef};
 
-use super::PoolRef;
+use super::{FileRef, PoolRef};
 
 foreign_type! {
     pub unsafe type Buf: Send {
@@ -24,20 +24,48 @@ impl PoolRef {
 }
 
 impl BufRef {
-    property!(shadow as &BufRef);
+    property! {
+        /// File object.
+        file as &FileRef;
 
-    flag!(temporary());
-    flag!(memory());
-    flag!(mmap());
-    flag!(recycled());
-    flag!(in_file());
-    flag!(flush());
-    flag!(sync());
-    flag!(last_buf());
-    flag!(last_in_chain());
-    flag!(last_shadow());
-    flag!(temp_file());
-    property!(num: i32);
+        /// Buffer shadow.
+        shadow as &BufRef;
+    }
+
+    flag! {
+        /// the buffer references writable memory.
+        temporary();
+
+        /// the buffer references read-only memory.
+        memory();
+
+        /// the buffer references data in a mmapped file.
+        mmap();
+
+        /// the buffer can be reused and needs to be consumed as soon as possible.
+        recycled();
+
+        /// the buffer references data in a file.
+        in_file();
+
+        /// all data prior to the buffer need to be flushed.
+        flush();
+
+        /// the buffer carries no data or special signal like flush or last_buf.
+        sync();
+
+        /// the buffer is the last in output.
+        last_buf();
+
+        /// there are no more data buffers in a request or subrequest.
+        last_in_chain();
+
+        /// the buffer is the last one that references a particular shadow buffer.
+        last_shadow();
+
+        /// the buffer is in a temporary file.
+        temp_file();
+    }
 
     pub fn in_memory(&self) -> bool {
         self.temporary() || self.memory() || self.mmap()
@@ -60,23 +88,29 @@ impl BufRef {
         self.len() == 0
     }
 
-    pub fn cap(&self) -> isize {
+    pub fn cap(&self) -> usize {
         unsafe {
             let r = self.as_raw();
 
-            r.end.offset_from(r.start)
+            assert!(r.end >= r.start);
+
+            r.end.offset_from(r.start) as usize
         }
     }
 
     /// Returns the length of the buffer contents.
-    pub fn len(&self) -> isize {
+    pub fn len(&self) -> usize {
         unsafe {
             let r = self.as_raw();
 
             if self.in_memory() {
-                r.last.offset_from(r.pos)
+                assert!(r.last >= r.pos);
+
+                r.last.offset_from(r.pos) as usize
             } else {
-                r.file_last.wrapping_sub(r.file_pos) as isize
+                assert!(r.file_last >= r.file_pos);
+
+                r.file_last.wrapping_sub(r.file_pos) as usize
             }
         }
     }
