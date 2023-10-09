@@ -35,13 +35,12 @@ macro_rules! property {
     ($name:ident : Headers) => {
         #[inline(always)]
         pub fn $name(&self) -> $crate::http::Headers {
-            $crate::http::Headers(
+            $crate::http::Headers::from(
                 unsafe {
                     let p = & $crate::AsRawRef::as_raw(self).$name as *const _ as *mut _;
 
-                    $crate::core::ListRef::from_ptr(p)
+                    $crate::core::ListRef::from_ptr_mut(p)
                 }
-                .into_iter(),
             )
         }
     };

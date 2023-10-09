@@ -1,12 +1,14 @@
 use std::borrow::Cow;
 use std::ffi::c_uchar;
-use std::fmt;
 use std::ops::{Deref, DerefMut};
 use std::ptr::NonNull;
 use std::slice;
 use std::str::{self, Utf8Error};
+use std::{fmt, ptr};
 
 use crate::ffi::ngx_str_t;
+
+use super::PoolRef;
 
 #[repr(transparent)]
 #[derive(Clone, Copy, Debug)]
@@ -149,4 +151,23 @@ macro_rules! ngx_str {
             data: concat!($s, "\0").as_ptr() as *mut $crate::ffi::u_char,
         }
     }};
+}
+
+impl PoolRef {
+    pub fn strdup<S: AsRef<str>>(&self, s: S) -> Option<Str> {
+        let s = s.as_ref();
+
+        unsafe {
+            NonNull::new(self.palloc(s.len())).map(|p| {
+                let p = p.cast();
+
+                ptr::copy_nonoverlapping(s.as_ptr(), p.as_ptr(), s.len());
+
+                Str(ngx_str_t {
+                    len: s.len(),
+                    data: p.as_ptr(),
+                })
+            })
+        }
+    }
 }

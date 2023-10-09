@@ -25,7 +25,7 @@ impl HttpModule for AwsSig {
     type Error = ();
     type MainConf = ();
     type SrvConf = ();
-    type LocConf = LocConfig;
+    type LocConf = Config;
 
     fn postconfiguration(cf: &ConfRef) -> Result<(), Code> {
         cf.notice("AwsSig init module");
@@ -45,7 +45,7 @@ impl HttpModule for AwsSig {
 
 #[derive(Clone, Debug, Default, AutoMerge, Conf)]
 #[conf(http::server, http::location)]
-struct LocConfig {
+struct Config {
     #[directive(name = "awssigv4", args(1), set = ngx_http_awssigv4_commands_set_enable)]
     #[merge(strategy = merge::bool::overwrite_false)]
     enable: bool,
@@ -59,10 +59,10 @@ struct LocConfig {
     s3_endpoint: Option<String>,
 }
 
-impl Merge for LocConfig {
+impl Merge for Config {
     type Error = ();
 
-    fn merge(&mut self, prev: &LocConfig) -> Result<(), ()> {
+    fn merge(&mut self, prev: &Config) -> Result<(), ()> {
         merge::Merge::merge(self, prev.clone());
 
         Ok(())
@@ -70,7 +70,7 @@ impl Merge for LocConfig {
 }
 
 #[native_setter(name = ngx_http_awssigv4_commands_set_enable, log_err = cf.emerg)]
-fn set_enable(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::Result<()> {
+fn set_enable(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Result<()> {
     conf.enable = if let Some(s) = cf.args().get(1) {
         s.to_str()?.eq_ignore_ascii_case("on")
     } else {
@@ -83,7 +83,7 @@ fn set_enable(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::Resu
 }
 
 #[native_setter(name = ngx_http_awssigv4_commands_set_access_key, log_err = cf.emerg)]
-fn set_access_key(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::Result<()> {
+fn set_access_key(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Result<()> {
     conf.access_key = cf
         .args()
         .get(1)
@@ -97,7 +97,7 @@ fn set_access_key(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::
 }
 
 #[native_setter(name = ngx_http_awssigv4_commands_set_secret_key, log_err = cf.emerg)]
-fn set_secret_key(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::Result<()> {
+fn set_secret_key(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Result<()> {
     conf.secret_key = cf
         .args()
         .get(1)
@@ -105,13 +105,13 @@ fn set_secret_key(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::
         .transpose()?
         .map(|s| s.to_string());
 
-    cf.notice(format!("AwsSig set secret key: {:?}", conf.access_key));
+    cf.notice(format!("AwsSig set secret key: {:?}", conf.secret_key));
 
     Ok(())
 }
 
 #[native_setter(name = ngx_http_awssigv4_commands_set_s3_bucket, log_err = cf.emerg)]
-fn set_s3_bucket(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::Result<()> {
+fn set_s3_bucket(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Result<()> {
     conf.s3_bucket = cf
         .args()
         .get(1)
@@ -125,7 +125,7 @@ fn set_s3_bucket(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::R
 }
 
 #[native_setter(name = ngx_http_awssigv4_commands_set_s3_endpoint, log_err = cf.emerg)]
-fn set_s3_endpoint(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::Result<()> {
+fn set_s3_endpoint(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Result<()> {
     conf.s3_endpoint = cf
         .args()
         .get(1)
@@ -133,21 +133,21 @@ fn set_s3_endpoint(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow:
         .transpose()?
         .map(|s| s.to_string());
 
-    cf.notice(format!("AWSSIGV4 set S3 bucket: {:?}", conf.s3_endpoint));
+    cf.notice(format!("AwsSig set S3 bucket: {:?}", conf.s3_endpoint));
 
     Ok(())
 }
 
 #[native_handler(name = awssigv4_header_handler, embedded)]
-fn header_handler(req: &RequestRef) -> Result<Code, Code> {
+fn header_handler(req: &mut RequestRef) -> Result<Code, Code> {
     let conf = req
-        .loc_conf_for::<LocConfig>(AwsSig::module())
+        .loc_conf_for::<Config>(AwsSig::module())
         .ok_or(Code::ERROR)?;
 
     req.connection()
         .log()
         .http()
-        .debug(format!("AWS signature V4 module: {:?}", conf));
+        .debug(format!("AwsSig module: {:?}", conf));
 
     if !conf.enable {
         return Err(Code::DECLINED);
@@ -201,6 +201,9 @@ fn header_handler(req: &RequestRef) -> Result<Code, Code> {
         )
         .sign()
     };
+
+    req.headers().add("authorization", signature.as_str());
+    req.headers().add("X-Amz-Date", datetime_now.as_str());
 
     Ok(Code::OK)
 }

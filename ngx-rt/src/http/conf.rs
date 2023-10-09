@@ -1,3 +1,5 @@
+use std::ptr::NonNull;
+
 use foreign_types::foreign_type;
 
 use crate::{core::ModuleRef, ffi, never_drop, AsRawRef};
@@ -33,7 +35,7 @@ impl ContextRef {
     /// This function is unsafe because it dereferences raw pointers.
     /// The caller must ensure that `idx` is within the bounds of the `main_conf` array.
     pub unsafe fn main_conf<T>(&self, idx: usize) -> Option<&mut T> {
-        self.as_raw().main_conf.add(idx).read().cast::<T>().as_mut()
+        NonNull::new(self.as_raw().main_conf.add(idx).read()).map(|p| p.cast::<T>().as_mut())
     }
 
     /// Get the server configuration from context.
@@ -43,7 +45,7 @@ impl ContextRef {
     /// This function is unsafe because it dereferences raw pointers.
     /// The caller must ensure that `idx` is within the bounds of the `srv_conf` array.
     pub unsafe fn srv_conf<T>(&self, idx: usize) -> Option<&mut T> {
-        self.as_raw().srv_conf.add(idx).read().cast::<T>().as_mut()
+        NonNull::new(self.as_raw().srv_conf.add(idx).read()).map(|p| p.cast::<T>().as_mut())
     }
 
     /// Get the location configuration from context.
@@ -53,6 +55,6 @@ impl ContextRef {
     /// This function is unsafe because it dereferences raw pointers.
     /// The caller must ensure that `idx` is within the bounds of the `loc_conf` array.
     pub unsafe fn loc_conf<T>(&self, idx: usize) -> Option<&mut T> {
-        self.as_raw().loc_conf.add(idx).read().cast::<T>().as_mut()
+        NonNull::new(self.as_raw().loc_conf.add(idx).read()).map(|p| p.cast::<T>().as_mut())
     }
 }

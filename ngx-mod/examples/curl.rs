@@ -33,7 +33,7 @@ impl HttpModule for Curl {
         let cmcf = cf
             .as_http_context()
             .and_then(|ctx| ctx.main_conf_for::<MainConfRef>(core::module()))
-            .ok_or(Code::Error)?;
+            .ok_or(Code::ERROR)?;
 
         cmcf.phases_mut(Phases::Access)
             .handlers_mut()
@@ -74,25 +74,25 @@ fn set_enable(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::Resu
     Ok(())
 }
 
-#[native_handler(name = ngx_http_curl_access_handler, log_err = req.connection().log().http().emerg)]
-fn curl_access(req: &RequestRef) -> isize {
-    if let Some(lc) = req.loc_conf_for::<LocConfig>(Curl::module()) {
-        req.connection()
-            .log()
-            .http()
-            .debug(format!("CURL enabled: {}", lc.enable));
+#[native_handler(name = ngx_http_curl_access_handler)]
+fn curl_access(req: &RequestRef) -> Result<StatusCode, Code> {
+    let lc = req
+        .loc_conf_for::<LocConfig>(Curl::module())
+        .ok_or(Code::ERROR)?;
 
-        if lc.enable
-            && req
-                .user_agent()
-                .and_then(|h| h.value())
-                .map_or(false, |s| s.as_bytes().starts_with(b"curl"))
-        {
-            StatusCode::FORBIDDEN.as_u16() as isize
-        } else {
-            Code::Declined as isize
-        }
+    req.connection()
+        .log()
+        .http()
+        .debug(format!("CURL enabled: {}", lc.enable));
+
+    if lc.enable
+        && req
+            .user_agent()
+            .and_then(|h| h.value())
+            .map_or(false, |s| s.as_bytes().starts_with(b"curl"))
+    {
+        Ok(StatusCode::FORBIDDEN)
     } else {
-        Code::Error as isize
+        Err(Code::DECLINED)
     }
 }

@@ -1,3 +1,5 @@
+use std::ptr::NonNull;
+
 use foreign_types::foreign_type;
 
 use crate::{core::ModuleRef, ffi, never_drop, property, AsRawRef};
@@ -28,26 +30,17 @@ impl SrvConfRef {
     /// # Safety
     ///
     /// The caller must ensure that the module is initialized.
-    pub fn srv_conf<T>(&self, m: &ModuleRef) -> Option<&T> {
-        unsafe {
-            let idx = m.context_index();
-            let p = self.as_raw().srv_conf.add(idx).read().cast::<T>();
-
-            p.as_ref()
-        }
+    pub fn srv_conf_for<T>(&self, m: &ModuleRef) -> Option<&mut T> {
+        unsafe { self.srv_conf(m.context_index()) }
     }
 
-    /// Get the mutable reference of server configuration for the module.
+    /// Get the server configuration from context.
     ///
     /// # Safety
     ///
-    /// The caller must ensure that the module is initialized.
-    pub fn srv_conf_mut<T>(&mut self, m: &ModuleRef) -> Option<&mut T> {
-        unsafe {
-            let idx = m.context_index();
-            let p = self.as_raw().srv_conf.add(idx).read().cast::<T>();
-
-            p.as_mut()
-        }
+    /// This function is unsafe because it dereferences raw pointers.
+    /// The caller must ensure that `idx` is within the bounds of the `srv_conf` array.
+    pub unsafe fn srv_conf<T>(&self, idx: usize) -> Option<&mut T> {
+        NonNull::new(self.as_raw().srv_conf.add(idx).read()).map(|p| p.cast::<T>().as_mut())
     }
 }
