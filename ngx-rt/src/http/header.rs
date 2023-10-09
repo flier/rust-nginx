@@ -42,13 +42,14 @@ impl<'a> Headers<'a> {
             let key = key.as_ref();
             let value = value.as_ref();
             let lowcase_key = key.to_ascii_lowercase();
+            let hash = hash::key(key);
 
             let key = self.0.pool().strdup(key)?;
             let value = self.0.pool().strdup(value)?;
             let lowcase_key = self.0.pool().strdup(lowcase_key)?;
 
             ffi::ngx_table_elt_t {
-                hash: 0,
+                hash,
                 key: key.into(),
                 value: value.into(),
                 lowcase_key: lowcase_key.as_ptr() as *mut _,
