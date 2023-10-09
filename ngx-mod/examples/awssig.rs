@@ -33,7 +33,7 @@ impl HttpModule for AwsSig {
         let cmcf = cf
             .as_http_context()
             .and_then(|ctx| ctx.main_conf_for::<MainConfRef>(core::module()))
-            .ok_or(Code::Error)?;
+            .ok_or(Code::ERROR)?;
 
         cmcf.phases_mut(Phases::Precontent)
             .handlers_mut()
@@ -138,13 +138,11 @@ fn set_s3_endpoint(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow:
     Ok(())
 }
 
-#[native_handler(name = awssigv4_header_handler, log_err = req.connection().log().http().emerg)]
-fn header_handler(req: &RequestRef) -> isize {
-    let conf = if let Some(conf) = req.loc_conf_for::<LocConfig>(AwsSig::module()) {
-        conf
-    } else {
-        return Code::Error as isize;
-    };
+#[native_handler(name = awssigv4_header_handler, embedded)]
+fn header_handler(req: &RequestRef) -> Result<Code, Code> {
+    let conf = req
+        .loc_conf_for::<LocConfig>(AwsSig::module())
+        .ok_or(Code::ERROR)?;
 
     req.connection()
         .log()
@@ -152,33 +150,24 @@ fn header_handler(req: &RequestRef) -> isize {
         .debug(format!("AWS signature V4 module: {:?}", conf));
 
     if !conf.enable {
-        return Code::Declined as isize;
+        return Err(Code::DECLINED);
     }
 
-    let method = if let Some(m) = req.as_method() {
-        m
-    } else {
-        return Code::Declined as isize;
-    };
+    let method = req.as_method().ok_or(Code::DECLINED)?;
 
     if !matches!(method, http::Method::HEAD | http::Method::GET) {
-        return StatusCode::FORBIDDEN.as_u16() as isize;
+        return Ok(StatusCode::FORBIDDEN.into());
     }
 
-    let uri = if let Ok(Some(s)) = req
-        .unparsed_uri()
-        .map(|s| s.to_str().map(|s| s.to_string()))
-        .transpose()
-    {
-        format!(
-            "https://{}.{}{}",
-            conf.s3_bucket.as_ref().map(|s| s.as_str()).unwrap_or(""),
-            conf.s3_endpoint.as_ref().map(|s| s.as_str()).unwrap_or(""),
-            s
-        )
-    } else {
-        return Code::Declined as isize;
-    };
+    let uri = format!(
+        "https://{}.{}{}",
+        conf.s3_bucket.as_ref().map(|s| s.as_str()).unwrap_or(""),
+        conf.s3_endpoint.as_ref().map(|s| s.as_str()).unwrap_or(""),
+        req.unparsed_uri().ok_or(Code::ERROR).and_then(|s| s
+            .to_str()
+            .map(|s| s.to_string())
+            .map_err(|_| Code::DECLINED))?
+    );
 
     let datetime = chrono::Utc::now();
     let datetime_now = datetime.format("%Y%m%dT%H%M%SZ").to_string();
@@ -213,5 +202,5 @@ fn header_handler(req: &RequestRef) -> isize {
         .sign()
     };
 
-    Code::Ok as isize
+    Ok(Code::OK)
 }

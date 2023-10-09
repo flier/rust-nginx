@@ -66,26 +66,30 @@ pub trait UnsafeModule {
 impl<T: Module + Sized> UnsafeModule for T {
     unsafe extern "C" fn init_master(log: *mut ffi::ngx_log_t) -> ffi::ngx_int_t {
         <T as Module>::init_master(LogRef::from_ptr(log))
-            .map(|_| Code::Ok)
-            .unwrap_or_else(|code| code) as ffi::ngx_int_t
+            .err()
+            .unwrap_or(Code::OK)
+            .into()
     }
 
     unsafe extern "C" fn init_module(cycle: *mut ffi::ngx_cycle_t) -> ffi::ngx_int_t {
         <T as Module>::init_module(CycleRef::from_ptr(cycle))
-            .map(|_| Code::Ok)
-            .unwrap_or_else(|code| code) as ffi::ngx_int_t
+            .err()
+            .unwrap_or(Code::OK)
+            .into()
     }
 
     unsafe extern "C" fn init_process(cycle: *mut ffi::ngx_cycle_t) -> ffi::ngx_int_t {
         <T as Module>::init_process(CycleRef::from_ptr(cycle))
-            .map(|_| Code::Ok)
-            .unwrap_or_else(|code| code) as ffi::ngx_int_t
+            .err()
+            .unwrap_or(Code::OK)
+            .into()
     }
 
     unsafe extern "C" fn init_thread(cycle: *mut ffi::ngx_cycle_t) -> ffi::ngx_int_t {
         <T as Module>::init_thread(CycleRef::from_ptr(cycle))
-            .map(|_| Code::Ok)
-            .unwrap_or_else(|code| code) as ffi::ngx_int_t
+            .err()
+            .unwrap_or(Code::OK)
+            .into()
     }
 
     unsafe extern "C" fn exit_thread(cycle: *mut ffi::ngx_cycle_t) {

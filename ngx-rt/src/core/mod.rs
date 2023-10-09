@@ -22,6 +22,7 @@ pub use self::cmd::{Cmd, CmdRef};
 pub use self::conf::{Conf, ConfFile, ConfFileRef, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK};
 pub use self::conn::{Conn, ConnRef, LogError, TcpNoDelay, TcpNoPush};
 pub use self::cycle::{Cycle, CycleRef};
+pub use self::err::strerror;
 pub use self::list::{List, ListRef};
 pub use self::log::{Level as LogLevel, Log, LogRef};
 pub use self::module::{Module, ModuleRef, Type};

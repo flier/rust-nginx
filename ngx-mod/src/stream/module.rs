@@ -65,14 +65,16 @@ pub trait UnsafeModule {
 impl<T: Module> UnsafeModule for T {
     unsafe extern "C" fn preconfiguration(cf: *mut ffi::ngx_conf_t) -> ffi::ngx_int_t {
         <T as Module>::preconfiguration(ConfRef::from_ptr(cf))
-            .map(|_| Code::Ok)
-            .unwrap_or_else(|code| code) as ffi::ngx_int_t
+            .err()
+            .unwrap_or(Code::OK)
+            .into()
     }
 
     unsafe extern "C" fn postconfiguration(cf: *mut ffi::ngx_conf_t) -> ffi::ngx_int_t {
         <T as Module>::postconfiguration(ConfRef::from_ptr(cf))
-            .map(|_| Code::Ok)
-            .unwrap_or_else(|code| code) as ffi::ngx_int_t
+            .err()
+            .unwrap_or(Code::OK)
+            .into()
     }
 
     unsafe extern "C" fn create_main_conf(cf: *mut ffi::ngx_conf_t) -> *mut c_void {

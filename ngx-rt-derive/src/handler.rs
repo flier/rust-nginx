@@ -1,13 +1,13 @@
 use proc_macro2::TokenStream;
 use proc_macro_error::abort;
 use quote::quote;
-use structmeta::{NameValue, StructMeta};
+use structmeta::{NameArgs, NameValue, StructMeta};
 use syn::{
-    parse_quote_spanned,
+    parse_quote, parse_quote_spanned,
     spanned::Spanned,
     Expr, ExprCall, ExprLet,
     FnArg::{self, Receiver},
-    GenericArgument, Ident, ItemFn, Pat, PathArguments, ReturnType, Signature, Stmt, Type,
+    GenericArgument, Ident, ItemFn, LitBool, Pat, PathArguments, ReturnType, Signature, Stmt, Type,
     TypePath, TypeReference,
 };
 
@@ -15,6 +15,21 @@ use syn::{
 pub struct Args {
     name: Option<NameValue<Ident>>,
     log_err: Option<NameValue<Expr>>,
+    embedded: Option<NameArgs<Option<LitBool>>>,
+}
+
+impl Args {
+    pub fn log_err(&self) -> Option<&Expr> {
+        self.log_err.as_ref().map(|arg| &arg.value)
+    }
+
+    pub fn embedded(&self) -> bool {
+        self.embedded
+            .as_ref()
+            .map_or(!cfg!(debug_assertions), |arg| {
+                arg.args.as_ref().map_or(true, |b| b.value)
+            })
+    }
 }
 
 pub enum Style {
@@ -83,8 +98,14 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
         .into_iter()
         .unzip::<Option<Stmt>, &Ident, Vec<_>, Vec<_>>();
 
-    let handler: ExprCall = parse_quote_spanned! { ident.span() =>
-        #ident ( #( #unsafe_params ),* )
+    let handler: ExprCall = if args.embedded() {
+        parse_quote_spanned! { ident.span() =>
+            handler ( #( #unsafe_params ),* )
+        }
+    } else {
+        parse_quote_spanned! { ident.span() =>
+            #ident ( #( #unsafe_params ),* )
+        }
     };
 
     let (result, result_ty) = if matches!(output, ReturnType::Default) {
@@ -93,23 +114,20 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
         match style {
             Style::Handler => (
                 if is_result(&output) {
-                    if let Some(log_err) = args.log_err.as_ref().map(|arg| &arg.value) {
+                    if let Some(log_err) = args.log_err() {
                         parse_quote_spanned! { output.span() =>
                             match #handler {
-                                Ok(_) => { ::ngx_mod::rt::ffi::NGX_OK as isize }
+                                Ok(ok) => { ::ngx_mod::rt::RawOk::<::ngx_mod::rt::ffi::ngx_int_t>::raw_ok(ok) }
                                 Err(err) => {
-                                    #log_err (err.to_string().as_str());
+                                    #log_err ( format!("call `{}` failed, {}", stringify!(#ident), err) );
 
-                                    ::ngx_mod::rt::ffi::NGX_ERROR as isize
+                                    ::ngx_mod::rt::RawErr::<::ngx_mod::rt::ffi::ngx_int_t>::raw_err(())
                                 }
                             }
                         }
                     } else {
                         parse_quote_spanned! { output.span() =>
-                            match #handler {
-                                Ok(_) => { ::ngx_mod::rt::ffi::NGX_OK as isize }
-                                Err(_) => { ::ngx_mod::rt::ffi::NGX_ERROR as isize }
-                            }
+                            ::ngx_mod::rt::RawResult::<::ngx_mod::rt::ffi::ngx_int_t>::raw_result(#handler)
                         }
                     }
                 } else {
@@ -123,23 +141,20 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
             ),
             Style::Setter => (
                 if is_result(&output) {
-                    if let Some(log_err) = args.log_err.as_ref().map(|arg| &arg.value) {
+                    if let Some(log_err) = args.log_err() {
                         parse_quote_spanned! { output.span() =>
                             match #handler {
-                                Ok(_) => { ::ngx_mod::rt::core::NGX_CONF_OK }
+                                Ok(ok) => { ::ngx_mod::rt::RawOk::<*mut ::std::ffi::c_char>::raw_ok(ok) }
                                 Err(err) => {
-                                    #log_err (err.to_string().as_str());
+                                    #log_err ( format!("call `{}` failed, {}", stringify!( #ident ), err) );
 
-                                    ::ngx_mod::rt::core::NGX_CONF_ERROR
+                                    ::ngx_mod::rt::RawErr::<*mut ::std::ffi::c_char>::raw_err(())
                                 }
                             }
                         }
                     } else {
                         parse_quote_spanned! { output.span() =>
-                            match #handler {
-                                Ok(_) => { ::ngx_mod::rt::core::NGX_CONF_OK }
-                                Err(_) => { ::ngx_mod::rt::core::NGX_CONF_ERROR }
-                            }
+                            ::ngx_mod::rt::RawResult::<*mut ::std::ffi::c_char>::raw_result(#handler)
                         }
                     }
                 } else {
@@ -154,13 +169,29 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
         }
     };
 
+    let (safe_handler, unsafe_handler): (Option<ItemFn>, Option<ItemFn>) = if args.embedded() {
+        (
+            None,
+            Some(parse_quote! {
+                fn handler #ty_generics ( #inputs ) #output #where_clause #block
+            }),
+        )
+    } else {
+        (
+            Some(parse_quote! {
+                #vis fn #ident #ty_generics ( #inputs ) #output #where_clause #block
+            }),
+            None,
+        )
+    };
+
     quote! {
-        #vis fn #ident #ty_generics ( #inputs ) #output #where_clause #block
+        #safe_handler
 
         #( #attrs )*
         #[no_mangle]
         #vis unsafe extern "C" fn #name #ty_generics ( #( #unsafe_args ),* ) #result_ty #where_clause {
-            fn handler #ty_generics ( #inputs ) #output #where_clause #block
+            #unsafe_handler
 
             #( #unsafe_conversions )*
 

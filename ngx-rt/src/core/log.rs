@@ -3,7 +3,7 @@ use std::{ffi::CString, mem, path::Path, ptr};
 use bitflags::bitflags;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{core::time, ffi, never_drop, AsRawMut, AsRawRef, Error, FromRawMut, Result};
+use crate::{ffi, never_drop, AsRawMut, AsRawRef, Error, FromRawMut, Result};
 
 use super::conf::OpenFileRef;
 
@@ -17,7 +17,8 @@ foreign_type! {
 
 impl Log {
     pub fn stderr() -> &'static mut LogRef {
-        time::init();
+        #[cfg(feature = "static-link")]
+        crate::core::time::init();
 
         unsafe {
             LogRef::from_ptr_mut(ffi::ngx_log_init(ptr::null_mut(), b"\0".as_ptr() as *mut _))
@@ -28,7 +29,8 @@ impl Log {
         prefix: Option<&'_ Path>,
         error_log: Option<&'_ str>,
     ) -> Result<&'static mut LogRef> {
-        time::init();
+        #[cfg(feature = "static-link")]
+        crate::core::time::init();
 
         unsafe {
             LogRef::from_raw_mut(ffi::ngx_log_init(

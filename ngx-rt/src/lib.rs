@@ -16,7 +16,7 @@ pub mod http;
 #[cfg(feature = "stream")]
 pub mod stream;
 
-pub use self::error::{Error, Result};
+pub use self::error::{Error, RawErr, RawOk, RawResult, Result};
 pub use self::raw::{AsRawMut, AsRawRef, AsResult, FromRaw, FromRawMut, FromRawRef};
 
 #[doc(hidden)]
