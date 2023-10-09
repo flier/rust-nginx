@@ -100,7 +100,7 @@ impl<T: Module> UnsafeModule for T {
         prev: *mut c_void,
         conf: *mut c_void,
     ) -> *mut c_char {
-        <T as Module>::merge_srv_conf(ConfRef::from_ptr(cf), &mut *prev.cast(), &*conf.cast())
+        <T as Module>::merge_srv_conf(ConfRef::from_ptr(cf), &*prev.cast(), &mut *conf.cast())
             .map_or(NGX_CONF_ERROR, |_| NGX_CONF_OK)
     }
 }
@@ -132,9 +132,9 @@ pub trait Module: crate::Module {
 
     fn merge_srv_conf(
         _cf: &ConfRef,
-        prev: &mut Self::SrvConf,
-        conf: &Self::SrvConf,
+        prev: &Self::SrvConf,
+        conf: &mut Self::SrvConf,
     ) -> Result<(), Self::Error> {
-        prev.merge(conf).map_err(Self::Error::from)
+        conf.merge(prev).map_err(Self::Error::from)
     }
 }
