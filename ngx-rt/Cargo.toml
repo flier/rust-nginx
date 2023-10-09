@@ -225,6 +225,7 @@ static-link = ["ngx-sys/static-link"]
 bitflags = "2.4"
 cfg-if = "1.0"
 foreign-types = "0.5"
+http = "0.2"
 thiserror = "1.0"
 paste = "1.0"
 

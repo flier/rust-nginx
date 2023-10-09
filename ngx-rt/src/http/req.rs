@@ -1,4 +1,4 @@
-use std::{ffi::CStr, ops::Deref, ptr::NonNull};
+use std::{ffi::CStr, ops::Deref, ptr::NonNull, slice};
 
 use bitflags::bitflags;
 use cfg_if::cfg_if;
@@ -12,6 +12,7 @@ use crate::{
 use super::upstream::UpstreamRef;
 
 bitflags! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
     pub struct Method : u32 {
         const UNKNOWN = ffi::NGX_HTTP_UNKNOWN;
         const GET = ffi::NGX_HTTP_GET;
@@ -30,6 +31,30 @@ bitflags! {
         const PATCH = ffi::NGX_HTTP_PATCH;
         const TRACE = ffi::NGX_HTTP_TRACE;
         const CONNECT = ffi::NGX_HTTP_CONNECT;
+    }
+}
+
+impl Method {
+    fn as_method(&self) -> Option<::http::Method> {
+        Some(match *self {
+            Method::GET => ::http::Method::GET,
+            Method::HEAD => ::http::Method::HEAD,
+            Method::POST => ::http::Method::POST,
+            Method::PUT => ::http::Method::PUT,
+            Method::DELETE => ::http::Method::DELETE,
+            Method::MKCOL => ::http::Method::from_bytes(b"MKCOL").unwrap(),
+            Method::COPY => ::http::Method::from_bytes(b"COPY").unwrap(),
+            Method::MOVE => ::http::Method::from_bytes(b"MOVE").unwrap(),
+            Method::OPTIONS => ::http::Method::OPTIONS,
+            Method::PROPFIND => ::http::Method::from_bytes(b"PROPFIND").unwrap(),
+            Method::PROPPATCH => ::http::Method::from_bytes(b"PROPPATCH").unwrap(),
+            Method::LOCK => ::http::Method::from_bytes(b"LOCK").unwrap(),
+            Method::UNLOCK => ::http::Method::from_bytes(b"UNLOCK").unwrap(),
+            Method::PATCH => ::http::Method::PATCH,
+            Method::TRACE => ::http::Method::TRACE,
+            Method::CONNECT => ::http::Method::CONNECT,
+            _ => return None,
+        })
     }
 }
 
@@ -112,6 +137,20 @@ impl RequestRef {
 
     pub fn method(&self) -> Method {
         Method::from_bits_truncate(unsafe { self.as_raw().method as u32 })
+    }
+
+    pub fn as_method(&self) -> Option<http::Method> {
+        self.method().as_method().or_else(|| {
+            http::Method::from_bytes(unsafe {
+                let r = self.as_raw();
+
+                slice::from_raw_parts(
+                    r.request_start,
+                    r.method_end.offset_from(r.request_start) as usize,
+                )
+            })
+            .ok()
+        })
     }
 
     pub fn version(&self) -> (u32, u32) {
