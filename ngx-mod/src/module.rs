@@ -1,5 +1,5 @@
 use foreign_types::ForeignTypeRef;
-use ngx_rt::core::{Code, ModuleRef};
+use ngx_rt::core::{Cmds, Code, ModuleRef};
 
 use crate::rt::{
     core::{CycleRef, LogRef},
@@ -106,29 +106,38 @@ impl<T: Module + Sized> UnsafeModule for T {
 }
 
 pub trait Module: ModuleMetadata {
+    /// Initialize the master process.
     fn init_master(_: &LogRef) -> Result<(), Code> {
         Ok(())
     }
 
+    /// Initialize the module.
     fn init_module(_: &CycleRef) -> Result<(), Code> {
         Ok(())
     }
 
+    /// Initialize the process.
     fn init_process(_: &CycleRef) -> Result<(), Code> {
         Ok(())
     }
 
+    /// Initialize the thread.
     fn init_thread(_: &CycleRef) -> Result<(), Code> {
         Ok(())
     }
 
+    /// Terminated the thread.
     fn exit_thread(_: &CycleRef) {}
 
+    /// Terminated the child process.
     fn exit_process(_: &CycleRef) {}
 
+    /// Terminated the master process.
     fn exit_master(_: &CycleRef) {}
 }
 
 pub trait ModuleMetadata {
     fn module() -> &'static ModuleRef;
+
+    fn commands() -> Cmds<'static>;
 }

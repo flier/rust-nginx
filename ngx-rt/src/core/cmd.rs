@@ -1,5 +1,7 @@
+use std::slice;
+
 use bitflags::bitflags;
-use foreign_types::foreign_type;
+use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{core::Str, ffi, never_drop, AsRawRef};
 
@@ -95,4 +97,43 @@ macro_rules! ngx_command {
             post: ::std::ptr::null_mut(),
         }
     };
+}
+
+#[repr(transparent)]
+pub struct Cmds<'a>(&'a [ffi::ngx_command_t]);
+
+impl<'a> From<&'a [ffi::ngx_command_t]> for Cmds<'a> {
+    fn from(cmds: &'a [ffi::ngx_command_t]) -> Cmds<'a> {
+        Cmds(cmds)
+    }
+}
+
+impl Cmds<'_> {
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
+impl<'a> IntoIterator for Cmds<'a> {
+    type Item = &'a CmdRef;
+    type IntoIter = CmdIter<'a>;
+
+    fn into_iter(self) -> CmdIter<'a> {
+        CmdIter(self.0.iter())
+    }
+}
+
+pub struct CmdIter<'a>(slice::Iter<'a, ffi::ngx_command_t>);
+
+impl<'a> Iterator for CmdIter<'a> {
+    type Item = &'a CmdRef;
+    fn next(&mut self) -> Option<&'a CmdRef> {
+        self.0
+            .next()
+            .map(|p| unsafe { CmdRef::from_ptr(p as *const _ as *mut _) })
+    }
 }

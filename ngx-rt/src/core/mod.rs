@@ -19,7 +19,7 @@ pub mod time;
 
 pub use self::array::{Array, ArrayRef};
 pub use self::buf::{Buf, BufRef};
-pub use self::cmd::{Cmd, CmdRef};
+pub use self::cmd::{Cmd, CmdIter, CmdRef, Cmds};
 pub use self::conf::{Conf, ConfFile, ConfFileRef, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK};
 pub use self::conn::{
     Conn, ConnList, ConnRef, ConnSlice, ConnsIter, LogError, TcpNoDelay, TcpNoPush,

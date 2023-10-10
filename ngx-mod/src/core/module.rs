@@ -45,10 +45,12 @@ pub trait Module: crate::Module {
     type Error: From<<Self::Conf as Merge>::Error>;
     type Conf: Default + Merge;
 
+    /// Create the configuration.
     fn create_conf(cycle: &CycleRef) -> Option<&mut Self::Conf> {
         cycle.pool().allocate_default()
     }
 
+    /// Initialize the configuration.
     fn init_conf(_cycle: &CycleRef, _conf: &mut Self::Conf) -> Result<(), Self::Error> {
         Ok(())
     }

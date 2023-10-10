@@ -80,7 +80,7 @@ where
     M: UnsafeMainConf,
 {
     fn main_conf_for<T>(&self, m: &ModuleRef) -> Option<&mut T> {
-        unsafe { self.main_conf(m.context_index()) }
+        unsafe { self.main_conf(m.ctx_index()) }
     }
 }
 
@@ -89,7 +89,7 @@ where
     M: UnsafeSrvConf,
 {
     fn srv_conf_for<T>(&self, m: &ModuleRef) -> Option<&mut T> {
-        unsafe { self.srv_conf(m.context_index()) }
+        unsafe { self.srv_conf(m.ctx_index()) }
     }
 }
 
@@ -98,6 +98,6 @@ where
     M: UnsafeLocConf,
 {
     fn loc_conf_for<T>(&self, m: &ModuleRef) -> Option<&mut T> {
-        unsafe { self.loc_conf(m.context_index()) }
+        unsafe { self.loc_conf(m.ctx_index()) }
     }
 }

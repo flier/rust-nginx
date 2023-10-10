@@ -6,7 +6,7 @@ use std::slice;
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{ffi, flag, never_drop, property, AsRawRef, AsResult};
+use crate::{ffi, flag, never_drop, property, AsRawRef, AsResult, Error};
 
 use super::{BufRef, LogRef, PoolRef};
 
@@ -148,12 +148,12 @@ impl ConnRef {
         unsafe { ffi::ngx_close_connection(self.as_ptr()) }
     }
 
-    pub fn set_tcp_nodelay(&self) -> Result<(), ()> {
+    pub fn set_tcp_nodelay(&self) -> Result<(), Error> {
         unsafe {
             ffi::ngx_tcp_nodelay(self.as_ptr())
                 .ok()
                 .map(|_| ())
-                .map_err(|_| ())
+                .map_err(|_| Error::errno())
         }
     }
 

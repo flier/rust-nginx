@@ -1,5 +1,6 @@
 use std::ffi::c_char;
 
+use errno::{errno, Errno};
 use thiserror::Error;
 
 use crate::{core, ffi};
@@ -11,11 +12,20 @@ pub enum Error {
     #[error("out of memory")]
     OutOfMemory,
 
+    #[error(transparent)]
+    Errno(#[from] Errno),
+
     #[error("internal error, {0}")]
     InternalError(isize),
 
     #[error(transparent)]
     NulError(#[from] std::ffi::NulError),
+}
+
+impl Error {
+    pub fn errno() -> Self {
+        Self::Errno(errno())
+    }
 }
 
 impl From<isize> for Error {

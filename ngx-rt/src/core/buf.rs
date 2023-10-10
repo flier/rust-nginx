@@ -120,7 +120,7 @@ impl BufRef {
         unsafe {
             let r = self.as_raw();
 
-            slice::from_raw_parts(r.pos, self.len() as usize)
+            slice::from_raw_parts(r.pos, self.len())
         }
     }
 
@@ -129,7 +129,7 @@ impl BufRef {
         unsafe {
             let r = self.as_raw();
 
-            slice::from_raw_parts_mut(r.pos, self.len() as usize)
+            slice::from_raw_parts_mut(r.pos, self.len())
         }
     }
 }

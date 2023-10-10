@@ -1,8 +1,8 @@
-use std::{ffi::CStr, mem};
+use std::{ffi::CStr, mem, slice};
 
 use foreign_types::foreign_type;
 
-use crate::{ffi, never_drop, AsRawRef};
+use crate::{core::Cmds, ffi, never_drop, property, AsRawRef};
 
 foreign_type! {
     pub unsafe type Module: Send {
@@ -13,20 +13,38 @@ foreign_type! {
 }
 
 impl ModuleRef {
-    pub fn context_index(&self) -> usize {
-        unsafe { self.as_raw().ctx_index }
-    }
-
-    pub fn index(&self) -> usize {
-        unsafe { self.as_raw().index }
+    property! {
+        ctx_index: usize;
+        index: usize;
+        version: usize;
     }
 
     pub fn name(&self) -> &CStr {
         unsafe { CStr::from_ptr(self.as_raw().name) }
     }
 
+    pub fn signature(&self) -> &CStr {
+        unsafe { CStr::from_ptr(self.as_raw().signature) }
+    }
+
     pub fn ty(&self) -> Type {
         unsafe { mem::transmute(self.as_raw().type_ as u32) }
+    }
+
+    pub fn commands(&self) -> Cmds {
+        unsafe {
+            let r = self.as_raw();
+            let len = (0..usize::MAX)
+                .find(|&n| {
+                    r.commands
+                        .add(n)
+                        .as_ref()
+                        .map_or(true, |cmd| cmd.name.len == 0)
+                })
+                .unwrap_or(0);
+
+            Cmds::from(slice::from_raw_parts(r.commands, len))
+        }
     }
 }
 
@@ -41,6 +59,6 @@ pub enum Type {
     Http = ffi::NGX_HTTP_MODULE,
     #[cfg(feature = "mail")]
     Mail = ffi::NGX_MAIL_MODULE,
-
+    #[cfg(feature = "stream")]
     Stream = ffi::NGX_STREAM_MODULE,
 }
