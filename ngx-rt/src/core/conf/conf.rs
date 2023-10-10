@@ -1,4 +1,4 @@
-use std::{ffi::CStr, mem, ptr::NonNull};
+use std::{ffi::CStr, ptr::NonNull};
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
@@ -48,6 +48,6 @@ impl ConfRef {
     }
 
     pub fn module_type(&self) -> Type {
-        unsafe { mem::transmute(self.as_raw().module_type as u32) }
+        Type::from(unsafe { self.as_raw().module_type as u32 })
     }
 }

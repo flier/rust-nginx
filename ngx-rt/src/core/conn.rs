@@ -5,6 +5,7 @@ use std::ptr::NonNull;
 use std::slice;
 
 use foreign_types::{foreign_type, ForeignTypeRef};
+use num_enum::FromPrimitive;
 
 use crate::{ffi, flag, never_drop, property, AsRawRef, AsResult, Error};
 
@@ -117,31 +118,15 @@ impl ConnRef {
     }
 
     pub fn log_error(&self) -> LogError {
-        match unsafe { self.as_raw().log_error() } {
-            0 => LogError::Alert,
-            1 => LogError::Error,
-            2 => LogError::Info,
-            3 => LogError::IgnoreConnReset,
-            4 => LogError::IgnoreInvalid,
-            5 => LogError::IgnoreMsgSize,
-            _ => unreachable!(),
-        }
+        LogError::from(unsafe { self.as_raw().log_error() })
     }
 
-    pub fn tcp_nodelay(&self) -> Option<TcpNoDelay> {
-        match unsafe { self.as_raw().tcp_nodelay() } {
-            1 => Some(TcpNoDelay::Set),
-            2 => Some(TcpNoDelay::Disabled),
-            _ => None,
-        }
+    pub fn tcp_nodelay(&self) -> TcpNoDelay {
+        TcpNoDelay::from(unsafe { self.as_raw().tcp_nodelay() })
     }
 
-    pub fn tcp_nopush(&self) -> Option<TcpNoPush> {
-        match unsafe { self.as_raw().tcp_nopush() } {
-            1 => Some(TcpNoPush::Set),
-            2 => Some(TcpNoPush::Disabled),
-            _ => None,
-        }
+    pub fn tcp_nopush(&self) -> TcpNoPush {
+        TcpNoPush::from(unsafe { self.as_raw().tcp_nopush() })
     }
 
     pub fn close(&self) {
@@ -198,7 +183,10 @@ unsafe fn sockaddr(sa: NonNull<ffi::sockaddr>) -> Option<SocketAddr> {
     }
 }
 
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, FromPrimitive)]
 pub enum LogError {
+    #[default]
     Alert = 0,
     Error,
     Info,
@@ -208,15 +196,19 @@ pub enum LogError {
 }
 
 #[repr(u32)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, FromPrimitive)]
 pub enum TcpNoDelay {
-    Set = 1,
+    #[default]
+    Unset,
+    Set,
     Disabled,
 }
 
 #[repr(u32)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, FromPrimitive)]
 pub enum TcpNoPush {
+    #[default]
+    Unset,
     Set = 1,
     Disabled,
 }

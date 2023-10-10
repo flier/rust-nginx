@@ -1,4 +1,5 @@
 use foreign_types::{foreign_type, ForeignTypeRef};
+use num_enum::FromPrimitive;
 
 use crate::{core::ArrayRef, ffi, http::HandlerFn, never_drop, AsRawMut, AsRawRef};
 
@@ -39,8 +40,9 @@ impl PhaseRef {
 }
 
 #[repr(u32)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, FromPrimitive)]
 pub enum Phases {
+    #[default]
     PostRead = ffi::ngx_http_phases_NGX_HTTP_POST_READ_PHASE,
 
     ServerRewrite = ffi::ngx_http_phases_NGX_HTTP_SERVER_REWRITE_PHASE,

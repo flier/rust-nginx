@@ -1,7 +1,8 @@
-use std::{ffi::CString, mem, path::Path, ptr};
+use std::{ffi::CString, path::Path, ptr};
 
 use bitflags::bitflags;
 use foreign_types::{foreign_type, ForeignTypeRef};
+use num_enum::FromPrimitive;
 
 use crate::{ffi, never_drop, AsRawMut, AsRawRef, Error, FromRawMut, Result};
 
@@ -57,11 +58,7 @@ impl LogRef {
     const LOG_MODULE_MASK: u32 = 0xFFF0;
 
     pub fn level(&self) -> Level {
-        unsafe {
-            let level = self.as_raw().log_level as u32;
-
-            mem::transmute(level & Self::LOG_LEVEL_MASK)
-        }
+        Level::from(unsafe { self.as_raw().log_level as u32 & Self::LOG_LEVEL_MASK })
     }
 
     pub fn module(&self) -> Module {
@@ -193,7 +190,7 @@ impl<'a> WithModule<'a> {
 }
 
 #[repr(u32)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, FromPrimitive)]
 pub enum Level {
     StdErr = ffi::NGX_LOG_STDERR,
     Emerg = ffi::NGX_LOG_EMERG,
@@ -201,6 +198,7 @@ pub enum Level {
     Critical = ffi::NGX_LOG_CRIT,
     Error = ffi::NGX_LOG_ERR,
     Warn = ffi::NGX_LOG_WARN,
+    #[default]
     Notice = ffi::NGX_LOG_NOTICE,
     Info = ffi::NGX_LOG_INFO,
     Debug = ffi::NGX_LOG_DEBUG,

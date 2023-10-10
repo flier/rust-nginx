@@ -444,7 +444,6 @@ impl HeadersInRef {
     }
 
     property! {
-        connection_type() as ConnectionType;
         content_length_n: i64;
         headers: Headers;
         keep_alive_n: i64;
@@ -462,23 +461,18 @@ impl HeadersInRef {
         safari;
         konqueror;
     }
+
+    pub fn connection_type(&self) -> ConnType {
+        ConnType::from(unsafe { self.as_raw().connection_type() })
+    }
 }
 
 #[repr(u32)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum ConnectionType {
+#[derive(Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
+pub enum ConnType {
+    #[default]
     Close = ffi::NGX_HTTP_CONNECTION_CLOSE,
     KeepAlive = ffi::NGX_HTTP_CONNECTION_KEEP_ALIVE,
-}
-
-impl ConnectionType {
-    pub fn from_raw(n: u32) -> Option<Self> {
-        match n {
-            ffi::NGX_HTTP_CONNECTION_CLOSE => Some(ConnectionType::Close),
-            ffi::NGX_HTTP_CONNECTION_KEEP_ALIVE => Some(ConnectionType::KeepAlive),
-            _ => None,
-        }
-    }
 }
 
 foreign_type! {

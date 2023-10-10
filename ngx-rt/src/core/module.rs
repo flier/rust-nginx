@@ -1,6 +1,7 @@
-use std::{ffi::CStr, mem, slice};
+use std::{ffi::CStr, slice};
 
 use foreign_types::foreign_type;
+use num_enum::FromPrimitive;
 
 use crate::{core::Cmds, ffi, never_drop, property, AsRawRef};
 
@@ -28,7 +29,7 @@ impl ModuleRef {
     }
 
     pub fn ty(&self) -> Type {
-        unsafe { mem::transmute(self.as_raw().type_ as u32) }
+        Type::from(unsafe { self.as_raw().type_ as u32 })
     }
 
     pub fn commands(&self) -> Cmds {
@@ -49,12 +50,13 @@ impl ModuleRef {
 }
 
 #[repr(u32)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, FromPrimitive)]
 pub enum Type {
     Core = ffi::NGX_CORE_MODULE,
     Conf = ffi::NGX_CONF_MODULE,
     #[cfg(feature = "event")]
     Event = ffi::NGX_EVENT_MODULE,
+    #[default]
     #[cfg(feature = "http")]
     Http = ffi::NGX_HTTP_MODULE,
     #[cfg(feature = "mail")]
