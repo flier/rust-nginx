@@ -3,15 +3,15 @@
 macro_rules! property {
     () => {};
 
-    ($(#[$attr:meta])* $name:ident () : bool ) => {
+    ($(#[$attr:meta])* $name:ident : bool ) => {
         $(#[$attr])*
         #[inline(always)]
         pub fn $name(&self) -> bool {
             unsafe { $crate::AsRawRef::as_raw(self).$name() != 0 }
         }
     };
-    ($(#[$attr:meta])* $name:ident () : bool ; $($rest:tt)* ) => {
-        $crate::property!( $(#[$attr])* $name () : bool );
+    ($(#[$attr:meta])* $name:ident : bool ; $($rest:tt)* ) => {
+        $crate::property!( $(#[$attr])* $name : bool );
         $crate::property!( $($rest)* );
     };
 
@@ -248,12 +248,12 @@ macro_rules! property {
 macro_rules! flag {
     () => {};
 
-    ($(#[$attr:meta])* $name:ident ()) => {
-        $crate::property!($(#[$attr])* $name (): bool);
+    ($(#[$attr:meta])* $name:ident) => {
+        $crate::property!($(#[$attr])* $name : bool);
     };
 
-    ($(#[$attr:meta])* $name:ident () ; $($rest:tt)* ) => {
-        $crate::flag!($(#[$attr])* $name ());
+    ($(#[$attr:meta])* $name:ident ; $($rest:tt)* ) => {
+        $crate::flag!($(#[$attr])* $name);
         $crate::flag!( $($rest)* );
     };
 }

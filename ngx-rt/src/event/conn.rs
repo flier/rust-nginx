@@ -51,10 +51,10 @@ impl PeerConnRef {
     }
 
     flag! {
-        cached();
-        transparent();
-        so_keepalive();
-        down();
+        cached;
+        transparent;
+        so_keepalive;
+        down;
     }
 
     callback! {

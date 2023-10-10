@@ -33,29 +33,29 @@ impl ListeningRef {
     }
 
     flag! {
-        open();
-        remain();
-        ignore();
+        open;
+        remain;
+        ignore;
 
         /// already bound
-        bound();
+        bound;
         /// inherited from previous process
-        inherited();
-        nonblocking_accept();
-        listen();
-        nonblocking();
+        inherited;
+        nonblocking_accept;
+        listen;
+        nonblocking;
         /// shared between threads or processes
-        shared();
-        addr_ntop();
-        wildcard();
+        shared;
+        addr_ntop;
+        wildcard;
 
-        ipv6only();
-        reuseport();
-        add_reuseport();
+        ipv6only;
+        reuseport;
+        add_reuseport;
 
-        deferred_accept();
-        delete_deferred();
-        add_deferred();
+        deferred_accept;
+        delete_deferred;
+        add_deferred;
     }
 
     pub fn addr(&self) -> Option<SocketAddr> {
@@ -88,20 +88,20 @@ impl ConnRef {
     }
 
     flag! {
-        timedout();
-        error();
-        destroyed();
-        pipeline();
+        timedout;
+        error;
+        destroyed;
+        pipeline;
 
-        idle();
-        reusable();
-        shared();
+        idle;
+        reusable;
+        shared;
 
-        sendfile();
-        sndlowat();
+        sendfile;
+        sndlowat;
 
-        need_last_buf();
-        need_flush_buf();
+        need_last_buf;
+        need_flush_buf;
     }
 
     pub fn closed(&self) -> bool {

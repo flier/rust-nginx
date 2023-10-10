@@ -34,37 +34,37 @@ impl BufRef {
 
     flag! {
         /// the buffer references writable memory.
-        temporary();
+        temporary;
 
         /// the buffer references read-only memory.
-        memory();
+        memory;
 
         /// the buffer references data in a mmapped file.
-        mmap();
+        mmap;
 
         /// the buffer can be reused and needs to be consumed as soon as possible.
-        recycled();
+        recycled;
 
         /// the buffer references data in a file.
-        in_file();
+        in_file;
 
         /// all data prior to the buffer need to be flushed.
-        flush();
+        flush;
 
         /// the buffer carries no data or special signal like flush or last_buf.
-        sync();
+        sync;
 
         /// the buffer is the last in output.
-        last_buf();
+        last_buf;
 
         /// there are no more data buffers in a request or subrequest.
-        last_in_chain();
+        last_in_chain;
 
         /// the buffer is the last one that references a particular shadow buffer.
-        last_shadow();
+        last_shadow;
 
         /// the buffer is in a temporary file.
-        temp_file();
+        temp_file;
     }
 
     pub fn in_memory(&self) -> bool {

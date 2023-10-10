@@ -306,16 +306,16 @@ impl HeadersInRef {
     }
 
     flag! {
-        chunked();
-        multi();
-        multi_linked();
-        msie();
-        msie6();
-        opera();
-        gecko();
-        chrome();
-        safari();
-        konqueror();
+        chunked;
+        multi;
+        multi_linked;
+        msie;
+        msie6;
+        opera;
+        gecko;
+        chrome;
+        safari;
+        konqueror;
     }
 }
 
@@ -407,8 +407,8 @@ impl BodyRef {
     }
 
     flag! {
-        filter_need_buffering();
-        last_sent();
-        last_saved();
+        filter_need_buffering;
+        last_sent;
+        last_saved;
     }
 }
