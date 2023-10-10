@@ -6,11 +6,10 @@ mod req;
 pub mod upstream;
 
 pub use self::conf::{
-    Context, ContextRef, LocConfFor, MainConfFor, SrvConfFor, UnsafeLocConf, UnsafeMainConf,
-    UnsafeSrvConf,
+    Context, ContextRef, LocConf, MainConf, SrvConf, UnsafeLocConf, UnsafeMainConf, UnsafeSrvConf,
 };
 pub use self::header::{Header, Headers};
 pub use self::req::{
-    Body, BodyRef, ConnType, ContextFor, EventHandlerFn, HandlerFn, HeadersIn, HeadersInRef,
-    HeadersOut, HeadersOutRef, Method, Request, RequestRef, UnsafeContext,
+    Body, BodyRef, ConnType, EventHandlerFn, HandlerFn, HeadersIn, HeadersInRef, HeadersOut,
+    HeadersOutRef, Method, ModuleContext, Request, RequestRef, UnsafeModuleContext,
 };

@@ -1,3 +1,5 @@
+use std::ptr::NonNull;
+
 use foreign_types::foreign_type;
 
 use crate::{core::ModuleRef, ffi, never_drop, AsRawRef};
@@ -17,7 +19,7 @@ pub trait UnsafeMainConf {
     ///
     /// This function is unsafe because it dereferences raw pointers.
     /// The caller must ensure that `idx` is within the bounds of the `main_conf` array.
-    unsafe fn main_conf<T>(&self, idx: usize) -> &mut T;
+    unsafe fn unchecked_main_conf<T>(&self, idx: usize) -> NonNull<T>;
 }
 
 pub trait UnsafeSrvConf {
@@ -27,7 +29,7 @@ pub trait UnsafeSrvConf {
     ///
     /// This function is unsafe because it dereferences raw pointers.
     /// The caller must ensure that `idx` is within the bounds of the `srv_conf` array.
-    unsafe fn srv_conf<T>(&self, idx: usize) -> &mut T;
+    unsafe fn unchecked_srv_conf<T>(&self, idx: usize) -> NonNull<T>;
 }
 
 pub trait UnsafeLocConf {
@@ -37,83 +39,89 @@ pub trait UnsafeLocConf {
     ///
     /// This function is unsafe because it dereferences raw pointers.
     /// The caller must ensure that `idx` is within the bounds of the `loc_conf` array.
-    unsafe fn loc_conf<T>(&self, idx: usize) -> &mut T;
+    unsafe fn unchecked_loc_conf<T>(&self, idx: usize) -> NonNull<T>;
 }
 
 impl UnsafeMainConf for ContextRef {
-    unsafe fn main_conf<T>(&self, idx: usize) -> &mut T {
-        self.as_raw()
-            .main_conf
-            .add(idx)
-            .read()
-            .cast::<T>()
-            .as_mut()
-            .expect("main_conf")
+    unsafe fn unchecked_main_conf<T>(&self, idx: usize) -> NonNull<T> {
+        NonNull::new(self.as_raw().main_conf.add(idx).read().cast()).expect("main_conf")
     }
 }
 
 impl UnsafeSrvConf for ContextRef {
-    unsafe fn srv_conf<T>(&self, idx: usize) -> &mut T {
-        self.as_raw()
-            .srv_conf
-            .add(idx)
-            .read()
-            .cast::<T>()
-            .as_mut()
-            .expect("srv_conf")
+    unsafe fn unchecked_srv_conf<T>(&self, idx: usize) -> NonNull<T> {
+        NonNull::new(self.as_raw().srv_conf.add(idx).read().cast()).expect("srv_conf")
     }
 }
 
 impl UnsafeLocConf for ContextRef {
-    unsafe fn loc_conf<T>(&self, idx: usize) -> &mut T {
-        self.as_raw()
-            .loc_conf
-            .add(idx)
-            .read()
-            .cast::<T>()
-            .as_mut()
-            .expect("loc_conf")
+    unsafe fn unchecked_loc_conf<T>(&self, idx: usize) -> NonNull<T> {
+        NonNull::new(self.as_raw().loc_conf.add(idx).read().cast()).expect("loc_conf")
     }
 }
 
-pub trait MainConfFor {
+pub trait MainConf {
     /// Get the main configuration for the module.
-    fn main_conf_for<T>(&self, m: &ModuleRef) -> &mut T;
+    fn main_conf<T>(&self, m: &ModuleRef) -> &T;
+
+    /// Get the main configuration for the module.
+    #[allow(clippy::mut_from_ref)]
+    fn main_conf_mut<T>(&self, m: &ModuleRef) -> &mut T;
 }
 
-pub trait SrvConfFor {
+pub trait SrvConf {
     /// Get the server configuration for the module.
-    fn srv_conf_for<T>(&self, m: &ModuleRef) -> &mut T;
+    fn srv_conf<T>(&self, m: &ModuleRef) -> &T;
+
+    /// Get the server configuration for the module.
+    #[allow(clippy::mut_from_ref)]
+    fn srv_conf_mut<T>(&self, m: &ModuleRef) -> &mut T;
 }
 
-pub trait LocConfFor {
+pub trait LocConf {
     /// Get the location configuration for the module.
-    fn loc_conf_for<T>(&self, m: &ModuleRef) -> &mut T;
+    fn loc_conf<T>(&self, m: &ModuleRef) -> &T;
+
+    /// Get the location configuration for the module.
+    #[allow(clippy::mut_from_ref)]
+    fn loc_conf_mut<T>(&self, m: &ModuleRef) -> &mut T;
 }
 
-impl<M> MainConfFor for M
+impl<M> MainConf for M
 where
     M: UnsafeMainConf,
 {
-    fn main_conf_for<T>(&self, m: &ModuleRef) -> &mut T {
-        unsafe { self.main_conf(m.ctx_index()) }
+    fn main_conf<T>(&self, m: &ModuleRef) -> &T {
+        unsafe { self.unchecked_main_conf(m.ctx_index()).as_ref() }
+    }
+
+    fn main_conf_mut<T>(&self, m: &ModuleRef) -> &mut T {
+        unsafe { self.unchecked_main_conf(m.ctx_index()).as_mut() }
     }
 }
 
-impl<M> SrvConfFor for M
+impl<M> SrvConf for M
 where
     M: UnsafeSrvConf,
 {
-    fn srv_conf_for<T>(&self, m: &ModuleRef) -> &mut T {
-        unsafe { self.srv_conf(m.ctx_index()) }
+    fn srv_conf<T>(&self, m: &ModuleRef) -> &T {
+        unsafe { self.unchecked_srv_conf(m.ctx_index()).as_ref() }
+    }
+
+    fn srv_conf_mut<T>(&self, m: &ModuleRef) -> &mut T {
+        unsafe { self.unchecked_srv_conf(m.ctx_index()).as_mut() }
     }
 }
 
-impl<M> LocConfFor for M
+impl<M> LocConf for M
 where
     M: UnsafeLocConf,
 {
-    fn loc_conf_for<T>(&self, m: &ModuleRef) -> &mut T {
-        unsafe { self.loc_conf(m.ctx_index()) }
+    fn loc_conf<T>(&self, m: &ModuleRef) -> &T {
+        unsafe { self.unchecked_loc_conf(m.ctx_index()).as_ref() }
+    }
+
+    fn loc_conf_mut<T>(&self, m: &ModuleRef) -> &mut T {
+        unsafe { self.unchecked_loc_conf(m.ctx_index()).as_mut() }
     }
 }

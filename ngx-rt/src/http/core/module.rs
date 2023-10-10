@@ -5,7 +5,7 @@ use crate::{
     ffi,
     http::{
         core::{LocConfRef, MainConfRef, SrvConfRef},
-        LocConfFor, MainConfFor, SrvConfFor,
+        LocConf, MainConf, SrvConf,
     },
 };
 
@@ -13,23 +13,44 @@ pub fn module() -> &'static ModuleRef {
     unsafe { ModuleRef::from_ptr(&mut ffi::ngx_http_core_module as *mut _) }
 }
 
-pub fn main_conf<T>(cf: &T) -> &mut MainConfRef
+pub fn main_conf<T>(cf: &T) -> &MainConfRef
 where
-    T: MainConfFor,
+    T: MainConf,
 {
-    cf.main_conf_for(module())
+    cf.main_conf(module())
 }
 
-pub fn srv_conf<T>(cf: &T) -> &mut SrvConfRef
+pub fn main_conf_mut<T>(cf: &T) -> &mut MainConfRef
 where
-    T: SrvConfFor,
+    T: MainConf,
 {
-    cf.srv_conf_for(module())
+    cf.main_conf_mut(module())
 }
 
-pub fn loc_conf<T>(cf: &T) -> &mut LocConfRef
+pub fn srv_conf<T>(cf: &T) -> &SrvConfRef
 where
-    T: LocConfFor,
+    T: SrvConf,
 {
-    cf.loc_conf_for(module())
+    cf.srv_conf(module())
+}
+
+pub fn srv_conf_mut<T>(cf: &T) -> &mut SrvConfRef
+where
+    T: SrvConf,
+{
+    cf.srv_conf_mut(module())
+}
+
+pub fn loc_conf<T>(cf: &T) -> &LocConfRef
+where
+    T: LocConf,
+{
+    cf.loc_conf(module())
+}
+
+pub fn loc_conf_mut<T>(cf: &T) -> &mut LocConfRef
+where
+    T: LocConf,
+{
+    cf.loc_conf_mut(module())
 }

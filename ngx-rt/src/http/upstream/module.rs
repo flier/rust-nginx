@@ -5,7 +5,7 @@ use crate::{
     ffi,
     http::{
         upstream::{MainConfRef, SrvConfRef},
-        MainConfFor, SrvConfFor,
+        MainConf, SrvConf,
     },
 };
 
@@ -13,16 +13,30 @@ pub fn module() -> &'static ModuleRef {
     unsafe { ModuleRef::from_ptr(&mut ffi::ngx_http_upstream_module as *mut _) }
 }
 
-pub fn main_conf<T>(cf: &T) -> &mut MainConfRef
+pub fn main_conf<T>(cf: &T) -> &MainConfRef
 where
-    T: MainConfFor,
+    T: MainConf,
 {
-    cf.main_conf_for(module())
+    cf.main_conf(module())
 }
 
-pub fn srv_conf<T>(cf: &T) -> &mut SrvConfRef
+pub fn main_conf_mut<T>(cf: &T) -> &mut MainConfRef
 where
-    T: SrvConfFor,
+    T: MainConf,
 {
-    cf.srv_conf_for(module())
+    cf.main_conf_mut(module())
+}
+
+pub fn srv_conf<T>(cf: &T) -> &SrvConfRef
+where
+    T: SrvConf,
+{
+    cf.srv_conf(module())
+}
+
+pub fn srv_conf_mut<T>(cf: &T) -> &mut SrvConfRef
+where
+    T: SrvConf,
+{
+    cf.srv_conf_mut(module())
 }

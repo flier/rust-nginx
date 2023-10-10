@@ -6,7 +6,7 @@ mod method;
 mod request;
 
 pub use self::body::{Body, BodyRef};
-pub use self::ctx::{ContextFor, UnsafeContext};
+pub use self::ctx::{ModuleContext, UnsafeModuleContext};
 pub use self::headers_in::{ConnType, HeadersIn, HeadersInRef};
 pub use self::headers_out::{HeadersOut, HeadersOutRef};
 pub use self::method::Method;

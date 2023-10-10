@@ -91,7 +91,7 @@ fn set_custom(cf: &ConfRef, _cmd: &CmdRef, conf: &mut SrvConfig) -> anyhow::Resu
 
     let uscf = cf
         .as_http_context()
-        .map(upstream::srv_conf)
+        .map(upstream::srv_conf_mut)
         .ok_or_else(|| anyhow!("`srv_conf` not found"))?;
 
     conf.original_init_upstream = uscf.peer().init_upstream().or(Some(upstream::InitFn(
@@ -108,7 +108,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
     notice!(cf, "CUSTOM init upstream");
 
     let original_init_upstream = {
-        let hccf = Custom::srv_conf(us);
+        let hccf = Custom::srv_conf_mut(us);
 
         hccf.max.get_or_set(100);
         hccf.original_init_upstream
@@ -121,7 +121,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
 
     let original_init_peer = us.peer_mut().init.replace(http_upstream_init_custom_peer);
 
-    Custom::srv_conf(us).original_init_peer = original_init_peer.map(upstream::InitPeerFn);
+    Custom::srv_conf_mut(us).original_init_peer = original_init_peer.map(upstream::InitPeerFn);
 
     Ok(())
 }

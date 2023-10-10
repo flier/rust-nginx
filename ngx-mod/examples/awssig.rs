@@ -33,7 +33,7 @@ impl HttpModule for AwsSig {
 
         let cmcf = cf
             .as_http_context()
-            .map(core::main_conf)
+            .map(core::main_conf_mut)
             .ok_or(Code::ERROR)?;
 
         cmcf.phases_mut(Phases::Precontent)

@@ -185,24 +185,45 @@ pub trait Module: crate::Module {
         conf.merge(prev).map_err(Self::Error::from)
     }
 
-    fn main_conf<T>(cf: &T) -> &mut Self::MainConf
+    fn main_conf<T>(cf: &T) -> &Self::MainConf
     where
-        T: http::MainConfFor,
+        T: http::MainConf,
     {
-        cf.main_conf_for(Self::module())
+        cf.main_conf(Self::module())
     }
 
-    fn srv_conf<T>(cf: &T) -> &mut Self::SrvConf
+    fn main_conf_mut<T>(cf: &T) -> &mut Self::MainConf
     where
-        T: http::SrvConfFor,
+        T: http::MainConf,
     {
-        cf.srv_conf_for(Self::module())
+        cf.main_conf_mut(Self::module())
     }
 
-    fn loc_conf<T>(cf: &T) -> &mut Self::LocConf
+    fn srv_conf<T>(cf: &T) -> &Self::SrvConf
     where
-        T: http::LocConfFor,
+        T: http::SrvConf,
     {
-        cf.loc_conf_for(Self::module())
+        cf.srv_conf(Self::module())
+    }
+
+    fn srv_conf_mut<T>(cf: &T) -> &mut Self::SrvConf
+    where
+        T: http::SrvConf,
+    {
+        cf.srv_conf_mut(Self::module())
+    }
+
+    fn loc_conf<T>(cf: &T) -> &Self::LocConf
+    where
+        T: http::LocConf,
+    {
+        cf.loc_conf(Self::module())
+    }
+
+    fn loc_conf_mut<T>(cf: &T) -> &mut Self::LocConf
+    where
+        T: http::LocConf,
+    {
+        cf.loc_conf_mut(Self::module())
     }
 }
