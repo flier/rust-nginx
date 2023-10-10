@@ -4,7 +4,7 @@ use bitflags::bitflags;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{
-    core::{BufRef, ConnRef, PoolRef, Str},
+    core::{BufRef, ConnRef, ModuleRef, PoolRef, Str},
     ffi, flag, never_drop, property, str, AsRawRef,
 };
 
@@ -86,6 +86,36 @@ impl Deref for RequestRef {
     }
 }
 
+pub trait ContextFor {
+    /// Returns the module's context
+    fn module_ctx_for<T>(&self, m: &ModuleRef) -> Option<&mut T>;
+}
+
+impl<M> ContextFor for M
+where
+    M: UnsafeContext,
+{
+    fn module_ctx_for<T>(&self, m: &ModuleRef) -> Option<&mut T> {
+        unsafe { self.module_ctx(m.ctx_index()) }
+    }
+}
+
+pub trait UnsafeContext {
+    unsafe fn module_ctx<T>(&self, idx: usize) -> Option<&mut T>;
+
+    unsafe fn set_module_ctx<T>(&self, idx: usize, ctx: NonNull<T>);
+}
+
+impl UnsafeContext for RequestRef {
+    unsafe fn module_ctx<T>(&self, idx: usize) -> Option<&mut T> {
+        NonNull::new(self.as_raw().ctx.add(idx).read()).map(|p| p.cast::<T>().as_mut())
+    }
+
+    unsafe fn set_module_ctx<T>(&self, idx: usize, ctx: NonNull<T>) {
+        self.as_raw().ctx.add(idx).write(ctx.as_ptr().cast());
+    }
+}
+
 impl UnsafeMainConf for RequestRef {
     unsafe fn main_conf<T>(&self, idx: usize) -> Option<&mut T> {
         NonNull::new(self.as_raw().main_conf.add(idx).read()).map(|p| p.cast::<T>().as_mut())
@@ -106,6 +136,7 @@ impl UnsafeLocConf for RequestRef {
 
 impl RequestRef {
     property! {
+        /// client connection
         connection: &ConnRef;
         upstream as &mut UpstreamRef;
         pool: &PoolRef;
