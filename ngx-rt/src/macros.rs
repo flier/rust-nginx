@@ -67,7 +67,7 @@ macro_rules! property {
                 unsafe {
                     let p = & $crate::AsRawRef::as_raw(self).$name as *const _ as *mut _;
 
-                    $crate::core::ListRef::from_ptr_mut(p)
+                    ::foreign_types::ForeignTypeRef::from_ptr_mut(p)
                 }
             )
         }

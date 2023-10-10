@@ -1,0 +1,61 @@
+use std::{ffi::CStr, ptr::NonNull};
+
+use foreign_types::foreign_type;
+
+use crate::{core::Str, raw::never_drop, AsRawRef};
+
+foreign_type! {
+    pub unsafe type HeadersOut: Send {
+        type CType = ffi::ngx_http_headers_out_t;
+
+        fn drop = never_drop::<ffi::ngx_http_headers_out_t>;
+    }
+}
+
+impl HeadersOutRef {
+    property! {
+        headers: Headers;
+        trailers: Headers;
+
+        status: usize;
+        status_line: Str;
+
+        content_type_len: usize;
+        content_type: Str;
+        charset: Str;
+
+        content_type_hash: usize;
+        content_length_n: i64;
+        content_offset: i64;
+        date_time: i64;
+        last_modified_time: i64;
+    }
+
+    header! {
+        accept_ranges;
+        cache_control;
+        content_encoding;
+        content_length;
+        content_range;
+        date;
+        etag;
+        expires;
+        last_modified;
+        link;
+        location;
+        refresh;
+        server;
+        www_authenticate;
+    }
+
+    pub fn override_charset(&self) -> Option<Str> {
+        unsafe { Str::from_ptr(self.as_raw().override_charset) }
+    }
+
+    pub fn content_type_lowcase(&self) -> Option<&CStr> {
+        unsafe {
+            NonNull::new(self.as_raw().content_type_lowcase)
+                .map(|p| CStr::from_ptr(p.as_ptr() as *const _))
+        }
+    }
+}
