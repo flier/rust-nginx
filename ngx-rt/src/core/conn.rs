@@ -1,22 +1,86 @@
+use std::marker::PhantomData;
+use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6};
+use std::os::fd::{AsRawFd, RawFd};
+use std::ptr::NonNull;
 use std::slice;
-use std::{marker::PhantomData, ptr::NonNull};
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{ffi, flag, never_drop, property, AsRawRef};
+use crate::{ffi, flag, never_drop, property, AsRawRef, AsResult};
 
 use super::{BufRef, LogRef, PoolRef};
+
+foreign_type! {
+    pub unsafe type Listening: Send {
+        type CType = ffi::ngx_listening_t;
+
+        fn drop = never_drop::<ffi::ngx_listening_t>;
+    }
+}
+
+impl ListeningRef {
+    property! {
+        backlog: i32;
+        rcvbuf: i32;
+        sndbuf: i32;
+        keepidle: i32;
+        keepintvl: i32;
+        keepcnt: i32;
+
+        &log: &LogRef;
+        previous as &ListeningRef;
+        connection as &ConnRef;
+    }
+
+    flag! {
+        open();
+        remain();
+        ignore();
+
+        /// already bound
+        bound();
+        /// inherited from previous process
+        inherited();
+        nonblocking_accept();
+        listen();
+        nonblocking();
+        /// shared between threads or processes
+        shared();
+        addr_ntop();
+        wildcard();
+
+        ipv6only();
+        reuseport();
+        add_reuseport();
+
+        deferred_accept();
+        delete_deferred();
+        add_deferred();
+    }
+
+    pub fn addr(&self) -> Option<SocketAddr> {
+        unsafe { NonNull::new(self.as_raw().sockaddr).and_then(|p| sockaddr(p)) }
+    }
+}
+
+impl AsRawFd for ListeningRef {
+    fn as_raw_fd(&self) -> RawFd {
+        unsafe { self.as_raw().fd }
+    }
+}
 
 foreign_type! {
     pub unsafe type Conn: Send {
         type CType = ffi::ngx_connection_t;
 
-        fn drop = never_drop::<ffi::ngx_connection_t>;
+        fn drop = ffi::ngx_free_connection;
     }
 }
 
 impl ConnRef {
     property! {
+        listening: &ListeningRef;
+        sent: i64;
         log: &LogRef;
         pool: &PoolRef;
         buffer: &BufRef;
@@ -31,7 +95,6 @@ impl ConnRef {
 
         idle();
         reusable();
-        close();
         shared();
 
         sendfile();
@@ -39,6 +102,18 @@ impl ConnRef {
 
         need_last_buf();
         need_flush_buf();
+    }
+
+    pub fn closed(&self) -> bool {
+        unsafe { self.as_raw().close() != 0 }
+    }
+
+    pub fn remote(&self) -> Option<SocketAddr> {
+        unsafe { NonNull::new(self.as_raw().sockaddr).and_then(|p| sockaddr(p)) }
+    }
+
+    pub fn local(&self) -> Option<SocketAddr> {
+        unsafe { NonNull::new(self.as_raw().local_sockaddr).and_then(|p| sockaddr(p)) }
     }
 
     pub fn log_error(&self) -> LogError {
@@ -67,6 +142,59 @@ impl ConnRef {
             2 => Some(TcpNoPush::Disabled),
             _ => None,
         }
+    }
+
+    pub fn close(&self) {
+        unsafe { ffi::ngx_close_connection(self.as_ptr()) }
+    }
+
+    pub fn set_tcp_nodelay(&self) -> Result<(), ()> {
+        unsafe {
+            ffi::ngx_tcp_nodelay(self.as_ptr())
+                .ok()
+                .map(|_| ())
+                .map_err(|_| ())
+        }
+    }
+
+    pub fn set_reusable(&self, reusable: bool) {
+        unsafe { ffi::ngx_reusable_connection(self.as_ptr(), if reusable { 1 } else { 0 }) }
+    }
+}
+
+impl AsRawFd for ConnRef {
+    fn as_raw_fd(&self) -> RawFd {
+        unsafe { self.as_raw().fd }
+    }
+}
+
+unsafe fn sockaddr(sa: NonNull<ffi::sockaddr>) -> Option<SocketAddr> {
+    match sa.as_ref().sa_family as i32 {
+        libc::AF_INET => sa
+            .as_ptr()
+            .cast_const()
+            .cast::<libc::sockaddr_in>()
+            .as_ref()
+            .map(|sa| {
+                SocketAddr::V4(SocketAddrV4::new(
+                    Ipv4Addr::from(sa.sin_addr.s_addr.to_be_bytes()),
+                    u16::from_be(sa.sin_port),
+                ))
+            }),
+        libc::AF_INET6 => sa
+            .as_ptr()
+            .cast_const()
+            .cast::<libc::sockaddr_in6>()
+            .as_ref()
+            .map(|sa| {
+                SocketAddr::V6(SocketAddrV6::new(
+                    Ipv6Addr::from(sa.sin6_addr.s6_addr),
+                    u16::from_be(sa.sin6_port),
+                    sa.sin6_flowinfo,
+                    sa.sin6_scope_id,
+                ))
+            }),
+        _ => None,
     }
 }
 
