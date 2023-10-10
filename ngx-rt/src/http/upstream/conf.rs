@@ -1,5 +1,3 @@
-use std::ptr::NonNull;
-
 use foreign_types::foreign_type;
 
 use crate::{ffi, http::UnsafeSrvConf, never_drop, property, AsRawRef};
@@ -23,8 +21,14 @@ foreign_type! {
 }
 
 impl UnsafeSrvConf for SrvConfRef {
-    unsafe fn srv_conf<T>(&self, idx: usize) -> Option<&mut T> {
-        NonNull::new(self.as_raw().srv_conf.add(idx).read()).map(|p| p.cast::<T>().as_mut())
+    unsafe fn srv_conf<T>(&self, idx: usize) -> &mut T {
+        self.as_raw()
+            .srv_conf
+            .add(idx)
+            .read()
+            .cast::<T>()
+            .as_mut()
+            .expect("srv_conf")
     }
 }
 

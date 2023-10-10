@@ -91,7 +91,7 @@ fn set_custom(cf: &ConfRef, _cmd: &CmdRef, conf: &mut SrvConfig) -> anyhow::Resu
 
     let uscf = cf
         .as_http_context()
-        .and_then(upstream::srv_conf)
+        .map(upstream::srv_conf)
         .ok_or_else(|| anyhow!("`srv_conf` not found"))?;
 
     conf.original_init_upstream = uscf.peer().init_upstream().or(Some(upstream::InitFn(
@@ -108,7 +108,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
     notice!(cf, "CUSTOM init upstream");
 
     let original_init_upstream = {
-        let hccf = Custom::srv_conf(us).ok_or_else(|| anyhow!("no upstream `srv_conf`"))?;
+        let hccf = Custom::srv_conf(us);
 
         hccf.max.get_or_set(100);
         hccf.original_init_upstream
@@ -121,9 +121,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
 
     let original_init_peer = us.peer_mut().init.replace(http_upstream_init_custom_peer);
 
-    if let Some(hccf) = Custom::srv_conf(us) {
-        hccf.original_init_peer = original_init_peer.map(upstream::InitPeerFn)
-    }
+    Custom::srv_conf(us).original_init_peer = original_init_peer.map(upstream::InitPeerFn);
 
     Ok(())
 }
@@ -134,11 +132,7 @@ fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::
 
     let hccf = Custom::srv_conf(us);
 
-    if let Some(f) = hccf
-        .as_ref()
-        .ok_or_else(|| anyhow!("no upstream srv_conf"))?
-        .original_init_peer
-    {
+    if let Some(f) = hccf.original_init_peer {
         f.call(req, us)
             .map_err(|_| anyhow!("failed calling `init_peer`"))?;
     }
@@ -146,7 +140,7 @@ fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::
     let hcpd = req
         .pool()
         .allocate(UpstreamPeerData {
-            conf: hccf.as_deref(),
+            conf: Some(hccf),
             upstream: req.upstream(),
             client_connection: Some(req.connection()),
             original_get_peer: req.upstream().and_then(|us| us.peer().get()),

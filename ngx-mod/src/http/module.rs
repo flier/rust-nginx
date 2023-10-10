@@ -185,21 +185,21 @@ pub trait Module: crate::Module {
         conf.merge(prev).map_err(Self::Error::from)
     }
 
-    fn main_conf<T>(cf: &T) -> Option<&mut Self::MainConf>
+    fn main_conf<T>(cf: &T) -> &mut Self::MainConf
     where
         T: http::MainConfFor,
     {
         cf.main_conf_for(Self::module())
     }
 
-    fn srv_conf<T>(cf: &T) -> Option<&mut Self::SrvConf>
+    fn srv_conf<T>(cf: &T) -> &mut Self::SrvConf
     where
         T: http::SrvConfFor,
     {
         cf.srv_conf_for(Self::module())
     }
 
-    fn loc_conf<T>(cf: &T) -> Option<&mut Self::LocConf>
+    fn loc_conf<T>(cf: &T) -> &mut Self::LocConf
     where
         T: http::LocConfFor,
     {

@@ -13,14 +13,14 @@ pub fn module() -> &'static ModuleRef {
     unsafe { ModuleRef::from_ptr(&mut ffi::ngx_http_upstream_module as *mut _) }
 }
 
-pub fn main_conf<T>(cf: &T) -> Option<&mut MainConfRef>
+pub fn main_conf<T>(cf: &T) -> &mut MainConfRef
 where
     T: MainConfFor,
 {
     cf.main_conf_for(module())
 }
 
-pub fn srv_conf<T>(cf: &T) -> Option<&mut SrvConfRef>
+pub fn srv_conf<T>(cf: &T) -> &mut SrvConfRef
 where
     T: SrvConfFor,
 {

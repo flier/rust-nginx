@@ -1,4 +1,4 @@
-use std::{ops::Deref, ptr::NonNull, slice};
+use std::{ops::Deref, slice};
 
 use bitflags::bitflags;
 use foreign_types::foreign_type;
@@ -30,20 +30,38 @@ impl Deref for RequestRef {
 }
 
 impl UnsafeMainConf for RequestRef {
-    unsafe fn main_conf<T>(&self, idx: usize) -> Option<&mut T> {
-        NonNull::new(self.as_raw().main_conf.add(idx).read()).map(|p| p.cast::<T>().as_mut())
+    unsafe fn main_conf<T>(&self, idx: usize) -> &mut T {
+        self.as_raw()
+            .main_conf
+            .add(idx)
+            .read()
+            .cast::<T>()
+            .as_mut()
+            .expect("main_conf")
     }
 }
 
 impl UnsafeSrvConf for RequestRef {
-    unsafe fn srv_conf<T>(&self, idx: usize) -> Option<&mut T> {
-        NonNull::new(self.as_raw().srv_conf.add(idx).read()).map(|p| p.cast::<T>().as_mut())
+    unsafe fn srv_conf<T>(&self, idx: usize) -> &mut T {
+        self.as_raw()
+            .srv_conf
+            .add(idx)
+            .read()
+            .cast::<T>()
+            .as_mut()
+            .expect("srv_conf")
     }
 }
 
 impl UnsafeLocConf for RequestRef {
-    unsafe fn loc_conf<T>(&self, idx: usize) -> Option<&mut T> {
-        NonNull::new(self.as_raw().loc_conf.add(idx).read()).map(|p| p.cast::<T>().as_mut())
+    unsafe fn loc_conf<T>(&self, idx: usize) -> &mut T {
+        self.as_raw()
+            .loc_conf
+            .add(idx)
+            .read()
+            .cast::<T>()
+            .as_mut()
+            .expect("loc_conf")
     }
 }
 
