@@ -2,10 +2,11 @@ use std::{ffi::CStr, ops::Deref, ptr::NonNull, slice};
 
 use bitflags::bitflags;
 use foreign_types::{foreign_type, ForeignTypeRef};
+use ngx_rt_derive::native_callback;
 
 use crate::{
     core::{BufRef, ConnRef, ModuleRef, PoolRef, Str},
-    ffi, flag, never_drop, property, str, AsRawRef,
+    ffi, flag, never_drop, property, str, AsRawRef, Error,
 };
 
 use super::{upstream::UpstreamRef, UnsafeLocConf, UnsafeMainConf, UnsafeSrvConf};
@@ -55,19 +56,6 @@ impl Method {
             _ => return None,
         })
     }
-}
-
-macro_rules! header {
-    () => {};
-
-    ($(#[$attr:meta])* $name:ident) => {
-        $crate::property!($(#[$attr])* $name as Header);
-    };
-
-    ($(#[$attr:meta])* $name:ident ; $($rest:tt)* ) => {
-        header!($(#[$attr])* $name);
-        header!( $($rest)* );
-    };
 }
 
 foreign_type! {
@@ -138,27 +126,81 @@ impl RequestRef {
     property! {
         /// client connection
         connection: &ConnRef;
+
+        /// Request upstream object for proxying.
         upstream as &mut UpstreamRef;
+
+        /// Request pool.
         pool: &PoolRef;
+
+        /// Buffer into which the client HTTP request header is read.
         header_in: &BufRef;
+
+        /// Input HTTP headers objects.
         &headers_in: &HeadersInRef;
+
+        /// Output HTTP headers objects.
         &headers_out: &HeadersOutRef;
+
+        /// Client request body object.
         request_body as &BodyRef;
+
+        /// Client HTTP protocol version in numeric form
+        http_version: usize;
+
+        /// Client HTTP protocol major version in numeric
+        http_minor(): u32;
+
+        /// Client HTTP protocol minor version in numeric
+        http_major(): u32;
+
+        /// the main request object.
         main as &Self;
+
+        /// the parent request of a subrequest.
         parent as &Self;
+
+        /// Request reference counter.
+        count(): u32;
+
+        /// Current subrequest nesting level.
+        subrequests(): u32;
+
+        /// Counter of blocks held on the request.
+        blocked(): u32;
     }
 
     str! {
+        /// Request line in the original client request.
         request_line;
+
+        /// URI for the current request.
         uri;
+
+        /// arguments for the current request.
         args;
+
+        /// file extension for the current request.
         exten;
+
+        /// URI in the original client request.
         unparsed_uri;
+
+        /// the name of client HTTP request method.
         method_name;
+
+        /// client HTTP protocol version in its original text form
         http_protocol;
         schema;
     }
 
+    callback! {
+        read_event_handler: EventHandlerFn;
+        write_event_handler: EventHandlerFn;
+        content_handler: HandlerFn;
+    }
+
+    /// the client HTTP request method.
     pub fn method(&self) -> Method {
         Method::from_bits_truncate(unsafe { self.as_raw().method as u32 })
     }
@@ -185,6 +227,12 @@ impl RequestRef {
         }
     }
 }
+
+#[native_callback]
+pub type HandlerFn = fn(req: &RequestRef) -> Result<(), Error>;
+
+#[native_callback]
+pub type EventHandlerFn = fn(req: &RequestRef);
 
 foreign_type! {
     pub unsafe type HeadersIn: Send {

@@ -11,6 +11,6 @@ pub use self::conf::{
 };
 pub use self::header::{Header, Headers};
 pub use self::req::{
-    Body, BodyRef, ConnectionType, ContextFor, HeadersIn, HeadersInRef, HeadersOut, HeadersOutRef,
-    Method, Request, RequestRef, UnsafeContext,
+    Body, BodyRef, ConnectionType, ContextFor, EventHandlerFn, HandlerFn, HeadersIn, HeadersInRef,
+    HeadersOut, HeadersOutRef, Method, Request, RequestRef, UnsafeContext,
 };

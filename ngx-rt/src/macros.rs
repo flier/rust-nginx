@@ -1,3 +1,4 @@
+#[doc(hidden)]
 #[macro_export]
 macro_rules! property {
     () => {};
@@ -217,6 +218,18 @@ macro_rules! property {
         $crate::property!( $($rest)* );
     };
 
+    ($(#[$attr:meta])* $name:ident () : $ty:ty ) => {
+        $(#[$attr])*
+        #[inline(always)]
+        pub fn $name(&self) -> $ty {
+            unsafe { $crate::AsRawRef::as_raw(self).$name() }
+        }
+    };
+    ($(#[$attr:meta])* $name:ident () : $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!($(#[$attr])* $name () : $ty);
+        $crate::property!( $($rest)* );
+    };
+
     ($(#[$attr:meta])* $name:ident : $ty:ty ) => {
         $(#[$attr])*
         #[inline(always)]
@@ -230,6 +243,7 @@ macro_rules! property {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! flag {
     () => {};
@@ -244,6 +258,7 @@ macro_rules! flag {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! str {
     () => {};
@@ -255,5 +270,37 @@ macro_rules! str {
     ($(#[$attr:meta])* $name:ident ; $($rest:tt)* ) => {
         $crate::str!($(#[$attr])* $name);
         $crate::str!( $($rest)* );
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! header {
+    () => {};
+
+    ($(#[$attr:meta])* $name:ident) => {
+        $crate::property!($(#[$attr])* $name as Header);
+    };
+
+    ($(#[$attr:meta])* $name:ident ; $($rest:tt)* ) => {
+        $crate::header!($(#[$attr])* $name);
+        $crate::header!( $($rest)* );
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! callback {
+    () => {};
+
+    ($(#[$attr:meta])* $name:ident : $ty:tt ) => {
+        pub fn $name(&self) -> Option<$ty> {
+            unsafe { $crate::AsRawRef::as_raw(self).$name.map( $ty ) }
+        }
+    };
+
+    ($(#[$attr:meta])* $name:ident : $ty:tt ; $($rest:tt)* ) => {
+        $crate::callback!($(#[$attr])* $name : $ty );
+        $crate::callback!( $($rest)* );
     };
 }

@@ -34,12 +34,9 @@ impl DerefMut for PeerRef {
 }
 
 impl PeerRef {
-    pub fn init_upstream(&self) -> Option<InitFn> {
-        unsafe { self.as_raw().init_upstream.map(InitFn) }
-    }
-
-    pub fn init(&self) -> Option<InitPeerFn> {
-        unsafe { self.as_raw().init.map(InitPeerFn) }
+    callback! {
+        init_upstream: InitFn;
+        init: InitPeerFn;
     }
 
     pub fn data<T>(&self) -> Option<NonNull<T>> {

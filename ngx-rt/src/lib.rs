@@ -4,12 +4,13 @@ pub extern crate ngx_sys as ffi;
 
 pub use ::ngx_rt_derive::{native_callback, native_handler, native_setter};
 
+#[macro_use]
+mod macros;
+
 pub mod core;
 mod error;
 pub mod event;
 mod raw;
-#[macro_use]
-mod macros;
 
 #[cfg(feature = "http")]
 pub mod http;

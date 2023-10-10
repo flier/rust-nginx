@@ -57,16 +57,10 @@ impl PeerConnRef {
         down();
     }
 
-    pub fn get(&self) -> Option<GetPeerFn> {
-        unsafe { self.as_raw().get.map(GetPeerFn) }
-    }
-
-    pub fn free(&self) -> Option<FreePeerFn> {
-        unsafe { self.as_raw().free.map(FreePeerFn) }
-    }
-
-    pub fn notify(&self) -> Option<NotifyPeerFn> {
-        unsafe { self.as_raw().notify.map(NotifyPeerFn) }
+    callback! {
+        get: GetPeerFn;
+        free: FreePeerFn;
+        notify: NotifyPeerFn;
     }
 
     pub fn data<T>(&self) -> Option<&T> {

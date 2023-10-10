@@ -1,7 +1,6 @@
 use foreign_types::{foreign_type, ForeignTypeRef};
-use ngx_rt_derive::native_callback;
 
-use crate::{core::ArrayRef, ffi, http::RequestRef, never_drop, AsRawMut, AsRawRef, Error};
+use crate::{core::ArrayRef, ffi, http::HandlerFn, never_drop, AsRawMut, AsRawRef};
 
 foreign_type! {
     pub unsafe type MainConf: Send {
@@ -38,9 +37,6 @@ impl PhaseRef {
         unsafe { ArrayRef::from_ptr_mut(&mut self.as_raw_mut().handlers as *mut _) }
     }
 }
-
-#[native_callback]
-pub type HandlerFn = fn(req: &RequestRef) -> Result<(), Error>;
 
 #[repr(u32)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
