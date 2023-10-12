@@ -8,9 +8,8 @@ use ngx_mod::{
     http::Module as HttpModule,
     rt::{
         core::{CmdRef, Code, ConfRef},
-        debug,
         http::core::{self, Phases},
-        native_setter, notice,
+        http_debug, native_setter, notice,
     },
     Conf, Merge, Module,
 };
@@ -143,7 +142,7 @@ fn set_s3_endpoint(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Re
 fn header_handler(req: &mut RequestRef) -> Result<Code, Code> {
     let conf = AwsSig::loc_conf(req);
 
-    debug!(req.connection().log().http(), "AwsSig module: {:?}", conf);
+    http_debug!(req, "AwsSig module: {:?}", conf);
 
     if !conf.enable {
         return Err(Code::DECLINED);

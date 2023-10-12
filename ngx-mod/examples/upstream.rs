@@ -13,11 +13,10 @@ use ngx_mod::{
             conf::{self, Unset},
             CmdRef, ConfRef, ConnRef,
         },
-        debug,
         event::{FreePeerFn, GetPeerFn, PeerConnRef},
         ffi,
         http::{upstream, RequestRef},
-        native_handler, native_setter, notice,
+        http_debug, native_handler, native_setter, notice,
     },
     Conf, Merge, Module,
 };
@@ -128,7 +127,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
 
 #[native_handler(name = http_upstream_init_custom_peer, log_err = req.connection().log().http().emerg)]
 fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::Result<()> {
-    debug!(req.connection().log().http(), "CUSTOM init peer");
+    http_debug!(req, "CUSTOM init peer");
 
     let hccf = Custom::srv_conf(us);
 
@@ -161,9 +160,11 @@ fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::
 
 #[native_handler(name = ngx_http_upstream_get_custom_peer, log_err = conn.log().http().emerg)]
 fn get_custom_peer(conn: &PeerConnRef, data: &UpstreamPeerData) -> anyhow::Result<()> {
-    debug!(
-        conn.log().http(),
-        "CUSTOM get peer, try: {}, conn: {:p}", conn.tries, conn
+    http_debug!(
+        conn,
+        "CUSTOM get peer, try: {}, conn: {:p}",
+        conn.tries,
+        conn
     );
 
     if let Some(f) = data.original_get_peer {
@@ -178,7 +179,7 @@ fn get_custom_peer(conn: &PeerConnRef, data: &UpstreamPeerData) -> anyhow::Resul
 
 #[native_handler(name = ngx_http_upstream_free_custom_peer)]
 fn free_custom_peer(conn: &PeerConnRef, data: &UpstreamPeerData, state: usize) {
-    debug!(conn.log().http(), "CUSTOM free peer, conn: {:p}", conn);
+    http_debug!(conn, "CUSTOM free peer, conn: {:p}", conn);
 
     if let Some(f) = data.original_free_peer {
         f.call(conn, data.data, state);

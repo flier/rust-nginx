@@ -68,6 +68,12 @@ impl ListeningRef {
     }
 }
 
+impl AsRef<LogRef> for ListeningRef {
+    fn as_ref(&self) -> &LogRef {
+        self.log()
+    }
+}
+
 impl AsRawFd for ListeningRef {
     fn as_raw_fd(&self) -> RawFd {
         unsafe { self.as_raw().fd }
@@ -165,6 +171,12 @@ impl ConnRef {
 
     pub fn set_reusable(&self, reusable: bool) {
         unsafe { ffi::ngx_reusable_connection(self.as_ptr(), if reusable { 1 } else { 0 }) }
+    }
+}
+
+impl AsRef<LogRef> for ConnRef {
+    fn as_ref(&self) -> &LogRef {
+        self.log()
     }
 }
 

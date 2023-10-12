@@ -5,7 +5,7 @@ use foreign_types::foreign_type;
 use num_enum::FromPrimitive;
 
 use crate::{
-    core::{BufRef, ConnRef, PoolRef},
+    core::{BufRef, ConnRef, LogRef, PoolRef},
     ffi, flag,
     http::{upstream::UpstreamRef, UnsafeLocConf, UnsafeMainConf, UnsafeSrvConf},
     native_callback, never_drop, property, str, AsRawRef, Error,
@@ -266,6 +266,12 @@ impl RequestRef {
     /// Bitmask showing which modules have buffered the output produced by the request.
     pub fn buffered(&self) -> Buffered {
         unsafe { Buffered::from_bits_truncate(self.as_raw().buffered()) }
+    }
+}
+
+impl AsRef<LogRef> for RequestRef {
+    fn as_ref(&self) -> &LogRef {
+        self.connection().log()
     }
 }
 

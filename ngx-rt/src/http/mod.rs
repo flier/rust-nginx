@@ -6,6 +6,8 @@ mod req;
 pub mod upstream;
 #[macro_use]
 pub mod var;
+#[macro_use]
+mod log;
 
 pub use self::conf::{
     Context, ContextRef, LocConf, MainConf, SrvConf, UnsafeLocConf, UnsafeMainConf, UnsafeSrvConf,

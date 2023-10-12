@@ -79,3 +79,9 @@ impl CycleRef {
         hostname;
     }
 }
+
+impl AsRef<LogRef> for CycleRef {
+    fn as_ref(&self) -> &LogRef {
+        self.log()
+    }
+}

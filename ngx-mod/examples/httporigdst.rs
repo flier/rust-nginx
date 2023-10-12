@@ -10,9 +10,8 @@ use ngx_mod::{
     http,
     rt::{
         core::{Code, ConfRef, SocketType, Str},
-        debug,
         http::{RequestRef, ValueRef},
-        native_handler, ngx_var, notice,
+        http_debug, native_handler, ngx_var, notice,
     },
     Module, ModuleMetadata,
 };
@@ -44,28 +43,19 @@ fn get_origdst(req: &RequestRef) -> Result<SocketAddrV4, Code> {
     let conn = req.connection();
 
     if conn.ty() != SocketType::STREAM {
-        debug!(
-            req.connection().log().http(),
-            "httporigdst: connection is not type SOCK_STREAM"
-        );
+        http_debug!(req, "httporigdst: connection is not type SOCK_STREAM");
 
         return Err(Code::DECLINED);
     }
 
     let local = conn.local().ok_or_else(|| {
-        debug!(
-            req.connection().log().http(),
-            "httporigdst: no local sockaddr from connection"
-        );
+        http_debug!(req, "httporigdst: no local sockaddr from connection");
 
         Code::ERROR
     })?;
 
     if !local.is_ipv4() {
-        debug!(
-            req.connection().log().http(),
-            "httporigdst: only support IPv4"
-        );
+        http_debug!(req, "httporigdst: only support IPv4");
 
         return Err(Code::DECLINED);
     }
@@ -82,10 +72,7 @@ fn get_origdst(req: &RequestRef) -> Result<SocketAddrV4, Code> {
             &mut len as *mut _,
         ) < 0
         {
-            debug!(
-                req.connection().log().http(),
-                "httporigdst: getsockopt failed"
-            );
+            http_debug!(req, "httporigdst: getsockopt failed");
 
             return Err(Code::DECLINED);
         }
@@ -97,25 +84,16 @@ fn get_origdst(req: &RequestRef) -> Result<SocketAddrV4, Code> {
 #[native_handler(name = ngx_http_orig_dst_addr_variable)]
 fn server_orig_addr(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Result<(), Code> {
     if let Some(ctx) = req.module_ctx::<OrigDstCtx>(OrigDst::module()) {
-        debug!(
-            req.connection().log().http(),
-            "httporigdst: found context and binding variable"
-        );
+        http_debug!(req, "httporigdst: found context and binding variable");
 
         ctx.bind_addr(val);
     } else {
-        debug!(
-            req.connection().log().http(),
-            "httporigdst: context not found, getting address"
-        );
+        http_debug!(req, "httporigdst: context not found, getting address");
 
         let addr = get_origdst(req)?;
 
         if let Some(ctx) = req.pool().allocate_default::<OrigDstCtx>() {
-            debug!(
-                req.connection().log().http(),
-                "httporigdst: saving addr: {}", addr
-            );
+            http_debug!(req, "httporigdst: saving addr: {}", addr);
 
             ctx.save(req.pool(), addr)?;
             ctx.bind_addr(val);
@@ -129,25 +107,16 @@ fn server_orig_addr(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Resul
 #[native_handler(name = ngx_http_orig_dst_port_variable)]
 fn server_orig_port(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Result<(), Code> {
     if let Some(ctx) = req.module_ctx::<OrigDstCtx>(OrigDst::module()) {
-        debug!(
-            req.connection().log().http(),
-            "httporigdst: found context and binding variable"
-        );
+        http_debug!(req, "httporigdst: found context and binding variable");
 
         ctx.bind_port(val);
     } else {
-        debug!(
-            req.connection().log().http(),
-            "httporigdst: context not found, getting address"
-        );
+        http_debug!(req, "httporigdst: context not found, getting address");
 
         let addr = get_origdst(req)?;
 
         if let Some(ctx) = req.pool().allocate_default::<OrigDstCtx>() {
-            debug!(
-                req.connection().log().http(),
-                "httporigdst: saving addr: {}", addr
-            );
+            http_debug!(req, "httporigdst: saving addr: {}", addr);
 
             ctx.save(req.pool(), addr)?;
             ctx.bind_port(val);

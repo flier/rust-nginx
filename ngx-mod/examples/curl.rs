@@ -8,9 +8,8 @@ use ngx_mod::{
     http::Module as HttpModule,
     rt::{
         core::{CmdRef, Code, ConfRef},
-        debug,
         http::core::{self, Phases},
-        native_setter, notice,
+        http_debug, native_setter, notice,
     },
     Conf, Merge, Module,
 };
@@ -79,7 +78,7 @@ fn set_enable(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::Resu
 fn curl_access(req: &RequestRef) -> Result<StatusCode, Code> {
     let lc = Curl::loc_conf(req);
 
-    debug!(req.connection().log().http(), "CURL enabled: {}", lc.enable);
+    http_debug!(req, "CURL enabled: {}", lc.enable);
 
     if lc.enable
         && req

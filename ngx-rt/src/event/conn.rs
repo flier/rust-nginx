@@ -80,6 +80,12 @@ impl PeerConnRef {
     }
 }
 
+impl AsRef<LogRef> for PeerConnRef {
+    fn as_ref(&self) -> &LogRef {
+        self.log()
+    }
+}
+
 #[native_callback]
 pub type GetPeerFn<T> = fn(pc: &PeerConnRef, data: Option<&T>) -> Result<(), Error>;
 
