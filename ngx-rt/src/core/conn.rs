@@ -238,6 +238,24 @@ impl SocketType {
     pub const SEQPACKET: SocketType = SocketType(libc::SOCK_SEQPACKET);
 }
 
+impl SocketType {
+    pub fn is_stream(&self) -> bool {
+        *self == Self::STREAM
+    }
+
+    pub fn is_dgram(&self) -> bool {
+        *self == Self::DGRAM
+    }
+
+    pub fn is_raw(&self) -> bool {
+        *self == Self::RAW
+    }
+
+    pub fn is_seq_packet(&self) -> bool {
+        *self == Self::SEQPACKET
+    }
+}
+
 #[repr(u32)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, FromPrimitive)]
 pub enum LogError {

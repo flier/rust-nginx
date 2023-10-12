@@ -3,14 +3,13 @@
 
 use std::{mem::zeroed, net::SocketAddrV4, os::fd::AsRawFd, ptr::NonNull};
 
-use ngx_rt::{core::PoolRef, http::ModuleContext};
 use socket2::SockAddr;
 
 use ngx_mod::{
     http,
     rt::{
-        core::{Code, ConfRef, SocketType, Str},
-        http::{RequestRef, ValueRef},
+        core::{Code, ConfRef, PoolRef, Str},
+        http::{ModuleContext, RequestRef, ValueRef},
         http_debug, native_handler, ngx_var, notice,
     },
     Module, ModuleMetadata,
@@ -42,7 +41,7 @@ impl http::Module for OrigDst {
 fn get_origdst(req: &RequestRef) -> Result<SocketAddrV4, Code> {
     let conn = req.connection();
 
-    if conn.ty() != SocketType::STREAM {
+    if !conn.ty().is_stream() {
         http_debug!(req, "httporigdst: connection is not type SOCK_STREAM");
 
         return Err(Code::DECLINED);
@@ -95,8 +94,8 @@ fn server_orig_addr(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Resul
         if let Some(ctx) = req.pool().allocate_default::<OrigDstCtx>() {
             http_debug!(req, "httporigdst: saving addr: {}", addr);
 
-            ctx.save(req.pool(), addr)?;
-            ctx.bind_addr(val);
+            ctx.save(req.pool(), addr)?.bind_addr(val);
+
             req.set_module_ctx(OrigDst::module(), ctx)
         }
     }
@@ -118,8 +117,8 @@ fn server_orig_port(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Resul
         if let Some(ctx) = req.pool().allocate_default::<OrigDstCtx>() {
             http_debug!(req, "httporigdst: saving addr: {}", addr);
 
-            ctx.save(req.pool(), addr)?;
-            ctx.bind_port(val);
+            ctx.save(req.pool(), addr)?.bind_port(val);
+
             req.set_module_ctx(OrigDst::module(), ctx)
         }
     }
@@ -134,11 +133,11 @@ struct OrigDstCtx {
 }
 
 impl OrigDstCtx {
-    pub fn save(&mut self, p: &PoolRef, addr: SocketAddrV4) -> Result<(), Code> {
+    pub fn save(&mut self, p: &PoolRef, addr: SocketAddrV4) -> Result<&Self, Code> {
         self.orig_dst_addr = p.strdup(addr.ip().to_string()).ok_or(Code::ERROR)?;
         self.orig_dst_port = p.strdup(addr.port().to_string()).ok_or(Code::ERROR)?;
 
-        Ok(())
+        Ok(self)
     }
 
     pub fn bind_addr(&self, v: &mut ValueRef) {
