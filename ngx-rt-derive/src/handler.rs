@@ -14,13 +14,13 @@ use syn::{
 #[derive(Clone, Debug, StructMeta)]
 pub struct Args {
     name: Option<NameValue<Ident>>,
-    log_err: Option<NameValue<Expr>>,
+    log: Option<NameValue<Expr>>,
     embedded: Option<NameArgs<Option<LitBool>>>,
 }
 
 impl Args {
-    pub fn log_err(&self) -> Option<&Expr> {
-        self.log_err.as_ref().map(|arg| &arg.value)
+    pub fn log(&self) -> Option<&Expr> {
+        self.log.as_ref().map(|arg| &arg.value)
     }
 
     pub fn embedded(&self) -> bool {
@@ -114,12 +114,14 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
         match style {
             Style::Handler => (
                 if is_result(&output) {
-                    if let Some(log_err) = args.log_err() {
+                    if let Some(log) = args.log() {
                         parse_quote_spanned! { output.span() =>
                             match #handler {
                                 Ok(ok) => { ::ngx_mod::rt::RawOk::<::ngx_mod::rt::ffi::ngx_int_t>::raw_ok(ok) }
                                 Err(err) => {
-                                    #log_err ( format!("call `{}` failed, {}", stringify!(#ident), err) );
+                                    ::ngx_mod::rt::core::Logger::emerg (
+                                        #log,
+                                        format!("call `{}` failed, {}", stringify!(#ident), err) );
 
                                     ::ngx_mod::rt::RawErr::<::ngx_mod::rt::ffi::ngx_int_t>::raw_err(())
                                 }
@@ -141,12 +143,16 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
             ),
             Style::Setter => (
                 if is_result(&output) {
-                    if let Some(log_err) = args.log_err() {
+                    if let Some(log) = args.log() {
                         parse_quote_spanned! { output.span() =>
                             match #handler {
                                 Ok(ok) => { ::ngx_mod::rt::RawOk::<*mut ::std::ffi::c_char>::raw_ok(ok) }
                                 Err(err) => {
-                                    #log_err ( format!("call `{}` failed, {}", stringify!( #ident ), err) );
+                                    // let log = ::std::convert::AsRef::<::ngx_mod::rt::core::LogRef>::as_ref( #log );
+
+                                    ::ngx_mod::rt::core::Logger::emerg (
+                                        #log,
+                                        format!("call `{}` failed, {}", stringify!(#ident), err) );
 
                                     ::ngx_mod::rt::RawErr::<*mut ::std::ffi::c_char>::raw_err(())
                                 }

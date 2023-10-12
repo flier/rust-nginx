@@ -11,7 +11,7 @@ use syn::{
 #[derive(Clone, Debug, StructMeta)]
 pub struct Args {
     name: Option<NameValue<Ident>>,
-    log_err: Option<NameValue<Expr>>,
+    log: Option<NameValue<Expr>>,
 }
 
 pub fn expand(args: Args, item: ItemType) -> TokenStream {
@@ -83,10 +83,12 @@ pub fn expand(args: Args, item: ItemType) -> TokenStream {
         (Expr::Call(call), ReturnType::Default)
     } else {
         let result = if let Some((ok, err)) = extract_result_types(output) {
-            let mut result = if let Some(log_err) = args.log_err.as_ref().map(|arg| &arg.value) {
+            let mut result = if let Some(log) = args.log.as_ref().map(|arg| &arg.value) {
                 parse_quote_spanned! { output.span() =>
                     crate::AsResult::ok(#call).map_err(|err| {
-                        #log_err (format!(concat!("call ", #name ," failed, {}", err)));
+                        ::ngx_mod::rt::core::Logger::emerg (
+                            #log,
+                            format!(concat!("call `{}` failed, {}", stringify!(#name), err)));
 
                         err
                     })

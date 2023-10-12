@@ -131,58 +131,61 @@ impl LogRef {
     }
 }
 
+impl Logger for LogRef {
+    fn core<S: Into<Vec<u8>>>(&self, level: Level, msg: S) {
+        self.error_core(level, None, msg)
+    }
+}
+
+impl<T> Logger for T
+where
+    T: AsRef<LogRef>,
+{
+    fn core<S: Into<Vec<u8>>>(&self, level: Level, msg: S) {
+        self.as_ref().error_core(level, None, msg)
+    }
+}
+
+pub trait Logger {
+    fn core<S: Into<Vec<u8>>>(&self, level: Level, msg: S);
+
+    fn stderr<S: Into<Vec<u8>>>(&self, msg: S) {
+        self.core(Level::StdErr, msg)
+    }
+
+    fn emerg<S: Into<Vec<u8>>>(&self, msg: S) {
+        self.core(Level::Emerg, msg)
+    }
+
+    fn alert<S: Into<Vec<u8>>>(&self, msg: S) {
+        self.core(Level::Alert, msg)
+    }
+
+    fn critical<S: Into<Vec<u8>>>(&self, msg: S) {
+        self.core(Level::Critical, msg)
+    }
+
+    fn error<S: Into<Vec<u8>>>(&self, msg: S) {
+        self.core(Level::Error, msg)
+    }
+
+    fn warn<S: Into<Vec<u8>>>(&self, msg: S) {
+        self.core(Level::Warn, msg)
+    }
+
+    fn notice<S: Into<Vec<u8>>>(&self, msg: S) {
+        self.core(Level::Notice, msg)
+    }
+
+    fn debug<S: Into<Vec<u8>>>(&self, msg: S) {
+        self.core(Level::Debug, msg)
+    }
+}
+
 pub struct WithModule<'a>(&'a LogRef, Module);
 
-impl<'a> WithModule<'a> {
-    pub fn stderr<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.module().contains(self.1) {
-            self.core(Level::StdErr, msg)
-        }
-    }
-
-    pub fn emerg<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.module().contains(self.1) {
-            self.core(Level::Emerg, msg)
-        }
-    }
-
-    pub fn alert<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.module().contains(self.1) {
-            self.core(Level::Alert, msg)
-        }
-    }
-
-    pub fn critical<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.module().contains(self.1) {
-            self.core(Level::Critical, msg)
-        }
-    }
-
-    pub fn error<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.module().contains(self.1) {
-            self.core(Level::Error, msg)
-        }
-    }
-
-    pub fn warn<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.module().contains(self.1) {
-            self.core(Level::Warn, msg)
-        }
-    }
-
-    pub fn notice<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.module().contains(self.1) {
-            self.core(Level::Notice, msg)
-        }
-    }
-
-    pub fn debug<S: Into<Vec<u8>>>(&self, msg: S) {
-        if self.0.module().contains(self.1) {
-            self.core(Level::Debug, msg)
-        }
-    }
-
-    pub fn core<S: Into<Vec<u8>>>(&self, level: Level, msg: S) {
+impl<'a> Logger for WithModule<'a> {
+    fn core<S: Into<Vec<u8>>>(&self, level: Level, msg: S) {
         if self.0.module().contains(self.1) {
             self.0.error_core(level, None, msg)
         }
@@ -212,7 +215,11 @@ macro_rules! define_logger {
                     #[macro_export]
                     macro_rules! $name {
                         ($d log:expr, $d( $d args:tt )*) => {
-                            $d log.core($crate::core::LogLevel::$level, format!($d ($d args)*))
+                            $d crate::core::Logger::core(
+                                $d log,
+                                $crate::core::LogLevel::$level,
+                                format!($d ($d args)*)
+                            )
                         };
                     }
                 )*

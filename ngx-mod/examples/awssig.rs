@@ -69,7 +69,7 @@ impl Merge for Config {
     }
 }
 
-#[native_setter(name = ngx_http_awssigv4_commands_set_enable, log_err = cf.emerg)]
+#[native_setter(name = ngx_http_awssigv4_commands_set_enable, log = cf)]
 fn set_enable(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Result<()> {
     conf.enable = if let Some(s) = cf.args().get(1) {
         s.to_str()?.eq_ignore_ascii_case("on")
@@ -82,7 +82,7 @@ fn set_enable(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Result<
     Ok(())
 }
 
-#[native_setter(name = ngx_http_awssigv4_commands_set_access_key, log_err = cf.emerg)]
+#[native_setter(name = ngx_http_awssigv4_commands_set_access_key, log = cf)]
 fn set_access_key(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Result<()> {
     conf.access_key = cf
         .args()
@@ -96,7 +96,7 @@ fn set_access_key(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Res
     Ok(())
 }
 
-#[native_setter(name = ngx_http_awssigv4_commands_set_secret_key, log_err = cf.emerg)]
+#[native_setter(name = ngx_http_awssigv4_commands_set_secret_key, log = cf)]
 fn set_secret_key(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Result<()> {
     conf.secret_key = cf
         .args()
@@ -110,7 +110,7 @@ fn set_secret_key(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Res
     Ok(())
 }
 
-#[native_setter(name = ngx_http_awssigv4_commands_set_s3_bucket, log_err = cf.emerg)]
+#[native_setter(name = ngx_http_awssigv4_commands_set_s3_bucket, log = cf)]
 fn set_s3_bucket(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Result<()> {
     conf.s3_bucket = cf
         .args()
@@ -124,7 +124,7 @@ fn set_s3_bucket(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Resu
     Ok(())
 }
 
-#[native_setter(name = ngx_http_awssigv4_commands_set_s3_endpoint, log_err = cf.emerg)]
+#[native_setter(name = ngx_http_awssigv4_commands_set_s3_endpoint, log = cf)]
 fn set_s3_endpoint(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Result<()> {
     conf.s3_endpoint = cf
         .args()

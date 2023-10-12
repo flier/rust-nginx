@@ -31,7 +31,7 @@ pub use self::file::{
     TempFileRef,
 };
 pub use self::list::{List, ListRef};
-pub use self::log::{Level as LogLevel, Log, LogRef};
+pub use self::log::{Level as LogLevel, Log, LogRef, Logger};
 pub use self::module::{Module, ModuleRef, Type as ModuleType};
 pub use self::pool::{Pool, PoolRef};
 pub use self::shm::{Shm, ShmRef, Zone, ZoneRef};

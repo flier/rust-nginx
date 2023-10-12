@@ -61,7 +61,7 @@ impl Merge for LocConfig {
     }
 }
 
-#[native_setter(name = ngx_http_curl_commands_set_enable, log_err = cf.emerg)]
+#[native_setter(name = ngx_http_curl_commands_set_enable, log = cf)]
 fn set_enable(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::Result<()> {
     notice!(cf, "CURL set enable");
 

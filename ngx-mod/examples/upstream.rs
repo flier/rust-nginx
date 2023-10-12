@@ -72,7 +72,7 @@ impl Merge for SrvConfig {
     }
 }
 
-#[native_setter(name = ngx_http_upstream_custom, log_err = cf.emerg)]
+#[native_setter(name = ngx_http_upstream_custom, log = cf)]
 fn set_custom(cf: &ConfRef, _cmd: &CmdRef, conf: &mut SrvConfig) -> anyhow::Result<()> {
     notice!(cf, "CUSTOM init module");
 
@@ -102,7 +102,7 @@ fn set_custom(cf: &ConfRef, _cmd: &CmdRef, conf: &mut SrvConfig) -> anyhow::Resu
     Ok(())
 }
 
-#[native_handler(name = ngx_http_upstream_init_custom, log_err = cf.emerg)]
+#[native_handler(name = ngx_http_upstream_init_custom, log = cf)]
 fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()> {
     notice!(cf, "CUSTOM init upstream");
 
@@ -125,7 +125,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
     Ok(())
 }
 
-#[native_handler(name = http_upstream_init_custom_peer, log_err = req.connection().log().http().emerg)]
+#[native_handler(name = http_upstream_init_custom_peer, log = req)]
 fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::Result<()> {
     http_debug!(req, "CUSTOM init peer");
 
@@ -158,7 +158,7 @@ fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::
     Ok(())
 }
 
-#[native_handler(name = ngx_http_upstream_get_custom_peer, log_err = conn.log().http().emerg)]
+#[native_handler(name = ngx_http_upstream_get_custom_peer, log = conn)]
 fn get_custom_peer(conn: &PeerConnRef, data: &UpstreamPeerData) -> anyhow::Result<()> {
     http_debug!(
         conn,

@@ -7,8 +7,11 @@ macro_rules! define_http_logger {
                         #[macro_export]
                         macro_rules! [< http_ $name >] {
                             ($d log:expr, $d( $d args:tt )*) => {
-                                ::std::convert::AsRef::<$d crate::core::LogRef>::as_ref($d log)
-                                    .http().core($crate::core::LogLevel::$level, format!($d ($d args)*))
+                                {
+                                    let log = ::std::convert::AsRef::<$d crate::core::LogRef>::as_ref($d log).http();
+
+                                    $d crate::core::Logger::core(& log, $crate::core::LogLevel::$level, format!($d ($d args)*));
+                                }
                             };
                         }
                     )*
