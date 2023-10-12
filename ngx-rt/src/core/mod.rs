@@ -22,7 +22,7 @@ pub use self::buf::{Buf, BufRef};
 pub use self::cmd::{Cmd, CmdIter, CmdRef, Cmds};
 pub use self::conf::{Conf, ConfFile, ConfFileRef, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK};
 pub use self::conn::{
-    Conn, ConnList, ConnRef, ConnSlice, ConnsIter, LogError, TcpNoDelay, TcpNoPush,
+    Conn, ConnList, ConnRef, ConnSlice, ConnsIter, LogError, SocketType, TcpNoDelay, TcpNoPush,
 };
 pub use self::cycle::{Cycle, CycleRef};
 pub use self::err::strerror;
@@ -32,7 +32,7 @@ pub use self::file::{
 };
 pub use self::list::{List, ListRef};
 pub use self::log::{Level as LogLevel, Log, LogRef};
-pub use self::module::{Module, ModuleRef, Type};
+pub use self::module::{Module, ModuleRef, Type as ModuleType};
 pub use self::pool::{Pool, PoolRef};
 pub use self::shm::{Shm, ShmRef, Zone, ZoneRef};
 pub use self::status::Code;

@@ -16,13 +16,13 @@ impl http::Module for M {
 #[cfg(feature = "static-link")]
 #[cfg(test)]
 mod tests {
-    use ngx_mod::{rt::core::Type, ModuleMetadata};
+    use ngx_mod::{rt::core::ModuleType, ModuleMetadata};
 
     use super::*;
 
     #[test]
     fn module_metadata() {
-        assert_eq!(M::module().ty(), Type::Http);
+        assert_eq!(M::module().ty(), ModuleType::Http);
         assert_eq!(M::commands().len(), 0);
     }
 }

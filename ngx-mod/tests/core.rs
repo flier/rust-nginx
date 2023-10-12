@@ -15,7 +15,7 @@ impl core::Module for M {
 #[cfg(test)]
 mod tests {
     use ngx_mod::{
-        rt::core::{Str, Type},
+        rt::core::{ModuleType, Str},
         ModuleMetadata,
     };
 
@@ -23,14 +23,14 @@ mod tests {
 
     #[test]
     fn module_metadata() {
-        assert_eq!(M::module().ty(), Type::Core);
+        assert_eq!(M::module().ty(), ModuleType::Core);
         assert_eq!(M::commands().len(), 0);
     }
 
     #[test]
     fn module_ref() {
-        assert_eq!(M.as_ref().ty(), Type::Core);
-        assert_eq!(M.ty(), Type::Core);
+        assert_eq!(M.as_ref().ty(), ModuleType::Core);
+        assert_eq!(M.ty(), ModuleType::Core);
         assert_eq!(M.commands().len(), 0);
     }
 

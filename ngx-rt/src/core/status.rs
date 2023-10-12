@@ -65,6 +65,12 @@ impl From<i32> for Code {
     }
 }
 
+impl From<isize> for Code {
+    fn from(n: isize) -> Self {
+        Self(n as i32)
+    }
+}
+
 impl From<StatusCode> for Code {
     fn from(code: StatusCode) -> Self {
         Self(code.as_u16() as i32)

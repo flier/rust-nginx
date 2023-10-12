@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::ffi::c_uchar;
 use std::ops::{Deref, DerefMut};
-use std::ptr::NonNull;
+use std::ptr::{null_mut, NonNull};
 use std::slice;
 use std::str::{self, Utf8Error};
 use std::{fmt, ptr};
@@ -77,12 +77,25 @@ impl Str {
         String::from_utf8_lossy(self.as_bytes())
     }
 
+    pub fn is_null(&self) -> bool {
+        self.0.data.is_null()
+    }
+
     pub fn is_empty(&self) -> bool {
-        self.len() == 0
+        self.0.len == 0
     }
 
     pub fn len(&self) -> usize {
         self.0.len
+    }
+}
+
+impl Default for Str {
+    fn default() -> Self {
+        Str(ngx_str_t {
+            len: 0,
+            data: null_mut(),
+        })
     }
 }
 

@@ -1,8 +1,8 @@
 use std::marker::PhantomData;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6};
 use std::os::fd::{AsRawFd, RawFd};
-use std::ptr::NonNull;
-use std::slice;
+use std::ptr::{null_mut, NonNull};
+use std::{mem, slice};
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 use num_enum::FromPrimitive;
@@ -60,7 +60,11 @@ impl ListeningRef {
     }
 
     pub fn addr(&self) -> Option<SocketAddr> {
-        unsafe { NonNull::new(self.as_raw().sockaddr).and_then(|p| sockaddr(p)) }
+        unsafe {
+            let r = self.as_raw();
+
+            NonNull::new(r.sockaddr).and_then(|p| sockaddr(p, r.socklen as usize))
+        }
     }
 }
 
@@ -109,12 +113,29 @@ impl ConnRef {
         unsafe { self.as_raw().close() != 0 }
     }
 
+    pub fn ty(&self) -> SocketType {
+        SocketType(unsafe { self.as_raw().type_ })
+    }
+
     pub fn remote(&self) -> Option<SocketAddr> {
-        unsafe { NonNull::new(self.as_raw().sockaddr).and_then(|p| sockaddr(p)) }
+        unsafe {
+            let r = self.as_raw();
+
+            NonNull::new(r.sockaddr).and_then(|p| sockaddr(p, r.socklen as usize))
+        }
     }
 
     pub fn local(&self) -> Option<SocketAddr> {
-        unsafe { NonNull::new(self.as_raw().local_sockaddr).and_then(|p| sockaddr(p)) }
+        unsafe {
+            if ffi::ngx_connection_local_sockaddr(self.as_ptr(), null_mut(), 0)
+                == ffi::NGX_OK as isize
+            {
+                let r = self.as_raw();
+                NonNull::new(r.local_sockaddr).and_then(|p| sockaddr(p, r.local_socklen as usize))
+            } else {
+                None
+            }
+        }
     }
 
     pub fn log_error(&self) -> LogError {
@@ -153,9 +174,9 @@ impl AsRawFd for ConnRef {
     }
 }
 
-unsafe fn sockaddr(sa: NonNull<ffi::sockaddr>) -> Option<SocketAddr> {
+unsafe fn sockaddr(sa: NonNull<ffi::sockaddr>, len: usize) -> Option<SocketAddr> {
     match sa.as_ref().sa_family as i32 {
-        libc::AF_INET => sa
+        libc::AF_INET if len >= mem::size_of::<libc::sockaddr_in>() => sa
             .as_ptr()
             .cast_const()
             .cast::<libc::sockaddr_in>()
@@ -166,7 +187,7 @@ unsafe fn sockaddr(sa: NonNull<ffi::sockaddr>) -> Option<SocketAddr> {
                     u16::from_be(sa.sin_port),
                 ))
             }),
-        libc::AF_INET6 => sa
+        libc::AF_INET6 if len >= mem::size_of::<libc::sockaddr_in6>() => sa
             .as_ptr()
             .cast_const()
             .cast::<libc::sockaddr_in6>()
@@ -181,6 +202,28 @@ unsafe fn sockaddr(sa: NonNull<ffi::sockaddr>) -> Option<SocketAddr> {
             }),
         _ => None,
     }
+}
+
+#[repr(transparent)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct SocketType(i32);
+
+impl SocketType {
+    /// Type corresponding to `SOCK_STREAM`.
+    ///
+    /// Used for protocols such as TCP.
+    pub const STREAM: SocketType = SocketType(libc::SOCK_STREAM);
+
+    /// Type corresponding to `SOCK_DGRAM`.
+    ///
+    /// Used for protocols such as UDP.
+    pub const DGRAM: SocketType = SocketType(libc::SOCK_DGRAM);
+
+    /// Type corresponding to SOCK_RAW.
+    pub const RAW: SocketType = SocketType(libc::SOCK_RAW);
+
+    /// Type corresponding to `SOCK_SEQPACKET`.
+    pub const SEQPACKET: SocketType = SocketType(libc::SOCK_SEQPACKET);
 }
 
 #[repr(u32)]

@@ -15,13 +15,13 @@ impl stream::Module for M {
 #[cfg(feature = "static-link")]
 #[cfg(test)]
 mod tests {
-    use ngx_mod::{rt::core::Type, ModuleMetadata};
+    use ngx_mod::{rt::core::ModuleType, ModuleMetadata};
 
     use super::*;
 
     #[test]
     fn core_module() {
-        assert_eq!(M::module().ty(), Type::Stream);
+        assert_eq!(M::module().ty(), ModuleType::Stream);
         assert_eq!(M::commands().len(), 0);
     }
 }
