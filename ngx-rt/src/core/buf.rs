@@ -18,8 +18,10 @@ foreign_type! {
 impl PoolRef {
     /// Creates a buffer of the specified size in the memory pool.
     pub fn create_temp_buf(&mut self, len: usize) -> Option<&BufRef> {
-        NonNull::new(unsafe { ffi::ngx_create_temp_buf(self.as_ptr(), len) })
-            .map(|p| unsafe { BufRef::from_ptr(p.as_ptr()) })
+        unsafe {
+            NonNull::new(ffi::ngx_create_temp_buf(self.as_ptr(), len))
+                .map(|p| BufRef::from_ptr(p.as_ptr()))
+        }
     }
 }
 

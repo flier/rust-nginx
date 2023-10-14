@@ -1,5 +1,5 @@
 use std::os::fd::AsRawFd;
-use std::ptr::null_mut;
+use std::ptr::{null_mut, write_bytes};
 use std::sync::Once;
 use std::time::Duration;
 
@@ -28,14 +28,12 @@ pub fn find_timer() -> Option<Duration> {
 
     const NGX_TIMER_INFINITE: usize = usize::MAX;
 
-    unsafe {
-        let t = ffi::ngx_event_find_timer();
+    let t = unsafe { ffi::ngx_event_find_timer() };
 
-        if t == NGX_TIMER_INFINITE {
-            None
-        } else {
-            Some(Duration::from_millis(t as u64))
-        }
+    if t == NGX_TIMER_INFINITE {
+        None
+    } else {
+        Some(Duration::from_millis(t as u64))
     }
 }
 
@@ -71,17 +69,13 @@ impl EventRef {
 
         rbtree().delete_node(self.timer_mut());
 
-        unsafe {
-            if cfg!(debug_assertions) {
-                let t = &mut self.as_raw_mut().timer;
-
-                t.left = null_mut();
-                t.right = null_mut();
-                t.parent = null_mut();
+        if cfg!(debug_assertions) {
+            unsafe {
+                write_bytes(&mut self.as_raw_mut().timer as *mut _, 0, 1);
             }
-
-            self.as_raw_mut().set_timer_set(0);
         }
+
+        self.set_timer_set(false);
     }
 
     pub fn add_timer(&mut self, d: Duration) {
