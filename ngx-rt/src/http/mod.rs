@@ -8,11 +8,14 @@ pub mod upstream;
 pub mod var;
 #[macro_use]
 mod log;
+mod module;
 
 pub use self::conf::{
-    Context, ContextRef, LocConf, MainConf, SrvConf, UnsafeLocConf, UnsafeMainConf, UnsafeSrvConf,
+    Context as ConfContext, ContextRef as ConfContextRef, LocConf, MainConf, SrvConf,
+    UnsafeLocConf, UnsafeMainConf, UnsafeSrvConf,
 };
 pub use self::header::{Header, Headers};
+pub use self::module::{conf_ctx, main_conf, module};
 pub use self::req::{
     Body, BodyRef, ConnType, EventHandlerFn, HandlerFn, HeadersIn, HeadersInRef, HeadersOut,
     HeadersOutRef, Method, ModuleContext, Request, RequestRef, UnsafeModuleContext,

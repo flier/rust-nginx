@@ -85,3 +85,43 @@ impl AsRef<LogRef> for CycleRef {
         self.log()
     }
 }
+
+pub trait UnsafeConfContext {
+    /// Get the configuration context from cycle.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences raw pointers.
+    /// The caller must ensure that `idx` is within the bounds of the `conf_ctx` array.
+    unsafe fn unchecked_conf_ctx<T>(&self, idx: usize) -> Option<NonNull<T>>;
+}
+
+impl UnsafeConfContext for CycleRef {
+    unsafe fn unchecked_conf_ctx<T>(&self, idx: usize) -> Option<NonNull<T>> {
+        NonNull::new(self.as_raw().conf_ctx.add(idx).read().cast())
+    }
+}
+
+pub trait ConfContext {
+    /// Get the reference of configuration context from cycle.
+    fn conf_ctx<T>(&self, m: &ModuleRef) -> Option<&T>;
+
+    /// Get the mutable reference of configuration context from cycle.
+    fn conf_ctx_mut<T>(&self, m: &ModuleRef) -> Option<&mut T>;
+}
+
+impl<C> ConfContext for C
+where
+    C: UnsafeConfContext,
+{
+    fn conf_ctx<T>(&self, m: &ModuleRef) -> Option<&T> {
+        unsafe { self.unchecked_conf_ctx(m.ctx_index()).map(|p| p.as_ref()) }
+    }
+
+    fn conf_ctx_mut<T>(&self, m: &ModuleRef) -> Option<&mut T> {
+        unsafe {
+            self.unchecked_conf_ctx(m.ctx_index())
+                .map(|mut p| p.as_mut())
+        }
+    }
+}

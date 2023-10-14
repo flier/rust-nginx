@@ -7,8 +7,9 @@ use foreign_types::ForeignTypeRef;
 
 use crate::{
     rt::{
-        core::{Code, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK},
-        ffi, http,
+        core::{Code, ConfContext, ConfRef, CycleRef, NGX_CONF_ERROR, NGX_CONF_OK},
+        ffi,
+        http::{self, ConfContextRef},
     },
     Merge,
 };
@@ -183,6 +184,10 @@ pub trait Module: crate::Module {
         conf: &mut Self::LocConf,
     ) -> Result<(), Self::Error> {
         conf.merge(prev).map_err(Self::Error::from)
+    }
+
+    fn conf_ctx(cycle: &CycleRef) -> Option<&ConfContextRef> {
+        cycle.conf_ctx(Self::module())
     }
 
     fn main_conf<T>(cf: &T) -> &Self::MainConf

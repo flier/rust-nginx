@@ -36,11 +36,11 @@ impl ConfRef {
         unsafe { PoolRef::from_ptr(self.as_raw().temp_pool) }
     }
 
-    pub fn as_http_context(&self) -> Option<&http::ContextRef> {
+    pub fn as_http_context(&self) -> Option<&http::ConfContextRef> {
         if self.module_type() == ModuleType::Http {
             unsafe {
                 NonNull::new(self.as_raw().ctx)
-                    .map(|p| http::ContextRef::from_ptr(p.cast().as_ptr()))
+                    .map(|p| http::ConfContextRef::from_ptr(p.cast().as_ptr()))
             }
         } else {
             None
