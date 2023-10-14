@@ -7,9 +7,11 @@ use syn::{
     spanned::Spanned,
     Expr, ExprCall, ExprLet,
     FnArg::{self, Receiver},
-    GenericArgument, Ident, ItemFn, LitBool, Pat, PathArguments, ReturnType, Signature, Stmt, Type,
-    TypePath, TypeReference,
+    GenericArgument, Ident, ItemFn, LitBool, Pat, Path, PathArguments, ReturnType, Signature, Stmt,
+    Type, TypePath, TypeReference,
 };
+
+use crate::util::find_crate_name;
 
 #[derive(Clone, Debug, StructMeta)]
 pub struct Args {
@@ -53,6 +55,7 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
     } = sig;
     let (_impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
+    let crate_name = find_crate_name();
     let name = args.name.as_ref().map_or(&ident, |arg| &arg.value);
     let (unsafe_args, unsafe_params) = inputs
         .iter()
@@ -64,7 +67,7 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
             if let Pat::Ident(pi) = pt.pat.as_ref() {
                 let arg_name = &pi.ident;
                 let ty = pt.ty.as_ref();
-                let (fn_arg, convert) = from_native_ty(arg_name, ty).unzip();
+                let (fn_arg, convert) = from_native_ty(&crate_name, arg_name, ty).unzip();
 
                 (
                     fn_arg.map_or_else(
@@ -117,19 +120,19 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
                     if let Some(log) = args.log() {
                         parse_quote_spanned! { output.span() =>
                             match #handler {
-                                Ok(ok) => { ::ngx_mod::rt::RawOk::<::ngx_mod::rt::ffi::ngx_int_t>::raw_ok(ok) }
+                                Ok(ok) => { #crate_name ::RawOk::<#crate_name ::ffi::ngx_int_t>::raw_ok(ok) }
                                 Err(err) => {
-                                    ::ngx_mod::rt::core::Logger::emerg (
+                                    #crate_name ::core::Logger::emerg (
                                         #log,
                                         format!("call `{}` failed, {}", stringify!(#ident), err) );
 
-                                    ::ngx_mod::rt::RawErr::<::ngx_mod::rt::ffi::ngx_int_t>::raw_err(())
+                                    #crate_name ::RawErr::<#crate_name ::ffi::ngx_int_t>::raw_err(())
                                 }
                             }
                         }
                     } else {
                         parse_quote_spanned! { output.span() =>
-                            ::ngx_mod::rt::RawResult::<::ngx_mod::rt::ffi::ngx_int_t>::raw_result(#handler)
+                            #crate_name ::RawResult::<#crate_name ::ffi::ngx_int_t>::raw_result(#handler)
                         }
                     }
                 } else {
@@ -138,7 +141,7 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
                     }
                 },
                 parse_quote_spanned! { output.span() =>
-                    -> ::ngx_mod::rt::ffi::ngx_int_t
+                    -> #crate_name ::ffi::ngx_int_t
                 },
             ),
             Style::Setter => (
@@ -146,21 +149,21 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
                     if let Some(log) = args.log() {
                         parse_quote_spanned! { output.span() =>
                             match #handler {
-                                Ok(ok) => { ::ngx_mod::rt::RawOk::<*mut ::std::ffi::c_char>::raw_ok(ok) }
+                                Ok(ok) => { #crate_name ::RawOk::<*mut ::std::ffi::c_char>::raw_ok(ok) }
                                 Err(err) => {
-                                    // let log = ::std::convert::AsRef::<::ngx_mod::rt::core::LogRef>::as_ref( #log );
+                                    // let log = ::std::convert::AsRef::<#crate_name ::core::LogRef>::as_ref( #log );
 
-                                    ::ngx_mod::rt::core::Logger::emerg (
+                                    #crate_name ::core::Logger::emerg (
                                         #log,
                                         format!("call `{}` failed, {}", stringify!(#ident), err) );
 
-                                    ::ngx_mod::rt::RawErr::<*mut ::std::ffi::c_char>::raw_err(())
+                                    #crate_name ::RawErr::<*mut ::std::ffi::c_char>::raw_err(())
                                 }
                             }
                         }
                     } else {
                         parse_quote_spanned! { output.span() =>
-                            ::ngx_mod::rt::RawResult::<*mut ::std::ffi::c_char>::raw_result(#handler)
+                            #crate_name ::RawResult::<*mut ::std::ffi::c_char>::raw_result(#handler)
                         }
                     }
                 } else {
@@ -206,12 +209,12 @@ pub fn expand(args: Args, f: ItemFn, style: Style) -> TokenStream {
     }
 }
 
-fn from_native_ty(arg_name: &Ident, ty: &Type) -> Option<(FnArg, ExprLet)> {
+fn from_native_ty(crate_name: &Path, arg_name: &Ident, ty: &Type) -> Option<(FnArg, ExprLet)> {
     match ty {
         Type::Reference(TypeReference {
             mutability, elem, ..
         }) => Some(if is_foreign_ty(elem.as_ref()) {
-            cast_from_ptr(arg_name, mutability.is_some(), elem)
+            cast_from_ptr(crate_name, arg_name, mutability.is_some(), elem)
         } else {
             cast_as_ref(arg_name, mutability.is_some(), elem)
         }),
@@ -234,7 +237,7 @@ fn from_native_ty(arg_name: &Ident, ty: &Type) -> Option<(FnArg, ExprLet)> {
                     })
                     .map(|(mutability, elem)| {
                         if is_foreign_ty(elem.as_ref()) {
-                            cast_from_raw(arg_name, mutability, elem)
+                            cast_from_raw(crate_name, arg_name, mutability, elem)
                         } else {
                             cast_as_option(arg_name, mutability, elem)
                         }
@@ -259,36 +262,46 @@ fn is_foreign_ty(ty: &Type) -> bool {
             && path.segments.last().map_or(false, |seg| seg.ident.to_string().ends_with("Ref")))
 }
 
-fn cast_from_ptr(arg_name: &Ident, mutability: bool, elem: &Type) -> (FnArg, ExprLet) {
+fn cast_from_ptr(
+    crate_name: &Path,
+    arg_name: &Ident,
+    mutability: bool,
+    elem: &Type,
+) -> (FnArg, ExprLet) {
     let raw_ty = parse_quote_spanned! { elem.span() =>
-        #arg_name : * mut <#elem as ::ngx_mod::rt::foreign_types::ForeignTypeRef>::CType
+        #arg_name : * mut <#elem as #crate_name ::foreign_types::ForeignTypeRef>::CType
     };
 
     let convert = if mutability {
         parse_quote_spanned! { elem.span() =>
-            let #arg_name = <#elem as ::ngx_mod::rt::foreign_types::ForeignTypeRef>::from_ptr_mut (#arg_name)
+            let #arg_name = <#elem as #crate_name ::foreign_types::ForeignTypeRef>::from_ptr_mut (#arg_name)
         }
     } else {
         parse_quote_spanned! { elem.span() =>
-            let #arg_name = <#elem as ::ngx_mod::rt::foreign_types::ForeignTypeRef>::from_ptr (#arg_name)
+            let #arg_name = <#elem as #crate_name ::foreign_types::ForeignTypeRef>::from_ptr (#arg_name)
         }
     };
 
     (raw_ty, convert)
 }
 
-fn cast_from_raw(arg_name: &Ident, mutability: bool, elem: &Type) -> (FnArg, ExprLet) {
+fn cast_from_raw(
+    crate_name: &Path,
+    arg_name: &Ident,
+    mutability: bool,
+    elem: &Type,
+) -> (FnArg, ExprLet) {
     let raw_ty = parse_quote_spanned! { elem.span() =>
-        #arg_name : * mut <#elem as ::ngx_mod::rt::foreign_types::ForeignTypeRef>::CType
+        #arg_name : * mut <#elem as #crate_name ::foreign_types::ForeignTypeRef>::CType
     };
 
     let convert = if mutability {
         parse_quote_spanned! { elem.span() =>
-            let #arg_name = <#elem as ::ngx_mod::rt::FromRawMut>::from_raw_mut (#arg_name)
+            let #arg_name = <#elem as #crate_name ::FromRawMut>::from_raw_mut (#arg_name)
         }
     } else {
         parse_quote_spanned! { elem.span() =>
-            let #arg_name = <#elem as ::ngx_mod::rt::FromRawRef>::from_raw (#arg_name)
+            let #arg_name = <#elem as #crate_name ::FromRawRef>::from_raw (#arg_name)
         }
     };
 

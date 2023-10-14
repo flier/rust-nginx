@@ -264,7 +264,7 @@ macro_rules! property {
             $(#[$attr])*
             #[inline(always)]
             pub fn [< set_ $name >](&mut self, v: $ty) -> &mut Self {
-                unsafe { $crate::AsRawMut::as_raw_mut(self).[< set_ $name >](v) };
+                unsafe { $crate::AsRawMut::as_raw_mut(self).$name = v; };
                 self
             }
         }

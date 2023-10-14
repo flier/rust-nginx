@@ -7,6 +7,7 @@ pub use ::ngx_rt_derive::{native_callback, native_handler, native_setter};
 #[macro_use]
 mod macros;
 
+#[macro_use]
 pub mod core;
 mod error;
 pub mod event;

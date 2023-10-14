@@ -1,7 +1,14 @@
+use std::os::fd::{AsRawFd, RawFd};
+use std::ptr::NonNull;
+
 use foreign_types::foreign_type;
 use ngx_rt_derive::native_callback;
 
-use crate::{callback, core::LogRef, ffi, flag, never_drop, property};
+use crate::{
+    callback,
+    core::{rbtree, ConnRef, LogRef},
+    ffi, flag, never_drop, property, AsRawRef,
+};
 
 foreign_type! {
     pub unsafe type Event: Send {
@@ -36,7 +43,7 @@ impl EventRef {
         error;
 
         timedout;
-        timer_set;
+        timer_set { get; set; };
 
         delayed;
 
@@ -53,7 +60,7 @@ impl EventRef {
         channel;
         resolver;
 
-        cancelable;
+        cancelable { get; set; };
     }
 
     callback! {
@@ -63,8 +70,25 @@ impl EventRef {
     property! {
         index: usize;
         log: &LogRef;
+        &mut timer: &mut rbtree::NodeRef;
+    }
+
+    pub fn data<T>(&self) -> Option<&T> {
+        unsafe { NonNull::new(self.as_raw().data).map(|p| p.cast::<T>().as_ref()) }
     }
 }
 
 #[native_callback]
 pub type HandlerFn = fn(evt: &EventRef);
+
+impl AsRef<LogRef> for EventRef {
+    fn as_ref(&self) -> &LogRef {
+        self.log()
+    }
+}
+
+impl AsRawFd for EventRef {
+    fn as_raw_fd(&self) -> RawFd {
+        self.data::<ConnRef>().map_or(-1, |c| c.as_raw_fd())
+    }
+}

@@ -4,6 +4,7 @@ use syn::parse_macro_input;
 
 mod callback;
 mod handler;
+mod util;
 
 #[proc_macro_error]
 #[proc_macro_attribute]

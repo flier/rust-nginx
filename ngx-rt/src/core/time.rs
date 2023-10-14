@@ -1,4 +1,6 @@
+use std::ptr::read_volatile;
 use std::sync::Once;
+use std::time::Duration;
 
 use crate::ffi;
 
@@ -14,4 +16,8 @@ pub fn update() {
     unsafe {
         ffi::ngx_time_update();
     }
+}
+
+pub fn current() -> Duration {
+    Duration::from_millis(unsafe { read_volatile(&ffi::ngx_current_msec as *const _) as _ })
 }

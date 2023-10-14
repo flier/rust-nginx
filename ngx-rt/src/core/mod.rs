@@ -12,6 +12,7 @@ pub mod list;
 mod log;
 mod module;
 mod pool;
+pub mod rbtree;
 mod shm;
 mod status;
 mod str;
