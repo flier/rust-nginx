@@ -31,3 +31,9 @@ impl Logger for ConfRef {
         self.log_error(level, None, msg)
     }
 }
+
+impl<'a> Logger for &'a ConfRef {
+    fn core<S: Into<Vec<u8>>>(&self, level: LogLevel, msg: S) {
+        self.log_error(level, None, msg)
+    }
+}

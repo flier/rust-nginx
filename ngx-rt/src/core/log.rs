@@ -216,7 +216,7 @@ macro_rules! define_logger {
                     macro_rules! $name {
                         ($d log:expr, $d( $d args:tt )*) => {
                             $d crate::core::Logger::core(
-                                $d log,
+                                & $d log,
                                 $crate::core::LogLevel::$level,
                                 format!($d ($d args)*)
                             )
