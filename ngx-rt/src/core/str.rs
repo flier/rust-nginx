@@ -1,14 +1,14 @@
 use std::borrow::Cow;
 use std::ffi::c_uchar;
+use std::fmt;
 use std::ops::{Deref, DerefMut};
-use std::ptr::{null_mut, NonNull};
+use std::ptr::{self, null_mut, NonNull};
 use std::slice;
 use std::str::{self, Utf8Error};
-use std::{fmt, ptr};
 
-use crate::ffi::ngx_str_t;
+use foreign_types::ForeignTypeRef;
 
-use super::PoolRef;
+use crate::{core::PoolRef, ffi::ngx_str_t};
 
 #[repr(transparent)]
 #[derive(Clone, Copy, Debug)]
@@ -149,6 +149,18 @@ impl From<&str> for Str {
     }
 }
 
+impl AsRef<ngx_str_t> for Str {
+    fn as_ref(&self) -> &ngx_str_t {
+        &self.0
+    }
+}
+
+impl AsMut<ngx_str_t> for Str {
+    fn as_mut(&mut self) -> &mut ngx_str_t {
+        &mut self.0
+    }
+}
+
 impl Deref for Str {
     type Target = [u8];
 
@@ -161,6 +173,10 @@ impl DerefMut for Str {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.as_bytes_mut()
     }
+}
+
+unsafe impl ForeignTypeRef for Str {
+    type CType = ngx_str_t;
 }
 
 #[macro_export]

@@ -4,7 +4,9 @@ use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{
     core::{ConfRef, PoolRef, Str},
-    ffi, never_drop, AsResult, Error,
+    ffi,
+    http::RequestRef,
+    never_drop, AsResult, Error,
 };
 
 foreign_type! {
@@ -23,34 +25,45 @@ impl ComplexValue {
 }
 
 impl ComplexValueRef {
-    pub fn compiler<'a>(&'a mut self, cf: &'a ConfRef, value: &'a str) -> Compiler<'a> {
-        Compiler::new(cf, value, self)
+    pub fn evaluate(&self, req: &RequestRef) -> Result<Str, Error> {
+        let res = Str::default();
+
+        unsafe { ffi::ngx_http_complex_value(req.as_ptr(), self.as_ptr(), res.as_ptr()) }
+            .ok()
+            .map(|_| res)
+            .map_err(|_| Error::OutOfMemory)
+    }
+
+    pub fn evaluate_size(&self, req: &RequestRef, default: usize) -> usize {
+        unsafe { ffi::ngx_http_complex_value_size(req.as_ptr(), self.as_ptr(), default) }
     }
 }
 
 pub struct Compiler<'a> {
+    /// Configuration pointer
     pub cf: &'a ConfRef,
-    pub value: &'a str,
-    pub complex_value: &'a mut ComplexValueRef,
-    pub zeroed: bool,
+    /// Flag that enables zero-terminating value
+    pub zero: bool,
+    /// Prefixes the result with the configuration prefix
+    /// (the directory where nginx is currently looking for configuration)
     pub conf_prefix: bool,
+    /// Prefixes the result with the root prefix
+    /// (the normal nginx installation prefix)
     pub root_prefix: bool,
 }
 
 impl<'a> Compiler<'a> {
-    pub fn new(cf: &'a ConfRef, value: &'a str, complex_value: &'a mut ComplexValueRef) -> Self {
+    pub fn new(cf: &'a ConfRef) -> Self {
         Self {
             cf,
-            value,
-            complex_value,
-            zeroed: false,
+            zero: false,
             conf_prefix: false,
             root_prefix: false,
         }
     }
 
-    pub fn with_zeored(&mut self) -> &mut Self {
-        self.zeroed = true;
+    pub fn with_zero(&mut self) -> &mut Self {
+        self.zero = true;
         self
     }
 
@@ -64,17 +77,22 @@ impl<'a> Compiler<'a> {
         self
     }
 
-    pub fn compile(self) -> Result<&'a mut ComplexValueRef, Error> {
+    pub fn compile<S: AsRef<str>>(
+        &self,
+        s: S,
+        value: &'a mut ComplexValueRef,
+    ) -> Result<&'a mut ComplexValueRef, Error> {
         unsafe {
-            let value = Str::from(self.value);
+            let s = s.as_ref();
+            let s = Str::from(s);
             let mut ccv = ffi::ngx_http_compile_complex_value_t {
                 cf: self.cf.as_ptr(),
-                value: &value as *const _ as *mut _,
-                complex_value: self.complex_value.as_ptr(),
+                value: &s as *const _ as *mut _,
+                complex_value: value.as_ptr(),
                 ..mem::zeroed()
             };
 
-            if self.zeroed {
+            if self.zero {
                 ccv.set_zero(1);
             }
             if self.conf_prefix {
@@ -86,7 +104,7 @@ impl<'a> Compiler<'a> {
 
             ffi::ngx_http_compile_complex_value(&mut ccv)
                 .ok_or_else(Error::InternalError)
-                .map(|_| self.complex_value)
+                .map(|_| value)
         }
     }
 }
