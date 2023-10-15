@@ -1,6 +1,7 @@
 mod array;
 mod buf;
 mod cmd;
+#[macro_use]
 pub mod conf;
 mod conn;
 mod cycle;

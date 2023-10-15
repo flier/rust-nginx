@@ -28,9 +28,7 @@ impl Args {
     pub fn embedded(&self) -> bool {
         self.embedded
             .as_ref()
-            .map_or(!cfg!(debug_assertions), |arg| {
-                arg.args.as_ref().map_or(true, |b| b.value)
-            })
+            .map_or(true, |arg| arg.args.as_ref().map_or(true, |b| b.value))
     }
 }
 

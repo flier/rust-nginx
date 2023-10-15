@@ -21,6 +21,7 @@ pub struct FieldArgs {
     #[merge(strategy = merge_flag)]
     pub flag: Flag,
     pub set: Option<NameValue<Path>>,
+    pub values: Option<NameValue<Path>>,
 }
 
 fn merge_flag(left: &mut Flag, right: Flag) {

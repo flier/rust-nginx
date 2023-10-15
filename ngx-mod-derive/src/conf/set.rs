@@ -20,6 +20,7 @@ pub enum Set {
     BitMask,
     Path,
     Access,
+    ComplexValue,
     Setter(Path),
 }
 
@@ -40,10 +41,11 @@ impl FromStr for Set {
             "msec" => MSec,
             "sec" => Seconds,
             "bufs" => Buffers,
-            "enum" => Enum,
+            "enum_values" => Enum,
             "bitmask" => BitMask,
             "path" => Path,
             "access" => Access,
+            "complex_value" => ComplexValue,
             _ => return Err(()),
         })
     }
@@ -68,6 +70,7 @@ impl ToTokens for Set {
             BitMask => quote! { ::ngx_mod::rt::ffi::ngx_conf_set_bitmask_slot },
             Path => quote! { ::ngx_mod::rt::ffi::ngx_conf_set_path_slot },
             Access => quote! { ::ngx_mod::rt::ffi::ngx_conf_set_access_slot },
+            ComplexValue => quote! { ::ngx_mod::rt::ffi::ngx_http_set_complex_value_slot },
             Setter(path) => quote! { #path },
         })
     }

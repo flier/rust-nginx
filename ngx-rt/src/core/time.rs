@@ -4,6 +4,10 @@ use std::time::Duration;
 
 use crate::ffi;
 
+use super::rbtree;
+
+pub type MSec = rbtree::Key;
+
 static INIT: Once = Once::new();
 
 pub fn init() {

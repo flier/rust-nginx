@@ -30,6 +30,17 @@ impl<'a> ToTokens for Directive<'a> {
             .map(|ty| quote! { #ty })
             .chain(self.args.args().into_iter().map(|args| quote! { #args }));
         let set = self.set();
+        let post = if set == Set::Enum {
+            if let Some(p) = self.args.values.as_ref().map(|arg| &arg.value) {
+                quote! { ::ngx_mod::rt::core::conf::enum_values( & #p ).as_ptr().cast() }
+            } else {
+                abort! {
+                    self.name.span(), "missing enum values"
+                }
+            }
+        } else {
+            quote! { ::std::ptr::null_mut() }
+        };
 
         tokens.append_all(quote! {
             ::ngx_mod::rt::ffi::ngx_command_t {
@@ -38,7 +49,7 @@ impl<'a> ToTokens for Directive<'a> {
                 set: Some( #set ),
                 conf: #conf_off as usize,
                 offset: ::ngx_mod::memoffset::offset_of!( #struct_name , #field_name ) as usize,
-                post: ::std::ptr::null_mut(),
+                post: #post,
             }
         })
     }
@@ -68,6 +79,9 @@ impl<'a> Directive<'a> {
                         match ident.to_string().as_str() {
                             "bool" => Set::Flag,
                             "isize" => Set::Number,
+                            "usize" => Set::Size,
+                            "MSec" => Set::MSec,
+                            "Str" => Set::Str,
                             _ => abort! { self.ty, "unexpected field type: {:?}", path },
                         }
                     } else {

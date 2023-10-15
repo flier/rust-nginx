@@ -9,11 +9,16 @@ use super::{Directive, FieldArgs, StructArgs};
 
 pub fn expand(input: DeriveInput) -> TokenStream {
     let DeriveInput {
-        attrs, ident, data, ..
+        attrs,
+        ident,
+        data,
+        generics,
+        ..
     } = input;
     let (args, _) = extract::args::<StructArgs, _>(attrs, "conf");
     let struct_args = args.unwrap_or_default();
     let struct_name: &Ident = &ident;
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let directives = if let Data::Struct(DataStruct {
         fields: Fields::Named(FieldsNamed { named, .. }),
@@ -47,7 +52,7 @@ pub fn expand(input: DeriveInput) -> TokenStream {
     let n = directives.len();
 
     quote! {
-        impl ::ngx_mod::UnsafeConf for #struct_name {
+        impl #impl_generics ::ngx_mod::UnsafeConf for #struct_name #ty_generics #where_clause {
             type T = [::ngx_mod::rt::ffi::ngx_command_t; #n];
 
             const COMMANDS: [::ngx_mod::rt::ffi::ngx_command_t; #n] = [
