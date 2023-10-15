@@ -2,6 +2,8 @@ use cfg_if::cfg_if;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
+use crate::util::find_ngx_rt;
+
 use super::Type;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -64,21 +66,23 @@ impl ToTokens for Offset {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         use Offset::*;
 
+        let ngx_rt = find_ngx_rt();
+
         tokens.append_all(match self {
             #[cfg(feature = "http")]
-            HttpMain => quote! { ::ngx_mod::rt::ffi::NGX_RS_HTTP_MAIN_CONF_OFFSET },
+            HttpMain => quote! { #ngx_rt ::ffi::NGX_RS_HTTP_MAIN_CONF_OFFSET },
             #[cfg(feature = "http")]
-            HttpServer => quote! { ::ngx_mod::rt::ffi::NGX_RS_HTTP_SRV_CONF_OFFSET },
+            HttpServer => quote! { #ngx_rt ::ffi::NGX_RS_HTTP_SRV_CONF_OFFSET },
             #[cfg(feature = "http")]
-            HttpLocation => quote! { ::ngx_mod::rt::ffi::NGX_RS_HTTP_LOC_CONF_OFFSET },
+            HttpLocation => quote! { #ngx_rt ::ffi::NGX_RS_HTTP_LOC_CONF_OFFSET },
             #[cfg(feature = "stream")]
-            StreamMain => quote! { ::ngx_mod::rt::ffi::NGX_RS_STREAM_MAIN_CONF_OFFSET },
+            StreamMain => quote! { #ngx_rt ::ffi::NGX_RS_STREAM_MAIN_CONF_OFFSET },
             #[cfg(feature = "stream")]
-            StreamServer => quote! { ::ngx_mod::rt::ffi::NGX_RS_STREAM_SRV_CONF_OFFSET },
+            StreamServer => quote! { #ngx_rt ::ffi::NGX_RS_STREAM_SRV_CONF_OFFSET },
             #[cfg(feature = "mail")]
-            MailMain => quote! { ::ngx_mod::rt::ffi::NGX_RS_MAIL_MAIN_CONF_OFFSET },
+            MailMain => quote! { #ngx_rt ::ffi::NGX_RS_MAIL_MAIN_CONF_OFFSET },
             #[cfg(feature = "mail")]
-            MailServer => quote! { ::ngx_mod::rt::ffi::NGX_RS_MAIL_SRV_CONF_OFFSET },
+            MailServer => quote! { #ngx_rt ::ffi::NGX_RS_MAIL_SRV_CONF_OFFSET },
         })
     }
 }

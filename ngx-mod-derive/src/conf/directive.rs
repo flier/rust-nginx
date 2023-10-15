@@ -4,6 +4,8 @@ use proc_macro_error::abort;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{Ident, Type, TypePath};
 
+use crate::util::{find_ngx_mod, find_ngx_rt};
+
 use super::{FieldArgs, Offset, Set, StructArgs};
 
 pub struct Directive<'a> {
@@ -16,6 +18,8 @@ pub struct Directive<'a> {
 
 impl<'a> ToTokens for Directive<'a> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
+        let ngx_rt = find_ngx_rt();
+        let ngx_mod = find_ngx_mod();
         let struct_name = self.struct_name;
         let field_name = &self.name;
         let name = self.name();
@@ -32,7 +36,7 @@ impl<'a> ToTokens for Directive<'a> {
         let set = self.set();
         let post = if set == Set::Enum {
             if let Some(p) = self.args.values.as_ref().map(|arg| &arg.value) {
-                quote! { ::ngx_mod::rt::core::conf::enum_values( & #p ).as_ptr().cast() }
+                quote! { #ngx_rt ::core::conf::enum_values( & #p ).as_ptr().cast() }
             } else {
                 abort! {
                     self.name.span(), "missing enum values"
@@ -43,12 +47,12 @@ impl<'a> ToTokens for Directive<'a> {
         };
 
         tokens.append_all(quote! {
-            ::ngx_mod::rt::ffi::ngx_command_t {
-                name: ::ngx_mod::rt::ngx_str!( #name ),
+            #ngx_rt ::ffi::ngx_command_t {
+                name: #ngx_rt ::ngx_str!( #name ),
                 type_: ( #( #args )|* ) as usize,
                 set: Some( #set ),
                 conf: #conf_off as usize,
-                offset: ::ngx_mod::memoffset::offset_of!( #struct_name , #field_name ) as usize,
+                offset: #ngx_mod ::memoffset::offset_of!( #struct_name , #field_name ) as usize,
                 post: #post,
             }
         })

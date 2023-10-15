@@ -8,7 +8,7 @@ use syn::{
     Type, TypeBareFn, TypePath, TypeReference, TypeTuple,
 };
 
-use crate::util::find_crate_name;
+use crate::util::find_ngx_rt;
 
 #[derive(Clone, Debug, StructMeta)]
 pub struct Args {
@@ -85,12 +85,12 @@ pub fn expand(args: Args, item: ItemType) -> TokenStream {
         (Expr::Call(call), ReturnType::Default)
     } else {
         let result = if let Some((ok, err)) = extract_result_types(output) {
-            let crate_name = find_crate_name();
+            let ngx_rt = find_ngx_rt();
 
             let mut result = if let Some(log) = args.log.as_ref().map(|arg| &arg.value) {
                 parse_quote_spanned! { output.span() =>
                     crate::AsResult::ok(#call).map_err(|err| {
-                        #crate_name ::core::Logger::emerg (
+                        #ngx_rt ::core::Logger::emerg (
                             #log,
                             format!(concat!("call `{}` failed, {}", stringify!(#name), err)));
 

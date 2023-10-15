@@ -5,6 +5,7 @@ use syn::parse_macro_input;
 mod conf;
 mod extract;
 mod module;
+mod util;
 
 #[proc_macro_error]
 #[proc_macro_derive(Module, attributes(module))]

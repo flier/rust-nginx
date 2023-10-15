@@ -3,7 +3,10 @@ use proc_macro_error::abort;
 use quote::quote;
 use syn::{Data, DataStruct, DeriveInput, Fields, FieldsNamed, Ident};
 
-use crate::extract;
+use crate::{
+    extract,
+    util::{find_ngx_mod, find_ngx_rt},
+};
 
 use super::{Directive, FieldArgs, StructArgs};
 
@@ -50,12 +53,14 @@ pub fn expand(input: DeriveInput) -> TokenStream {
     };
 
     let n = directives.len();
+    let ngx_rt = find_ngx_rt();
+    let ngx_mod = find_ngx_mod();
 
     quote! {
-        impl #impl_generics ::ngx_mod::UnsafeConf for #struct_name #ty_generics #where_clause {
-            type T = [::ngx_mod::rt::ffi::ngx_command_t; #n];
+        impl #impl_generics #ngx_mod ::UnsafeConf for #struct_name #ty_generics #where_clause {
+            type T = [#ngx_rt ::ffi::ngx_command_t; #n];
 
-            const COMMANDS: [::ngx_mod::rt::ffi::ngx_command_t; #n] = [
+            const COMMANDS: [#ngx_rt ::ffi::ngx_command_t; #n] = [
                 #( #directives ),*
             ];
         }

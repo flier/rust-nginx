@@ -20,7 +20,7 @@ pub fn find_ngx_rt() -> Path {
         Err(_) => match crate_name("ngx-mod") {
             Ok(FoundCrate::Itself) => {
                 parse_quote! {
-                    crate :: rt
+                    ::ngx_mod::rt
                 }
             }
             Ok(FoundCrate::Name(name)) => {
@@ -37,5 +37,25 @@ pub fn find_ngx_rt() -> Path {
                 )
             }
         },
+    }
+}
+
+pub fn find_ngx_mod() -> Path {
+    match crate_name("ngx-mod") {
+        Ok(FoundCrate::Itself) => {
+            parse_quote! {
+                ::ngx_mod
+            }
+        }
+        Ok(FoundCrate::Name(name)) => {
+            let ident = Ident::new(&name, Span::call_site());
+
+            parse_quote! {
+                #ident
+            }
+        }
+        Err(err) => {
+            abort!("`ngx-mod` should present in `Cargo.toml`, {}", err)
+        }
     }
 }
