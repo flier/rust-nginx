@@ -21,7 +21,7 @@ pub fn key_lc<T: AsRef<[u8]>>(data: T) -> usize {
 /// # Safety
 ///
 /// The caller has provided a valid `dst` that points to range of bytes of at least `src.len()` bytes.
-pub unsafe fn key_strlow<D: AsMut<[u8]>, S: AsRef<[u8]>>(mut dst: D, src: S) -> usize {
+pub unsafe fn unchecked_strlow<D: AsMut<[u8]>, S: AsRef<[u8]>>(mut dst: D, src: S) -> usize {
     let dst = dst.as_mut();
     let src = src.as_ref();
 
@@ -30,7 +30,7 @@ pub unsafe fn key_strlow<D: AsMut<[u8]>, S: AsRef<[u8]>>(mut dst: D, src: S) -> 
     ffi::ngx_hash_strlow(dst.as_mut_ptr(), src.as_ptr() as *mut _, src.len())
 }
 
-pub fn key_strlow_in_place<T: AsMut<[u8]>>(mut data: T) -> usize {
+pub fn strlow_in_place<T: AsMut<[u8]>>(mut data: T) -> usize {
     let data = data.as_mut();
 
     unsafe { ffi::ngx_hash_strlow(data.as_mut_ptr(), data.as_ptr() as *mut _, data.len()) }

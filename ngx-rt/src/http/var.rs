@@ -8,7 +8,7 @@ use bitflags::bitflags;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
 use crate::{
-    core::{Code, ConfRef, Str},
+    core::{hash, Code, ConfRef, Str},
     ffi, native_callback, never_drop, property, AsRawMut, AsRawRef, Error,
 };
 
@@ -150,28 +150,46 @@ impl ConfRef {
 }
 
 impl RequestRef {
+    /// Get a cached value of variable
     pub fn get_indexed_variable(&self, idx: usize) -> Option<&mut ValueRef> {
         unsafe {
-            NonNull::new(ffi::ngx_http_get_indexed_variable(self.as_ptr(), idx))
-                .map(|p| ValueRef::from_ptr_mut(p.as_ptr()))
+            NonNull::new(ffi::ngx_http_get_indexed_variable(self.as_ptr(), idx)).and_then(|p| {
+                let v = ValueRef::from_ptr_mut(p.as_ptr());
+
+                if v.not_found() {
+                    None
+                } else {
+                    Some(v)
+                }
+            })
         }
     }
 
+    /// Get value of variable and flushes the cache for non-cacheable variables.
     pub fn get_flushed_variable(&self, idx: usize) -> Option<&mut ValueRef> {
         unsafe {
-            NonNull::new(ffi::ngx_http_get_flushed_variable(self.as_ptr(), idx))
-                .map(|p| ValueRef::from_ptr_mut(p.as_ptr()))
+            NonNull::new(ffi::ngx_http_get_flushed_variable(self.as_ptr(), idx)).and_then(|p| {
+                let v = ValueRef::from_ptr_mut(p.as_ptr());
+
+                if v.not_found() {
+                    None
+                } else {
+                    Some(v)
+                }
+            })
         }
     }
 
-    pub fn get_variable<S: AsRef<str>>(&self, name: S, key: usize) -> Option<&mut ValueRef> {
+    /// Get variable by name and hash key
+    pub fn get_variable<S: AsRef<str>>(&self, name: S) -> Option<&mut ValueRef> {
         unsafe {
-            let name = name.as_ref();
-            let name = Str::from(name);
+            let mut name = name.as_ref().to_string();
+            let s = Str::from(name.as_str());
+            let key = hash::strlow_in_place(name.as_bytes_mut());
 
             NonNull::new(ffi::ngx_http_get_variable(
                 self.as_ptr(),
-                &name as *const _ as *mut _,
+                &s as *const _ as *mut _,
                 key,
             ))
             .map(|p| ValueRef::from_ptr_mut(p.as_ptr()))
@@ -259,13 +277,21 @@ pub fn true_value() -> &'static ValueRef {
 
 impl ValueRef {
     property! {
+        /// The length of the value
         len(): u32 { get; set; }
     }
 
     flag! {
+        /// The value is valid
         valid { get; set; };
+
+        /// Do not cache result
         no_cacheable { get; set; };
+
+        /// The variable was not found
         not_found { get; set; };
+
+        /// Used internally by the logging module to mark values that require escaping on output.
         escape { get; set; };
     }
 
