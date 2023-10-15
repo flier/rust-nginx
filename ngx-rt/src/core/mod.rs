@@ -11,6 +11,7 @@ pub mod list;
 #[macro_use]
 mod log;
 mod module;
+mod parse;
 mod pool;
 pub mod rbtree;
 mod shm;
@@ -34,6 +35,7 @@ pub use self::file::{
 pub use self::list::{List, ListRef};
 pub use self::log::{Level as LogLevel, Log, LogRef, Logger};
 pub use self::module::{Module, ModuleRef, Type as ModuleType};
+pub use self::parse::{parse_offset, parse_size, parse_time};
 pub use self::pool::{Pool, PoolRef};
 pub use self::shm::{Shm, ShmRef, Zone, ZoneRef};
 pub use self::status::Code;
