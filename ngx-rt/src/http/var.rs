@@ -109,7 +109,7 @@ impl ConfRef {
             let var = unsafe { VarRef::from_ptr(&var as *const _ as *mut _) };
 
             let v = self
-                .add_variable(var.name().unwrap().to_str().unwrap(), var.flags())
+                .add_variable(var.name().to_str().unwrap(), var.flags())
                 .ok_or(Error::OutOfMemory)?;
 
             v.get_handler = var.get_handler;
@@ -213,7 +213,7 @@ impl DerefMut for VarRef {
 
 impl VarRef {
     property! {
-        name: Str;
+        &name: &Str;
         /// passed to variable handlers
         data: usize;
         /// assigned variable index used to reference the variable

@@ -70,13 +70,13 @@ impl CycleRef {
     }
 
     str! {
-        conf_file;
-        conf_param;
-        conf_prefix;
-        prefix;
-        error_log;
-        lock_file;
-        hostname;
+        &conf_file;
+        &conf_param;
+        &conf_prefix;
+        &prefix;
+        &error_log;
+        &lock_file;
+        &hostname;
     }
 }
 

@@ -18,11 +18,13 @@ impl HeadersOutRef {
         trailers: Headers;
 
         status: usize;
-        status_line: Str;
+        &status_line: &Str;
+
+        override_charset as &Str;
 
         content_type_len: usize;
-        content_type: Str;
-        charset: Str;
+        &content_type: &Str;
+        &charset: &Str;
 
         content_type_hash: usize;
         content_length_n: i64;
@@ -46,10 +48,6 @@ impl HeadersOutRef {
         refresh;
         server;
         www_authenticate;
-    }
-
-    pub fn override_charset(&self) -> Option<Str> {
-        unsafe { Str::from_ptr(self.as_raw().override_charset) }
     }
 
     pub fn content_type_lowcase(&self) -> Option<&CStr> {
