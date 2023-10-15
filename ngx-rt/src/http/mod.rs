@@ -9,6 +9,7 @@ pub mod var;
 #[macro_use]
 mod log;
 mod module;
+pub mod script;
 
 pub use self::conf::{
     Context as ConfContext, ContextRef as ConfContextRef, LocConf, MainConf, SrvConf,

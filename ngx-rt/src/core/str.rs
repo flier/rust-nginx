@@ -53,6 +53,20 @@ impl Str {
         })
     }
 
+    /// Create an [`Str`] from a memory pointer and size.
+    ///
+    /// # Safety
+    ///
+    /// The caller has provided a valid `data` pointer that points
+    /// to range of bytes of at least `len` bytes, whose content remains valid and doesn't
+    /// change for the lifetime of the returned `Str`.
+    pub fn unchecked_new(data: NonNull<c_uchar>, len: usize) -> Self {
+        Str(ngx_str_t {
+            len,
+            data: data.as_ptr(),
+        })
+    }
+
     pub fn as_bytes(&self) -> &[u8] {
         unsafe { slice::from_raw_parts(self.0.data, self.0.len) }
     }

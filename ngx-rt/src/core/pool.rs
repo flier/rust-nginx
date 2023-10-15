@@ -104,7 +104,7 @@ impl PoolRef {
     /// Allocates zeroed memory for a type from the pool.
     ///
     /// Returns a typed pointer to the allocated memory.
-    pub fn calloc<T: Copy>(&self) -> Option<&mut MaybeUninit<T>> {
+    pub fn calloc<T: Copy>(&self) -> Option<&mut T> {
         unsafe { NonNull::new(self.pcalloc(mem::size_of::<T>())).map(|p| p.cast().as_mut()) }
     }
 

@@ -105,25 +105,25 @@ pub trait AsResult {
     where
         Self: Sized,
     {
-        self.ok_or_else(|| err)
+        self.ok_or_else(|_| err)
     }
 
     fn ok_or_else<E, F>(self, err: F) -> Result<Self, E>
     where
         Self: Sized,
-        F: FnOnce() -> E;
+        F: FnOnce(Self) -> E;
 }
 
 impl AsResult for ffi::ngx_int_t {
     fn ok_or_else<E, F>(self, err: F) -> Result<Self, E>
     where
         Self: Sized,
-        F: FnOnce() -> E,
+        F: FnOnce(Self) -> E,
     {
         if self == ffi::NGX_OK as isize {
             Ok(self)
         } else {
-            Err(err())
+            Err(err(self))
         }
     }
 }
@@ -132,12 +132,12 @@ impl AsResult for *mut c_char {
     fn ok_or_else<E, F>(self, err: F) -> Result<Self, E>
     where
         Self: Sized,
-        F: FnOnce() -> E,
+        F: FnOnce(Self) -> E,
     {
         if self != usize::MAX as Self {
             Ok(self)
         } else {
-            Err(err())
+            Err(err(self))
         }
     }
 }
