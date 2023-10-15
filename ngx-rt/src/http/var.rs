@@ -214,7 +214,9 @@ impl DerefMut for VarRef {
 impl VarRef {
     property! {
         name: Str;
+        /// passed to variable handlers
         data: usize;
+        /// assigned variable index used to reference the variable
         index: usize;
     }
 
@@ -228,22 +230,27 @@ impl VarRef {
     }
 }
 
-bitflags! {
-    pub struct Flags: u32 {
-        const CHANGEABLE = ffi::NGX_HTTP_VAR_CHANGEABLE;
-        const NO_CACHEABLE = ffi::NGX_HTTP_VAR_NOCACHEABLE;
-        const INDEXED = ffi::NGX_HTTP_VAR_INDEXED;
-        const NO_HASH = ffi::NGX_HTTP_VAR_NOHASH;
-        const WEAK = ffi::NGX_HTTP_VAR_WEAK;
-        const PREFIX = ffi::NGX_HTTP_VAR_PREFIX;
-    }
-}
-
 #[native_callback]
 pub type SetVariableFn = fn(req: &RequestRef, val: &ValueRef, data: usize);
 
 #[native_callback]
 pub type GetVariableFn = fn(req: &RequestRef, val: &ValueRef, data: usize) -> Result<(), Code>;
+
+bitflags! {
+    pub struct Flags: u32 {
+        /// Enables redefinition of the variable
+        const CHANGEABLE = ffi::NGX_HTTP_VAR_CHANGEABLE;
+        /// Disables caching
+        const NO_CACHEABLE = ffi::NGX_HTTP_VAR_NOCACHEABLE;
+        /// Indicates that this variable can be accessible by name
+        const INDEXED = ffi::NGX_HTTP_VAR_INDEXED;
+        /// Indicates that this variable is only accessible by index, not by name
+        const NO_HASH = ffi::NGX_HTTP_VAR_NOHASH;
+        const WEAK = ffi::NGX_HTTP_VAR_WEAK;
+        /// The name of the variable is a prefix
+        const PREFIX = ffi::NGX_HTTP_VAR_PREFIX;
+    }
+}
 
 foreign_type! {
     pub unsafe type Value: Send {
