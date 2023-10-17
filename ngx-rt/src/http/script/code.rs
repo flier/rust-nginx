@@ -17,8 +17,8 @@ use super::{ComplexValueRef, EngineRef};
 #[native_callback]
 pub type CodeFn = fn(e: &EngineRef);
 
-#[native_callback]
-pub type LenCodeFn = fn(e: &EngineRef) -> isize;
+// #[native_callback]
+// pub type LenCodeFn = fn(e: &EngineRef) -> isize;
 
 foreign_type! {
     pub unsafe type CopyCode: Send {
@@ -33,6 +33,7 @@ impl CopyCodeRef {
         code: CodeFn;
     }
     property! {
+        #[allow(clippy::len_without_is_empty)]
         len: usize { get; set; };
     }
 }

@@ -173,7 +173,7 @@ fn header_handler(req: &mut RequestRef) -> Result<Code, Code> {
         // Copy only headers that will be used to sign the request
         let mut headers = HeaderMap::new();
 
-        if let Some(s) = req.host().and_then(|h| h.value()) {
+        if let Some(s) = req.host().and_then(|h| h.value().cloned()) {
             if let Ok(s) = s.to_str() {
                 if let Ok(val) = s.parse() {
                     headers.insert(http::header::HOST, val);

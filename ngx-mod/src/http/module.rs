@@ -9,7 +9,7 @@ use crate::{
     rt::{
         core::{Code, ConfContext, ConfRef, CycleRef, NGX_CONF_ERROR, NGX_CONF_OK},
         ffi,
-        http::{self, ConfContextRef},
+        http::{self, ConfContextRef, ModuleContext},
     },
     Merge,
 };
@@ -105,7 +105,7 @@ impl<T: Module> UnsafeModule for T {
         cf: *mut ffi::ngx_conf_t,
         conf: *mut c_void,
     ) -> *mut c_char {
-        <T as Module>::init_main_conf(ConfRef::from_ptr(cf), &*conf.cast())
+        <T as Module>::init_main_conf(ConfRef::from_ptr(cf), &mut *conf.cast())
             .map_or(NGX_CONF_ERROR, |_| NGX_CONF_OK)
     }
 
@@ -139,10 +139,8 @@ impl<T: Module> UnsafeModule for T {
 }
 
 pub trait Module: crate::Module {
-    type Error: From<<Self::MainConf as Merge>::Error>
-        + From<<Self::SrvConf as Merge>::Error>
-        + From<<Self::LocConf as Merge>::Error>;
-    type MainConf: Default + Merge;
+    type Error: From<<Self::SrvConf as Merge>::Error> + From<<Self::LocConf as Merge>::Error>;
+    type MainConf: Default;
     type SrvConf: Default + Merge;
     type LocConf: Default + Merge;
 
@@ -158,7 +156,7 @@ pub trait Module: crate::Module {
         cf.pool().allocate_default()
     }
 
-    fn init_main_conf(_cf: &ConfRef, _conf: &Self::MainConf) -> Result<(), Self::Error> {
+    fn init_main_conf(_cf: &ConfRef, _conf: &mut Self::MainConf) -> Result<(), Self::Error> {
         Ok(())
     }
 
@@ -188,6 +186,27 @@ pub trait Module: crate::Module {
 
     fn conf_ctx(cycle: &CycleRef) -> Option<&ConfContextRef> {
         cycle.conf_ctx(Self::module())
+    }
+
+    fn module_ctx<M, T>(m: &M) -> Option<&T>
+    where
+        M: ModuleContext,
+    {
+        m.module_ctx(Self::module())
+    }
+
+    fn module_ctx_mut<M, T>(m: &M) -> Option<&mut T>
+    where
+        M: ModuleContext,
+    {
+        m.module_ctx_mut(Self::module())
+    }
+
+    fn set_module_ctx<M, T>(m: &M, ctx: &T)
+    where
+        M: ModuleContext,
+    {
+        m.set_module_ctx(Self::module(), ctx)
     }
 
     fn main_conf<T>(cf: &T) -> &Self::MainConf

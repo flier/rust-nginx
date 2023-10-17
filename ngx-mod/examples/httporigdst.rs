@@ -6,7 +6,7 @@ use std::{mem::zeroed, net::SocketAddrV4, os::fd::AsRawFd, ptr::NonNull};
 use socket2::SockAddr;
 
 use ngx_mod::{
-    http,
+    http::{self, Module as _},
     rt::{
         core::{Code, ConfRef, PoolRef, Str},
         http::{ModuleContext, RequestRef, ValueRef},
@@ -82,7 +82,7 @@ fn get_origdst(req: &RequestRef) -> Result<SocketAddrV4, Code> {
 
 #[native_handler(name = ngx_http_orig_dst_addr_variable)]
 fn server_orig_addr(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Result<(), Code> {
-    if let Some(ctx) = req.module_ctx::<OrigDstCtx>(OrigDst::module()) {
+    if let Some(ctx) = OrigDst::module_ctx::<_, OrigDstCtx>(req) {
         http_debug!(req, "httporigdst: found context and binding variable");
 
         ctx.bind_addr(val);
@@ -105,7 +105,7 @@ fn server_orig_addr(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Resul
 
 #[native_handler(name = ngx_http_orig_dst_port_variable)]
 fn server_orig_port(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Result<(), Code> {
-    if let Some(ctx) = req.module_ctx::<OrigDstCtx>(OrigDst::module()) {
+    if let Some(ctx) = OrigDst::module_ctx::<_, OrigDstCtx>(req) {
         http_debug!(req, "httporigdst: found context and binding variable");
 
         ctx.bind_port(val);

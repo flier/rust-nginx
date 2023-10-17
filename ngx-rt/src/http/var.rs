@@ -47,59 +47,52 @@ macro_rules! ngx_var {
         }
     };
     ($name:literal , $( $tt:tt )*) => {{
-        let mut var = $crate::ffi::ngx_http_variable_t {
-            name: $crate::ngx_str!($name),
-            set_handler: None,
-            get_handler: None,
-            data: 0,
-            flags: 0,
-            index: 0,
-        };
+        let mut var = $crate::ngx_var!( $name );
 
-        ngx_var!(var => $( $tt )*);
+        $crate::ngx_var!( __set var => $( $tt )*);
 
         var
     }};
-    ($var:ident => ) => {};
-    ($var:ident => get = $fn:ident) => {
+    ( __set $var:ident => ) => {};
+    ( __set $var:ident => get = $fn:ident ) => {
         $var.get_handler = Some($fn);
     };
-    ($var:ident => get = $fn:ident , $( $tt:tt )*) => {
+    ( __set $var:ident => get = $fn:ident , $( $tt:tt )* ) => {
         $var.get_handler = Some($fn);
 
-        ngx_var!($var => $( $tt:tt )*);
+        $crate::ngx_var!( __set $var => $( $tt:tt )*);
     };
-    ($var:ident => set = $fn:ident) => {
+    ( __set $var:ident => set = $fn:ident ) => {
         $var.set_handler = Some($fn);
     };
-    ($var:ident => set = $fn:ident , $( $tt:tt )*) => {
+    ( __set $var:ident => set = $fn:ident , $( $tt:tt )* ) => {
         $var.set_handler = Some($fn);
 
-        ngx_var!($var => $( $tt:tt )*);
+        $crate::ngx_var!( __set $var => $( $tt:tt )*);
     };
-    ($var:ident => data = $data:expr) => {
+    ( __set $var:ident => data = $data:expr ) => {
         $var.data = $data;
     };
-    ($var:ident => data = $data:expr , $( $tt:tt )*) => {
+    ( __set $var:ident => data = $data:expr , $( $tt:tt )* ) => {
         $var.data = $data;
 
-        ngx_var!($var => $( $tt:tt )*);
+        $crate::ngx_var!( __set $var => $( $tt:tt )* );
     };
-    ($var:ident => flags = $flags:expr) => {
+    ( __set $var:ident => flags = $flags:expr ) => {
         $var.flags = $flags;
     };
-    ($var:ident => flags = $flags:expr , $( $tt:tt )*) => {
+    ( __set $var:ident => flags = $flags:expr , $( $tt:tt )* ) => {
         $var.flags = $flags;
 
-        ngx_var!($var => $( $tt:tt )*);
+        $crate::ngx_var!( __set $var => $( $tt:tt )* );
     };
-    ($var:ident => index = $index:expr) => {
+    ( __set $var:ident => index = $index:expr ) => {
         $var.index = $index;
     };
-    ($var:ident => index = $index:expr , $( $tt:tt )*) => {
+    ( __set $var:ident => index = $index:expr , $( $tt:tt )* ) => {
         $var.index = $index;
 
-        ngx_var!($var => $( $tt:tt )*);
+        $crate::ngx_var!( __set $var => $( $tt:tt )* );
     };
 }
 

@@ -50,11 +50,11 @@ macro_rules! property {
     ( $( #[$attr:meta] )* $name:ident as Header ) => {
         $( #[$attr] )*
         #[inline(always)]
-        pub fn $name(&self) -> Option<$crate::http::Header> {
+        pub fn $name(&self) -> Option<& $crate::http::Header> {
             unsafe {
                 let p = $crate::AsRawRef::as_raw(self).$name;
 
-                <$crate::core::hash::TableEltRef as $crate::FromRawRef>::from_raw(p).map(From::from)
+                <$crate::core::hash::TableEltRef as $crate::FromRawRef>::from_raw(p)
             }
         }
     };

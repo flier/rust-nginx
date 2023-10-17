@@ -38,6 +38,7 @@ doc-comment = "0.3"
 http = "0.2"
 libc = "0.2"
 merge = "0.1"
+opentelemetry = "0.20"
 socket2 = "0.5"
 trybuild = "1"
 

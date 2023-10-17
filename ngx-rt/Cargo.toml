@@ -224,6 +224,7 @@ static-link = ["ngx-sys/static-link"]
 [dependencies]
 bitflags = "2.4"
 cfg-if = "1.0"
+const-zero= "0.1"
 errno = "0.3"
 foreign-types = "0.5"
 http = "0.2"

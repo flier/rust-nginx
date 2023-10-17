@@ -1,4 +1,4 @@
-use std::mem;
+use std::mem::{self, MaybeUninit};
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
@@ -77,18 +77,21 @@ impl<'a> Compiler<'a> {
         self
     }
 
-    pub fn compile<S: AsRef<str>>(
-        &self,
-        s: S,
-        value: &'a mut ComplexValueRef,
-    ) -> Result<&'a mut ComplexValueRef, Error> {
+    pub fn compile(&self, s: &Str) -> Result<<ComplexValueRef as ForeignTypeRef>::CType, Error> {
+        let mut v = MaybeUninit::<<ComplexValueRef as ForeignTypeRef>::CType>::uninit();
+
         unsafe {
-            let s = s.as_ref();
-            let s = Str::from(s);
+            self.compile_to(s, ComplexValueRef::from_ptr_mut(v.as_mut_ptr()))
+                .map(|_| v.assume_init())
+        }
+    }
+
+    pub fn compile_to(&self, s: &Str, v: &mut ComplexValueRef) -> Result<(), Error> {
+        unsafe {
             let mut ccv = ffi::ngx_http_compile_complex_value_t {
                 cf: self.cf.as_ptr(),
-                value: &s as *const _ as *mut _,
-                complex_value: value.as_ptr(),
+                value: s.as_ptr(),
+                complex_value: v.as_ptr(),
                 ..mem::zeroed()
             };
 
@@ -104,7 +107,7 @@ impl<'a> Compiler<'a> {
 
             ffi::ngx_http_compile_complex_value(&mut ccv)
                 .ok_or_else(Error::InternalError)
-                .map(|_| value)
+                .map(|_| ())
         }
     }
 }

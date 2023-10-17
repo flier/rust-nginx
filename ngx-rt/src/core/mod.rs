@@ -23,7 +23,7 @@ pub mod time;
 pub use self::array::{Array, ArrayRef};
 pub use self::buf::{Buf, BufRef};
 pub use self::cmd::{Cmd, CmdIter, CmdRef, Cmds};
-pub use self::conf::{Conf, ConfFile, ConfFileRef, ConfRef, NGX_CONF_ERROR, NGX_CONF_OK};
+pub use self::conf::{Conf, ConfFile, ConfFileRef, ConfRef, Unset, NGX_CONF_ERROR, NGX_CONF_OK};
 pub use self::conn::{
     Conn, ConnList, ConnRef, ConnSlice, ConnsIter, LogError, SocketType, TcpNoDelay, TcpNoPush,
 };
@@ -37,7 +37,7 @@ pub use self::list::{List, ListRef};
 pub use self::log::{Level as LogLevel, Log, LogRef, Logger};
 pub use self::module::{Module, ModuleRef, Type as ModuleType};
 pub use self::parse::{parse_offset, parse_size, parse_time};
-pub use self::pool::{Pool, PoolRef};
+pub use self::pool::{Cleanup, CleanupFn, CleanupRef, Pool, PoolRef};
 pub use self::shm::{Shm, ShmRef, Zone, ZoneRef};
 pub use self::status::Code;
 pub use self::str::Str;

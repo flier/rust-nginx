@@ -4,9 +4,7 @@ use std::{ffi::c_void, mem};
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{ffi, Error};
-
-use super::LogRef;
+use crate::{core::LogRef, ffi, native_callback, never_drop, AsRawRef, Error};
 
 foreign_type! {
     pub unsafe type Pool: Send {
@@ -97,14 +95,14 @@ impl PoolRef {
     /// Allocates memory for a type from the pool.
     ///
     /// Returns a typed pointer to the allocated memory.
-    pub fn alloc<T: Copy>(&self) -> Option<&mut MaybeUninit<T>> {
+    pub fn alloc<T>(&self) -> Option<&mut MaybeUninit<T>> {
         unsafe { NonNull::new(self.palloc(mem::size_of::<T>())).map(|p| p.cast().as_mut()) }
     }
 
     /// Allocates zeroed memory for a type from the pool.
     ///
     /// Returns a typed pointer to the allocated memory.
-    pub fn calloc<T: Copy>(&self) -> Option<&mut T> {
+    pub fn calloc<T>(&self) -> Option<&mut T> {
         unsafe { NonNull::new(self.pcalloc(mem::size_of::<T>())).map(|p| p.cast().as_mut()) }
     }
 
@@ -128,7 +126,7 @@ impl PoolRef {
             NonNull::new(self.palloc(mem::size_of::<T>()).cast()).and_then(|mut p| {
                 ptr::write(p.as_ptr(), value);
 
-                if self.add_cleanup(p).is_ok() {
+                if self.add_cleanup(Some(cleanup_type::<T>), Some(p)).is_ok() {
                     Some(p.as_mut())
                 } else {
                     ptr::drop_in_place(p.as_ptr());
@@ -139,14 +137,44 @@ impl PoolRef {
         }
     }
 
-    unsafe fn add_cleanup<T>(&self, value: NonNull<T>) -> Result<(), ()> {
-        unsafe { ffi::ngx_pool_cleanup_add(self.as_ptr(), 0) }
+    /// Adds a cleanup handler to the memory pool.
+    ///
+    /// If the `data` contains a value, it will be passed to the cleanup `handler`;
+    /// if the `data` is `None` but size of `T` is not zero, some pooled memory will be allocated,
+    /// and pass as `data` to the cleanup `handler`;
+    /// otherwise, a null will passed as `data` to the cleanup `handler`.
+    ///
+    /// # Safety
+    ///
+    /// This function is marked as unsafe due to the raw pointer manipulation.
+    /// The caller must ensure that the `data` is valid for the lifetime of the memory pool.
+    pub unsafe fn add_cleanup<T>(
+        &self,
+        handler: ffi::ngx_pool_cleanup_pt,
+        data: Option<NonNull<T>>,
+    ) -> Result<Option<&mut MaybeUninit<T>>, Error> {
+        let data = if let Some(p) = data {
+            Some(p.cast().as_mut())
+        } else if mem::size_of::<T>() > 0 {
+            Some(self.alloc::<T>().ok_or(Error::OutOfMemory)?)
+        } else {
+            None
+        };
+
+        ffi::ngx_pool_cleanup_add(self.as_ptr(), 0)
             .as_mut()
             .map(|p| {
-                p.handler = Some(cleanup_type::<T>);
-                p.data = value.as_ptr().cast();
+                p.handler = handler;
+                p.data = data.map_or_else(ptr::null_mut, |p| p.as_mut_ptr() as *mut _);
+                p.data.cast::<MaybeUninit<T>>().as_mut()
             })
-            .ok_or(())
+            .ok_or(Error::OutOfMemory)
+    }
+
+    pub fn cleanups(&self) -> Cleanups {
+        Cleanups(unsafe {
+            NonNull::new(self.as_raw().cleanup).map(|p| CleanupRef::from_ptr(p.as_ptr()))
+        })
     }
 }
 
@@ -162,12 +190,57 @@ impl PoolRef {
 ///
 /// * `data` - A raw pointer to the value of type `T` to be cleaned up.
 unsafe extern "C" fn cleanup_type<T>(data: *mut c_void) {
-    ptr::drop_in_place(data.cast::<T>());
+    if data.is_null() {
+        ptr::drop_in_place(data.cast::<T>());
+    }
 }
+
+pub struct Cleanups<'a>(Option<&'a CleanupRef>);
+
+impl<'a> Iterator for Cleanups<'a> {
+    type Item = &'a CleanupRef;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(p) = self.0.take() {
+            self.0 = p.next();
+            Some(p)
+        } else {
+            None
+        }
+    }
+}
+
+foreign_type! {
+    pub unsafe type Cleanup: Send {
+        type CType = ffi::ngx_pool_cleanup_t;
+
+        fn drop = never_drop::<ffi::ngx_pool_cleanup_t>;
+    }
+}
+
+impl CleanupRef {
+    callback! {
+        handler: CleanupFn;
+    }
+
+    property! {
+        next as &CleanupRef;
+    }
+
+    pub fn raw_handler(&self) -> ffi::ngx_pool_cleanup_pt {
+        unsafe { self.as_raw().handler }
+    }
+
+    pub fn data<T>(&self) -> Option<&mut T> {
+        unsafe { self.as_raw().data.cast::<T>().as_mut() }
+    }
+}
+
+#[native_callback]
+pub type CleanupFn<T> = fn(data: Option<&T>);
 
 #[cfg(test)]
 mod tests {
-
     use crate::core::Log;
 
     use super::*;

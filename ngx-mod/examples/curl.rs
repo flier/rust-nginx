@@ -83,7 +83,7 @@ fn curl_access(req: &RequestRef) -> Result<StatusCode, Code> {
     if lc.enable
         && req
             .user_agent()
-            .and_then(|h| h.value())
+            .and_then(|h| h.value().cloned())
             .map_or(false, |s| s.as_bytes().starts_with(b"curl"))
     {
         Ok(StatusCode::FORBIDDEN)

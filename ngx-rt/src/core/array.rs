@@ -27,6 +27,28 @@ impl<T: Sized> Array<T> {
 }
 
 impl<T: Sized> ArrayRef<T> {
+    pub fn init(&mut self, p: &PoolRef, n: usize) -> Option<&mut Self> {
+        unsafe {
+            let r = self.as_raw_mut();
+
+            r.nelts = 0;
+            r.size = mem::size_of::<T>();
+            r.nalloc = n;
+            r.pool = p.as_ptr();
+            r.elts = p.palloc(n * mem::size_of::<T>());
+
+            if r.elts.is_null() {
+                None
+            } else {
+                Some(self)
+            }
+        }
+    }
+
+    pub fn is_null(&self) -> bool {
+        unsafe { self.as_raw().elts.is_null() }
+    }
+
     pub fn len(&self) -> usize {
         unsafe { self.as_raw().nelts }
     }

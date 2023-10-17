@@ -2,7 +2,7 @@ use std::{ptr::NonNull, slice, str};
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{core::Str, ffi, never_drop, AsRawRef, FromRawRef};
+use crate::{core::Str, ffi, never_drop, AsRawMut, AsRawRef, FromRawRef};
 
 pub fn key<T: AsRef<[u8]>>(data: T) -> usize {
     let data = data.as_ref();
@@ -139,12 +139,16 @@ impl TableEltRef {
         unsafe { self.as_raw().hash }
     }
 
-    pub fn key(&self) -> Option<Str> {
-        unsafe { Str::from_raw(self.as_raw().key) }
+    pub fn key(&self) -> Option<&Str> {
+        unsafe { Str::from_ptr(&self.as_raw().key as *const _ as *mut _) }
     }
 
-    pub fn value(&self) -> Option<Str> {
-        unsafe { Str::from_raw(self.as_raw().value) }
+    pub fn value(&self) -> Option<&Str> {
+        unsafe { Str::from_ptr(&self.as_raw().value as *const _ as *mut _) }
+    }
+
+    pub fn set_value<S: Into<<Str as ForeignTypeRef>::CType>>(&mut self, value: S) {
+        unsafe { self.as_raw_mut().value = value.into() }
     }
 
     pub fn lowcase_key(&self) -> Option<&str> {

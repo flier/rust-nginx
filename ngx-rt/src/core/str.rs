@@ -11,10 +11,16 @@ use foreign_types::ForeignTypeRef;
 use crate::{core::PoolRef, ffi::ngx_str_t};
 
 #[repr(transparent)]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Str(ngx_str_t);
 
 impl Str {
+    pub const NULL: Self = Self::null();
+
+    pub const fn null() -> Self {
+        Self(crate::ngx_str!())
+    }
+
     /// Create an [`Str`] from an [`ngx_str_t`].
     ///
     /// [`ngx_str_t`]: https://nginx.org/en/docs/dev/development_guide.html#string_overview
@@ -170,6 +176,18 @@ impl Deref for Str {
 impl DerefMut for Str {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.as_bytes_mut()
+    }
+}
+
+impl PartialEq<ffi::ngx_str_t> for Str {
+    fn eq(&self, other: &ffi::ngx_str_t) -> bool {
+        unsafe { self.as_bytes() == slice::from_raw_parts(other.data, other.len) }
+    }
+}
+
+impl PartialEq<str> for Str {
+    fn eq(&self, other: &str) -> bool {
+        self.as_bytes() == other.as_bytes()
     }
 }
 
