@@ -2,7 +2,10 @@ use std::ptr::NonNull;
 
 use foreign_types::foreign_type;
 
-use crate::{core::ModuleRef, ffi, never_drop, AsRawRef};
+use crate::{
+    core::{CycleRef, ModuleRef},
+    ffi, never_drop, AsRawRef,
+};
 
 foreign_type! {
     pub unsafe type Context: Send {
@@ -57,6 +60,24 @@ impl UnsafeSrvConf for ContextRef {
 impl UnsafeLocConf for ContextRef {
     unsafe fn unchecked_loc_conf<T>(&self, idx: usize) -> Option<NonNull<T>> {
         NonNull::new(self.as_raw().loc_conf.add(idx).read().cast())
+    }
+}
+
+impl UnsafeMainConf for CycleRef {
+    unsafe fn unchecked_main_conf<T>(&self, idx: usize) -> Option<NonNull<T>> {
+        super::conf_ctx(self).and_then(|ctx| ctx.unchecked_main_conf(idx))
+    }
+}
+
+impl UnsafeSrvConf for CycleRef {
+    unsafe fn unchecked_srv_conf<T>(&self, idx: usize) -> Option<NonNull<T>> {
+        super::conf_ctx(self).and_then(|ctx| ctx.unchecked_srv_conf(idx))
+    }
+}
+
+impl UnsafeLocConf for CycleRef {
+    unsafe fn unchecked_loc_conf<T>(&self, idx: usize) -> Option<NonNull<T>> {
+        super::conf_ctx(self).and_then(|ctx| ctx.unchecked_loc_conf(idx))
     }
 }
 

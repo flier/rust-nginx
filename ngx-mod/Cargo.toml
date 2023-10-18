@@ -38,8 +38,11 @@ doc-comment = "0.3"
 http = "0.2"
 libc = "0.2"
 merge = "0.1"
-opentelemetry = "0.20"
+opentelemetry = { version = "0.20", features = ["rt-tokio"] }
+opentelemetry-otlp = { version = "0.13", features = ["http-proto"] }
+opentelemetry-semantic-conventions = "0.12"
 socket2 = "0.5"
+static_str_ops = "0.1"
 trybuild = "1"
 
 [[example]]

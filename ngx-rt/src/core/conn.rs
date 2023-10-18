@@ -98,6 +98,10 @@ impl ConnRef {
         requests: usize;
     }
 
+    str! {
+        addr_text;
+    }
+
     flag! {
         timedout;
         error;

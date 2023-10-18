@@ -70,6 +70,9 @@ impl RequestRef {
         /// Client request body object.
         request_body as &BodyRef;
 
+        start_sec: i64;
+        start_msec: usize;
+
         /// Client HTTP protocol version in numeric form
         http_version: usize;
 
@@ -84,6 +87,12 @@ impl RequestRef {
 
         /// the parent request of a subrequest.
         parent as &Self;
+
+        header_size: usize;
+
+        request_length: i64;
+
+        err_status: usize;
 
         /// Request reference counter.
         count(): u32;
@@ -104,10 +113,13 @@ impl RequestRef {
 
     str! {
         /// Request line in the original client request.
-        request_line;
+        &request_line;
+
+        /// the name of client HTTP request method.
+        &method_name;
 
         /// URI for the current request.
-        uri;
+        &uri;
 
         /// arguments for the current request.
         args;
@@ -117,9 +129,6 @@ impl RequestRef {
 
         /// URI in the original client request.
         unparsed_uri;
-
-        /// the name of client HTTP request method.
-        method_name;
 
         /// client HTTP protocol version in its original text form
         http_protocol;

@@ -1,29 +1,46 @@
 #![crate_type = "dylib"]
 #![cfg(not(feature = "static-link"))]
 
+use std::fmt::Display;
+use std::marker::PhantomData;
+use std::process;
 use std::ptr;
-use std::{fmt::Display, marker::PhantomData};
+use std::time::Duration;
+use std::time::SystemTime;
 
 use anyhow::anyhow;
 use foreign_types::ForeignTypeRef;
+use opentelemetry::KeyValue;
 use opentelemetry::{
-    propagation::{Extractor, Injector, TextMapPropagator},
-    sdk::{propagation::TraceContextPropagator, trace::config as trace_config},
-    trace::{SpanContext, SpanId, TraceContextExt, TraceFlags, TraceId, TraceState},
-    Context,
+    global,
+    propagation::{Extractor, Injector},
+    runtime,
+    sdk::{
+        propagation::TraceContextPropagator,
+        trace::{config as trace_config, BatchConfig},
+        Resource,
+    },
+    trace::{
+        Span, SpanBuilder, SpanContext, SpanId, SpanKind, TraceContextExt, TraceFlags, TraceId,
+        TraceState, Tracer,
+    },
+    Context, Key, OrderMap, Value,
 };
+use opentelemetry_otlp::WithExportConfig;
+use opentelemetry_semantic_conventions as semcov;
+use static_str_ops::staticize;
 
 use ngx_mod::{
     http::{self, Module as _},
     rt::{
         core::{conf, time::MSec, ArrayRef, CmdRef, Code, ConfRef, CycleRef, Str, Unset},
-        debug,
+        debug, error,
         http::{
             core::{self, Phases},
             script::{self, ComplexValueRef},
             Headers, ValueRef,
         },
-        native_setter, ngx_var, notice, Error,
+        info, native_setter, ngx_var, Error,
     },
     Conf, Merge, Module,
 };
@@ -35,14 +52,57 @@ struct Otel<'a>(PhantomData<&'a u8>);
 
 impl<'a> Module for Otel<'a> {
     fn init_process(cycle: &CycleRef) -> Result<(), Code> {
-        let mcf = Self::conf_ctx(cycle)
-            .and_then(|ctx| Self::main_conf(ctx))
+        info!(cycle, "otel: init process {}", process::id());
+
+        let (endpoint, service_name, batch_size, batch_count, interval) = Self::main_conf(cycle)
+            .and_then(|mcf| {
+                if !mcf.endpoint.is_empty() {
+                    Some((
+                        mcf.endpoint.to_string_lossy().to_string(),
+                        mcf.service_name.to_string_lossy().to_string(),
+                        mcf.batch_size,
+                        mcf.batch_count,
+                        Duration::from_millis(mcf.interval as u64),
+                    ))
+                } else {
+                    None
+                }
+            })
             .ok_or(Code::ERROR)?;
+
+        global::set_text_map_propagator(TraceContextPropagator::new());
+
+        opentelemetry_otlp::new_pipeline()
+            .tracing()
+            .with_exporter(
+                opentelemetry_otlp::new_exporter()
+                    .http()
+                    .with_endpoint(endpoint),
+            )
+            .with_trace_config(trace_config().with_resource(Resource::new(vec![
+                semcov::resource::SERVICE_NAME.string(service_name),
+            ])))
+            .with_batch_config(
+                BatchConfig::default()
+                    .with_max_export_batch_size(batch_size)
+                    .with_max_concurrent_exports(batch_count)
+                    .with_scheduled_delay(interval),
+            )
+            .install_batch(runtime::Tokio)
+            .map_err(|err| {
+                error!(cycle, "otel: failed to install opentelemetry: {}", err);
+
+                Code::ERROR
+            })?;
 
         Ok(())
     }
 
-    fn exit_process(_: &CycleRef) {}
+    fn exit_process(cycle: &CycleRef) {
+        info!(cycle, "otel: exit process {}", process::id());
+
+        global::shutdown_tracer_provider();
+    }
 }
 
 impl<'a> http::Module for Otel<'a> {
@@ -52,7 +112,7 @@ impl<'a> http::Module for Otel<'a> {
     type LocConf = LocConf<'a>;
 
     fn preconfiguration(cf: &ConfRef) -> Result<(), Code> {
-        notice!(cf, "otel: preconf module");
+        info!(cf, "otel: preconfiguration");
 
         cf.add_variables([
             ngx_var!("otel_trace_id", get = current_trace_id),
@@ -64,7 +124,7 @@ impl<'a> http::Module for Otel<'a> {
     }
 
     fn postconfiguration(cf: &ConfRef) -> Result<(), Code> {
-        notice!(cf, "otel: postconf module");
+        info!(cf, "otel: postconfiguration");
 
         let cmcf = cf
             .as_http_context()
@@ -82,7 +142,9 @@ impl<'a> http::Module for Otel<'a> {
         Ok(())
     }
 
-    fn init_main_conf(_cf: &ConfRef, conf: &mut Self::MainConf) -> Result<(), Self::Error> {
+    fn init_main_conf(cf: &ConfRef, conf: &mut Self::MainConf) -> Result<(), Self::Error> {
+        info!(cf, "otel: init main conf");
+
         conf.interval.or_insert(5000);
         conf.batch_size.or_insert(512);
         conf.batch_count.or_insert(4);
@@ -151,28 +213,31 @@ impl TraceContext {
     }
 
     pub fn extract(req: &RequestRef) -> TraceContext {
-        let propagator = TraceContextPropagator::new();
-        let extractor = HttpHeaders(req.headers());
-        let ctx = propagator.extract(&extractor);
+        let ctx = global::get_text_map_propagator(|propagator| {
+            let extractor = HeaderExtractor(req.headers());
+
+            propagator.extract(&extractor)
+        });
 
         ctx.span().span_context().into()
     }
 
     pub fn inject(&self, req: &RequestRef) {
-        let propagator: TraceContextPropagator = TraceContextPropagator::new();
-        let mut injector = HttpHeaders(req.headers());
-
         Context::map_current(|ctx| {
             let ctx = ctx.with_remote_span_context(self.into());
 
-            propagator.inject_context(&ctx, &mut injector)
+            global::get_text_map_propagator(|propagator| {
+                let mut injector = HeaderInjector(req.headers());
+
+                propagator.inject_context(&ctx, &mut injector)
+            });
         })
     }
 }
 
-struct HttpHeaders<'a>(Headers<'a>);
+struct HeaderExtractor<'a>(Headers<'a>);
 
-impl<'a> Extractor for HttpHeaders<'a> {
+impl<'a> Extractor for HeaderExtractor<'a> {
     fn get(&self, key: &str) -> Option<&str> {
         self.0
             .find(key)
@@ -185,7 +250,9 @@ impl<'a> Extractor for HttpHeaders<'a> {
     }
 }
 
-impl<'a> Injector for HttpHeaders<'a> {
+struct HeaderInjector<'a>(Headers<'a>);
+
+impl<'a> Injector for HeaderInjector<'a> {
     fn set(&mut self, key: &str, value: String) {
         self.0.set(key, &value);
     }
@@ -360,7 +427,11 @@ impl Default for LocConf<'_> {
 }
 
 impl LocConf<'_> {
-    pub fn span_attrs(&mut self) -> &mut ArrayRef<SpanAttr> {
+    pub fn span_attrs(&self) -> &ArrayRef<SpanAttr> {
+        unsafe { ArrayRef::from_ptr(&self.span_attrs as *const _ as *mut _) }
+    }
+
+    pub fn span_attrs_mut(&mut self) -> &mut ArrayRef<SpanAttr> {
         unsafe { ArrayRef::from_ptr_mut(&mut self.span_attrs as *mut _) }
     }
 }
@@ -381,7 +452,7 @@ impl Merge for LocConf<'_> {
 #[repr(C)]
 #[derive(Clone, Debug)]
 struct SpanAttr {
-    name: Str,
+    key: Str,
     value: <ComplexValueRef as ForeignTypeRef>::CType,
 }
 
@@ -416,12 +487,12 @@ mod propagation {
 
 #[native_setter(log = cf)]
 fn add_span_attr(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConf) -> anyhow::Result<()> {
-    let span_attrs = conf.span_attrs();
+    let span_attrs = conf.span_attrs_mut();
     if span_attrs.is_null() {
         span_attrs.init(cf.pool(), 4).ok_or(Error::OutOfMemory)?;
     }
 
-    let (name, value) = cf
+    let (key, value) = cf
         .args()
         .get(1)
         .zip(cf.args().get(2))
@@ -433,7 +504,7 @@ fn add_span_attr(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConf) -> anyhow::Res
 
     span_attrs
         .push(SpanAttr {
-            name: name.clone(),
+            key: key.clone(),
             value: v,
         })
         .ok_or(Error::OutOfMemory)?;
@@ -442,7 +513,7 @@ fn add_span_attr(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConf) -> anyhow::Res
 }
 
 #[native_handler(name = otel_request_start)]
-fn on_request_start(req: &RequestRef) -> Result<(), Code> {
+fn request_start(req: &RequestRef) -> Result<(), Code> {
     if req.internal() {
         return Err(Code::DECLINED);
     }
@@ -473,8 +544,133 @@ fn on_request_start(req: &RequestRef) -> Result<(), Code> {
 }
 
 #[native_handler(name = otel_request_end)]
-fn on_request_end(req: &RequestRef) -> Result<(), Code> {
-    let ctx = OtelContext::ensure(req).ok_or(Code::DECLINED)?;
+fn request_end(req: &RequestRef) -> Result<(), Code> {
+    let ctx = OtelContext::get(req).ok_or(Code::DECLINED)?;
+
+    if !ctx.current.sampled {
+        return Err(Code::DECLINED);
+    }
+
+    let tracer = global::tracer("nginx/otel");
+    let mut span = {
+        tracer.build(SpanBuilder {
+            trace_id: Some(ctx.current.trace_id),
+            span_id: Some(ctx.current.span_id),
+            span_kind: Some(SpanKind::Server),
+            start_time: Some(
+                SystemTime::UNIX_EPOCH
+                    + Duration::new(req.start_sec() as u64, req.start_msec() as u32 * 1000_000),
+            ),
+            name: staticize(
+                get_span_name(req)
+                    .map_err(|err| {
+                        error!(req, "failed to get span name: {}", err);
+
+                        Code::ERROR
+                    })?
+                    .as_str(),
+            )
+            .into(),
+            attributes: get_span_attrs(req).map(Some).map_err(|err| {
+                error!(req, "failed to get span attrs: {}", err);
+
+                Code::ERROR
+            })?,
+            ..Default::default()
+        })
+    };
+
+    span.end();
 
     Ok(())
+}
+
+fn get_span_name(req: &RequestRef) -> anyhow::Result<String> {
+    if let Some(v) = Otel::loc_conf(req).and_then(|lc| lc.span_name) {
+        Ok(v.evaluate(req)?.to_str()?.to_string())
+    } else {
+        let lc = core::loc_conf(req).ok_or_else(|| anyhow!("missing `loc_conf`"))?;
+
+        Ok(lc.name().to_str()?.to_string())
+    }
+}
+
+fn get_span_attrs(req: &RequestRef) -> anyhow::Result<OrderMap<Key, Value>> {
+    let mut attrs = vec![
+        semcov::trace::HTTP_REQUEST_METHOD.string(req.method_name().to_str()?.to_string()),
+        semcov::trace::URL_PATH.string(req.uri().to_str()?.to_string()),
+    ];
+
+    if let Some(args) = req.args() {
+        attrs.push(semcov::trace::URL_QUERY.string(args.to_str()?.to_string()));
+    }
+
+    if let Some(name) = core::loc_conf(req).map(|lc| lc.name()) {
+        attrs.push(semcov::trace::HTTP_ROUTE.string(name.to_str()?.to_string()));
+    }
+
+    if let Some(s) = req.http_protocol() {
+        let s = s.to_str()?;
+        if s.len() > 5 {
+            let (_, v) = s.split_at("HTTP/".len());
+            attrs.push(semcov::trace::NETWORK_PROTOCOL_VERSION.string(v.to_string()));
+        }
+    }
+
+    if let Some(ua) = req.user_agent().and_then(|h| h.value()) {
+        attrs.push(semcov::trace::USER_AGENT_ORIGINAL.string(ua.to_str()?.to_string()));
+    }
+
+    if req.content_length_n() > 0 {
+        attrs.push(semcov::trace::HTTP_REQUEST_BODY_SIZE.i64(req.content_length_n()));
+    }
+
+    if let Some(sent) = req
+        .connection()
+        .sent()
+        .checked_sub(req.header_size() as i64)
+    {
+        attrs.push(semcov::trace::HTTP_RESPONSE_BODY_SIZE.i64(sent));
+    }
+
+    if let Some(status) = if req.err_status() != 0 {
+        Some(req.err_status())
+    } else if req.headers_out().status() != 0 {
+        Some(req.headers_out().status())
+    } else {
+        None
+    } {
+        attrs.push(semcov::trace::HTTP_RESPONSE_STATUS_CODE.i64(status as i64));
+    }
+
+    if let Some(name) = core::srv_conf(req)
+        .and_then(|sc| sc.server_name())
+        .or(req.server())
+    {
+        attrs.push(semcov::trace::SERVER_ADDRESS.string(name.to_str()?.to_string()));
+    }
+
+    if let Some(addr) = req.connection().local() {
+        attrs.push(semcov::trace::SERVER_ADDRESS.string(addr.ip().to_string()));
+        attrs.push(semcov::trace::SERVER_PORT.i64(addr.port() as i64));
+    }
+
+    if let Some(addr) = req.connection().remote() {
+        attrs.push(semcov::trace::CLIENT_ADDRESS.string(addr.ip().to_string()));
+        attrs.push(semcov::trace::CLIENT_PORT.i64(addr.port() as i64));
+    }
+
+    if let Some(lc) = Otel::loc_conf(req) {
+        for attr in lc.span_attrs().iter() {
+            let value = unsafe { ComplexValueRef::from_ptr(&attr.value as *const _ as *mut _) };
+            let value = value.evaluate(req)?;
+
+            attrs.push(KeyValue::new(
+                attr.key.to_str()?.to_string(),
+                value.to_str()?.to_string(),
+            ))
+        }
+    }
+
+    Ok(attrs.into_iter().collect())
 }
