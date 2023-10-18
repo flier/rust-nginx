@@ -90,7 +90,7 @@ fn set_custom(cf: &ConfRef, _cmd: &CmdRef, conf: &mut SrvConfig) -> anyhow::Resu
 
     let uscf = cf
         .as_http_context()
-        .map(upstream::srv_conf_mut)
+        .and_then(upstream::srv_conf_mut)
         .ok_or_else(|| anyhow!("`srv_conf` not found"))?;
 
     conf.original_init_upstream = uscf.peer().init_upstream().or(Some(upstream::InitFn(
@@ -107,7 +107,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
     notice!(cf, "CUSTOM init upstream");
 
     let original_init_upstream = {
-        let hccf = Custom::srv_conf_mut(us);
+        let hccf = Custom::srv_conf_mut(us).ok_or_else(|| anyhow!("`srv_conf` not found"))?;
 
         hccf.max.get_or_set(100);
         hccf.original_init_upstream
@@ -120,7 +120,9 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
 
     let original_init_peer = us.peer_mut().init.replace(http_upstream_init_custom_peer);
 
-    Custom::srv_conf_mut(us).original_init_peer = original_init_peer.map(upstream::InitPeerFn);
+    Custom::srv_conf_mut(us)
+        .ok_or_else(|| anyhow!("`srv_conf` not found"))?
+        .original_init_peer = original_init_peer.map(upstream::InitPeerFn);
 
     Ok(())
 }
@@ -129,7 +131,7 @@ fn init_custom(cf: &ConfRef, us: &mut upstream::SrvConfRef) -> anyhow::Result<()
 fn init_custom_peer(req: &mut RequestRef, us: &upstream::SrvConfRef) -> anyhow::Result<()> {
     http_debug!(req, "CUSTOM init peer");
 
-    let hccf = Custom::srv_conf(us);
+    let hccf = Custom::srv_conf(us).ok_or_else(|| anyhow!("`srv_conf` not found"))?;
 
     if let Some(f) = hccf.original_init_peer {
         f.call(req, us)

@@ -23,8 +23,8 @@ foreign_type! {
 }
 
 impl UnsafeSrvConf for SrvConfRef {
-    unsafe fn unchecked_srv_conf<T>(&self, idx: usize) -> NonNull<T> {
-        NonNull::new(self.as_raw().srv_conf.add(idx).read().cast()).expect("srv_conf")
+    unsafe fn unchecked_srv_conf<T>(&self, idx: usize) -> Option<NonNull<T>> {
+        NonNull::new(self.as_raw().srv_conf.add(idx).read().cast())
     }
 }
 

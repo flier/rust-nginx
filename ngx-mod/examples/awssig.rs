@@ -32,7 +32,7 @@ impl HttpModule for AwsSig {
 
         let cmcf = cf
             .as_http_context()
-            .map(core::main_conf_mut)
+            .and_then(core::main_conf_mut)
             .ok_or(Code::ERROR)?;
 
         cmcf.phases_mut(Phases::Precontent)
@@ -140,7 +140,7 @@ fn set_s3_endpoint(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Re
 
 #[native_handler(name = awssigv4_header_handler, embedded)]
 fn header_handler(req: &mut RequestRef) -> Result<Code, Code> {
-    let conf = AwsSig::loc_conf(req);
+    let conf = AwsSig::loc_conf(req).ok_or_else(|| Code::ERROR)?;
 
     http_debug!(req, "AwsSig module: {:?}", conf);
 

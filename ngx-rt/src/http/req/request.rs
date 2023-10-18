@@ -30,20 +30,20 @@ impl Deref for RequestRef {
 }
 
 impl UnsafeMainConf for RequestRef {
-    unsafe fn unchecked_main_conf<T>(&self, idx: usize) -> NonNull<T> {
-        NonNull::new(self.as_raw().main_conf.add(idx).read().cast()).expect("main_conf")
+    unsafe fn unchecked_main_conf<T>(&self, idx: usize) -> Option<NonNull<T>> {
+        NonNull::new(self.as_raw().main_conf.add(idx).read().cast())
     }
 }
 
 impl UnsafeSrvConf for RequestRef {
-    unsafe fn unchecked_srv_conf<T>(&self, idx: usize) -> NonNull<T> {
-        NonNull::new(self.as_raw().srv_conf.add(idx).read().cast()).expect("srv_conf")
+    unsafe fn unchecked_srv_conf<T>(&self, idx: usize) -> Option<NonNull<T>> {
+        NonNull::new(self.as_raw().srv_conf.add(idx).read().cast())
     }
 }
 
 impl UnsafeLocConf for RequestRef {
-    unsafe fn unchecked_loc_conf<T>(&self, idx: usize) -> NonNull<T> {
-        NonNull::new(self.as_raw().loc_conf.add(idx).read().cast()).expect("loc_conf")
+    unsafe fn unchecked_loc_conf<T>(&self, idx: usize) -> Option<NonNull<T>> {
+        NonNull::new(self.as_raw().loc_conf.add(idx).read().cast())
     }
 }
 

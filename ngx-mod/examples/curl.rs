@@ -32,7 +32,7 @@ impl HttpModule for Curl {
 
         let cmcf = cf
             .as_http_context()
-            .map(core::main_conf_mut)
+            .and_then(core::main_conf_mut)
             .ok_or(Code::ERROR)?;
 
         cmcf.phases_mut(Phases::Access)
@@ -76,7 +76,7 @@ fn set_enable(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConfig) -> anyhow::Resu
 
 #[native_handler(name = ngx_http_curl_access_handler)]
 fn curl_access(req: &RequestRef) -> Result<StatusCode, Code> {
-    let lc = Curl::loc_conf(req);
+    let lc = Curl::loc_conf(req).ok_or(Code::ERROR)?;
 
     http_debug!(req, "CURL enabled: {}", lc.enable);
 

@@ -16,5 +16,5 @@ pub fn conf_ctx(cycle: &CycleRef) -> Option<&ConfContextRef> {
 }
 
 pub fn main_conf<'a, T>(cycle: &'a CycleRef, m: &ModuleRef) -> Option<&'a T> {
-    conf_ctx(cycle).map(|ctx| ctx.main_conf(m))
+    conf_ctx(cycle).and_then(|ctx| ctx.main_conf(m))
 }

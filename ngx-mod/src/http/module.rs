@@ -209,42 +209,42 @@ pub trait Module: crate::Module {
         m.set_module_ctx(Self::module(), ctx)
     }
 
-    fn main_conf<T>(cf: &T) -> &Self::MainConf
+    fn main_conf<T>(cf: &T) -> Option<&Self::MainConf>
     where
         T: http::MainConf,
     {
         cf.main_conf(Self::module())
     }
 
-    fn main_conf_mut<T>(cf: &T) -> &mut Self::MainConf
+    fn main_conf_mut<T>(cf: &T) -> Option<&mut Self::MainConf>
     where
         T: http::MainConf,
     {
         cf.main_conf_mut(Self::module())
     }
 
-    fn srv_conf<T>(cf: &T) -> &Self::SrvConf
+    fn srv_conf<T>(cf: &T) -> Option<&Self::SrvConf>
     where
         T: http::SrvConf,
     {
         cf.srv_conf(Self::module())
     }
 
-    fn srv_conf_mut<T>(cf: &T) -> &mut Self::SrvConf
+    fn srv_conf_mut<T>(cf: &T) -> Option<&mut Self::SrvConf>
     where
         T: http::SrvConf,
     {
         cf.srv_conf_mut(Self::module())
     }
 
-    fn loc_conf<T>(cf: &T) -> &Self::LocConf
+    fn loc_conf<T>(cf: &T) -> Option<&Self::LocConf>
     where
         T: http::LocConf,
     {
         cf.loc_conf(Self::module())
     }
 
-    fn loc_conf_mut<T>(cf: &T) -> &mut Self::LocConf
+    fn loc_conf_mut<T>(cf: &T) -> Option<&mut Self::LocConf>
     where
         T: http::LocConf,
     {

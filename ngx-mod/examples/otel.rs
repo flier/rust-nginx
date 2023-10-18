@@ -16,7 +16,7 @@ use opentelemetry::{
 use ngx_mod::{
     http::{self, Module as _},
     rt::{
-        core::{conf, time::MSec, ArrayRef, CmdRef, Code, ConfRef, Str, Unset},
+        core::{conf, time::MSec, ArrayRef, CmdRef, Code, ConfRef, CycleRef, Str, Unset},
         debug,
         http::{
             core::{self, Phases},
@@ -33,7 +33,17 @@ use ngx_rt::{http::RequestRef, native_handler};
 #[module(name = http_otel, type = http)]
 struct Otel<'a>(PhantomData<&'a u8>);
 
-impl<'a> Module for Otel<'a> {}
+impl<'a> Module for Otel<'a> {
+    fn init_process(cycle: &CycleRef) -> Result<(), Code> {
+        let mcf = Self::conf_ctx(cycle)
+            .and_then(|ctx| Self::main_conf(ctx))
+            .ok_or(Code::ERROR)?;
+
+        Ok(())
+    }
+
+    fn exit_process(_: &CycleRef) {}
+}
 
 impl<'a> http::Module for Otel<'a> {
     type Error = ();
@@ -58,7 +68,7 @@ impl<'a> http::Module for Otel<'a> {
 
         let cmcf = cf
             .as_http_context()
-            .map(core::main_conf_mut)
+            .and_then(core::main_conf_mut)
             .ok_or(Code::ERROR)?;
 
         cmcf.phases_mut(Phases::Rewrite)
@@ -234,7 +244,7 @@ impl OtelContext {
     pub fn ensure(req: &RequestRef) -> Option<&mut OtelContext> {
         let ctx = OtelContext::get(req).or(OtelContext::create(req))?;
 
-        let lcf = Otel::loc_conf(req);
+        let lcf = Otel::loc_conf(req)?;
 
         if lcf.trace_ctx.contains(propagation::Type::EXTRACT) {
             ctx.parent = TraceContext::extract(req);
@@ -437,7 +447,7 @@ fn on_request_start(req: &RequestRef) -> Result<(), Code> {
         return Err(Code::DECLINED);
     }
 
-    let lcf = Otel::loc_conf(req);
+    let lcf = Otel::loc_conf(req).ok_or(Code::ERROR)?;
 
     let sampled = if let Some(v) = lcf.trace {
         let trace = v.evaluate(req).map_err(|_| Code::ERROR)?;
