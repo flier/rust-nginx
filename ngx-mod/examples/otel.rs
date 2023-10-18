@@ -1,15 +1,15 @@
 #![crate_type = "dylib"]
 #![cfg(not(feature = "static-link"))]
 
-use std::marker::PhantomData;
 use std::ptr;
+use std::{fmt::Display, marker::PhantomData};
 
 use anyhow::anyhow;
 use foreign_types::ForeignTypeRef;
 use opentelemetry::{
     propagation::{Extractor, Injector, TextMapPropagator},
     sdk::{propagation::TraceContextPropagator, trace::config as trace_config},
-    trace::{SpanContext, TraceContextExt, TraceFlags},
+    trace::{SpanContext, SpanId, TraceContextExt, TraceFlags, TraceId, TraceState},
     Context,
 };
 
@@ -83,35 +83,61 @@ impl<'a> http::Module for Otel<'a> {
     }
 }
 
-#[repr(transparent)]
 #[derive(Clone, Debug)]
-struct TraceContext(SpanContext);
+struct TraceContext {
+    trace_id: TraceId,
+    span_id: SpanId,
+    sampled: bool,
+    trace_state: TraceState,
+}
 
 impl Default for TraceContext {
     fn default() -> Self {
-        TraceContext(SpanContext::empty_context())
+        (&SpanContext::empty_context()).into()
     }
 }
 
-impl TraceContext {
-    pub fn generate(sampled: bool, parent: &SpanContext) -> TraceContext {
-        let gen = &trace_config().id_generator;
+impl<'a> From<&'a SpanContext> for TraceContext {
+    fn from(ctx: &'a SpanContext) -> Self {
+        TraceContext {
+            trace_id: ctx.trace_id(),
+            span_id: ctx.span_id(),
+            sampled: ctx.is_sampled(),
+            trace_state: ctx.trace_state().clone(),
+        }
+    }
+}
 
-        TraceContext(SpanContext::new(
-            if parent.is_valid() {
-                parent.trace_id()
-            } else {
-                gen.new_trace_id()
-            },
-            gen.new_span_id(),
-            if sampled {
+impl<'a> From<&'a TraceContext> for SpanContext {
+    fn from(ctx: &'a TraceContext) -> Self {
+        SpanContext::new(
+            ctx.trace_id,
+            ctx.span_id,
+            if ctx.sampled {
                 TraceFlags::SAMPLED
             } else {
                 TraceFlags::default()
             },
-            parent.is_valid(),
-            parent.trace_state().clone(),
-        ))
+            ctx.trace_id != TraceId::INVALID,
+            ctx.trace_state.clone(),
+        )
+    }
+}
+
+impl TraceContext {
+    pub fn generate(sampled: bool, parent: SpanContext) -> TraceContext {
+        let gen = &trace_config().id_generator;
+
+        TraceContext {
+            trace_id: if parent.is_valid() {
+                parent.trace_id()
+            } else {
+                gen.new_trace_id()
+            },
+            span_id: gen.new_span_id(),
+            sampled,
+            trace_state: parent.trace_state().clone(),
+        }
     }
 
     pub fn extract(req: &RequestRef) -> TraceContext {
@@ -119,15 +145,15 @@ impl TraceContext {
         let extractor = HttpHeaders(req.headers());
         let ctx = propagator.extract(&extractor);
 
-        TraceContext(ctx.span().span_context().clone())
+        ctx.span().span_context().into()
     }
 
-    pub fn inject(&self, req: &mut RequestRef) {
-        let propagator = TraceContextPropagator::new();
+    pub fn inject(&self, req: &RequestRef) {
+        let propagator: TraceContextPropagator = TraceContextPropagator::new();
         let mut injector = HttpHeaders(req.headers());
 
         Context::map_current(|ctx| {
-            let ctx = ctx.with_remote_span_context(self.0.clone());
+            let ctx = ctx.with_remote_span_context(self.into());
 
             propagator.inject_context(&ctx, &mut injector)
         })
@@ -205,7 +231,7 @@ impl OtelContext {
         })
     }
 
-    pub fn ensure(req: &RequestRef) -> Option<&OtelContext> {
+    pub fn ensure(req: &RequestRef) -> Option<&mut OtelContext> {
         let ctx = OtelContext::get(req).or(OtelContext::create(req))?;
 
         let lcf = Otel::loc_conf(req);
@@ -214,7 +240,7 @@ impl OtelContext {
             ctx.parent = TraceContext::extract(req);
         }
 
-        ctx.current = TraceContext::generate(false, &ctx.parent.0);
+        ctx.current = TraceContext::generate(false, (&ctx.parent).into());
 
         return Some(ctx);
     }
@@ -225,23 +251,48 @@ fn cleanup_otel_ctx(data: &mut OtelContext) {
     unsafe { ptr::drop_in_place(data as *mut _) };
 }
 
+fn id_var<F, T>(req: &RequestRef, val: &mut ValueRef, f: F) -> Result<(), Code>
+where
+    F: FnOnce(&OtelContext) -> Option<&T>,
+    T: Display,
+{
+    let ctx = OtelContext::ensure(req).ok_or(Code::ERROR)?;
+
+    if let Some(id) = f(ctx) {
+        let id = req
+            .pool()
+            .strdup(id.to_string().to_lowercase())
+            .ok_or(Code::ERROR)?;
+
+        val.set_value(id);
+    } else {
+        val.set_not_found(true);
+    }
+
+    Ok(())
+}
+
 #[native_handler]
 fn current_trace_id(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Result<(), Code> {
-    Ok(())
+    id_var(req, val, |ctx| Some(&ctx.current.trace_id))
 }
 
 #[native_handler]
 fn current_span_id(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Result<(), Code> {
-    Ok(())
+    id_var(req, val, |ctx| Some(&ctx.current.span_id))
 }
 
 #[native_handler]
 fn parent_span_id(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Result<(), Code> {
-    Ok(())
+    id_var(req, val, |ctx| Some(&ctx.parent.span_id))
 }
 
 #[native_handler]
 fn parent_sampled_var(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Result<(), Code> {
+    let ctx = OtelContext::ensure(req).ok_or(Code::ERROR)?;
+
+    val.set_value(if ctx.parent.sampled { "on" } else { "off" });
+
     Ok(())
 }
 
@@ -382,10 +433,38 @@ fn add_span_attr(cf: &ConfRef, _cmd: &CmdRef, conf: &mut LocConf) -> anyhow::Res
 
 #[native_handler(name = otel_request_start)]
 fn on_request_start(req: &RequestRef) -> Result<(), Code> {
+    if req.internal() {
+        return Err(Code::DECLINED);
+    }
+
+    let lcf = Otel::loc_conf(req);
+
+    let sampled = if let Some(v) = lcf.trace {
+        let trace = v.evaluate(req).map_err(|_| Code::ERROR)?;
+
+        trace == "on" || trace == "1"
+    } else {
+        false
+    };
+
+    if lcf.trace_ctx.is_empty() && !sampled {
+        return Err(Code::DECLINED);
+    }
+
+    let ctx = OtelContext::ensure(req).ok_or(Code::ERROR)?;
+
+    ctx.current.sampled = sampled;
+
+    if lcf.trace_ctx.contains(propagation::Type::INJECT) {
+        ctx.current.inject(req);
+    }
+
     Ok(())
 }
 
 #[native_handler(name = otel_request_end)]
 fn on_request_end(req: &RequestRef) -> Result<(), Code> {
+    let ctx = OtelContext::ensure(req).ok_or(Code::DECLINED)?;
+
     Ok(())
 }

@@ -299,6 +299,19 @@ impl ValueRef {
         self.len() == 0
     }
 
+    pub fn set_value<S>(&mut self, s: S) -> &mut Self
+    where
+        S: Into<Str>,
+    {
+        let s: Str = s.into();
+
+        self.set_data(NonNull::new(s.as_ptr()))
+            .set_len(s.len() as u32)
+            .set_valid(true)
+            .set_no_cacheable(false)
+            .set_not_found(false)
+    }
+
     pub fn data<T>(&self) -> Option<NonNull<T>> {
         NonNull::new(unsafe { self.as_raw().data.cast() })
     }

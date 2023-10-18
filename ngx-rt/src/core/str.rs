@@ -185,8 +185,8 @@ impl PartialEq<ffi::ngx_str_t> for Str {
     }
 }
 
-impl PartialEq<str> for Str {
-    fn eq(&self, other: &str) -> bool {
+impl PartialEq<&str> for Str {
+    fn eq(&self, other: &&str) -> bool {
         self.as_bytes() == other.as_bytes()
     }
 }
