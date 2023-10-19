@@ -19,7 +19,9 @@ pub mod http;
 pub mod stream;
 
 pub use self::error::{Error, RawErr, RawOk, RawResult, Result};
-pub use self::raw::{AsRawMut, AsRawRef, AsResult, FromRaw, FromRawMut, FromRawRef};
+pub use self::raw::{
+    AsRawMut, AsRawRef, AsResult, FromRaw, FromRawMut, FromRawRef, NativeCallback,
+};
 
 #[doc(hidden)]
 pub(crate) use self::raw::never_drop;

@@ -7,6 +7,10 @@ pub(crate) fn never_drop<T>(_: *mut T) {
     unreachable!()
 }
 
+pub trait NativeCallback {
+    type CType;
+}
+
 pub trait FromRaw: ForeignType {
     /// Get a raw pointer to the type.
     ///

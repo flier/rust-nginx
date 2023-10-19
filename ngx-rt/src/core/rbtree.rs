@@ -5,7 +5,7 @@ use std::ptr::NonNull;
 use foreign_types::{foreign_type, ForeignTypeRef};
 use ngx_rt_derive::native_callback;
 
-use crate::{callback, ffi, never_drop, property, AsRawMut, AsRawRef};
+use crate::{callback, ffi, never_drop, property, AsRawMut, AsRawRef, NativeCallback};
 
 pub type Key = usize;
 
@@ -65,7 +65,7 @@ impl TreeRef {
 pub fn init<'a>(
     tree: &'a mut MaybeUninit<<TreeRef as ForeignTypeRef>::CType>,
     sentinel: &'a mut NodeRef,
-    insert: RawInsertFn,
+    insert: <InsertFn as NativeCallback>::CType,
 ) -> &'a mut TreeRef {
     sentinel.set_black();
 
@@ -77,12 +77,6 @@ pub fn init<'a>(
         }) as *mut _)
     }
 }
-
-pub type RawInsertFn = unsafe extern "C" fn(
-    root: *mut ffi::ngx_rbtree_node_t,
-    node: *mut ffi::ngx_rbtree_node_t,
-    sentinel: *mut ffi::ngx_rbtree_node_t,
-);
 
 #[native_callback]
 pub type InsertFn = fn(root: &mut NodeRef, node: &NodeRef, sentinel: &NodeRef);

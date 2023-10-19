@@ -1,7 +1,7 @@
 use foreign_types::{foreign_type, ForeignTypeRef};
 use num_enum::FromPrimitive;
 
-use crate::{core::ArrayRef, ffi, http::HandlerFn, never_drop, AsRawMut, AsRawRef};
+use crate::{core::ArrayRef, ffi, http::HandlerFn, never_drop, AsRawMut, AsRawRef, NativeCallback};
 
 foreign_type! {
     pub unsafe type MainConf: Send {
@@ -18,6 +18,10 @@ impl MainConfRef {
 
     pub fn phases_mut(&mut self, p: Phases) -> &mut PhaseRef {
         unsafe { PhaseRef::from_ptr_mut(&mut self.as_raw_mut().phases[p as usize] as *mut _) }
+    }
+
+    pub fn push_handler(&mut self, p: Phases, h: <HandlerFn as NativeCallback>::CType) {
+        self.phases_mut(p).handlers_mut().push(Some(h));
     }
 }
 

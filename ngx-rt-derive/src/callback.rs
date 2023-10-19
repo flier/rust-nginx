@@ -80,13 +80,12 @@ pub fn expand(args: Args, item: ItemType) -> TokenStream {
     };
 
     let name = args.name.as_ref().map_or(&ident, |arg| &arg.value);
+    let ngx_rt = find_ngx_rt();
 
     let (result, result_ty) = if matches!(output, ReturnType::Default) {
         (Expr::Call(call), ReturnType::Default)
     } else {
         let result = if let Some((ok, err)) = extract_result_types(output) {
-            let ngx_rt = find_ngx_rt();
-
             let mut result = if let Some(log) = args.log.as_ref().map(|arg| &arg.value) {
                 parse_quote_spanned! { output.span() =>
                     crate::AsResult::ok(#call).map_err(|err| {
@@ -145,6 +144,10 @@ pub fn expand(args: Args, item: ItemType) -> TokenStream {
                 #( #unsafe_args ),*
             ) #result_ty
         );
+
+        impl #ngx_rt ::NativeCallback for #name {
+            type CType = unsafe extern "C" fn( #( #unsafe_args ),* ) #result_ty;
+        }
 
         impl #name {
             pub fn call #ty_generics (&self, #inputs ) #output #where_clause {

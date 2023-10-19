@@ -76,7 +76,7 @@ impl<'a> Module for Otel<'a> {
             .tracing()
             .with_exporter(
                 opentelemetry_otlp::new_exporter()
-                    .http()
+                    .tonic()
                     .with_endpoint(endpoint),
             )
             .with_trace_config(trace_config().with_resource(Resource::new(vec![
@@ -131,13 +131,8 @@ impl<'a> http::Module for Otel<'a> {
             .and_then(core::main_conf_mut)
             .ok_or(Code::ERROR)?;
 
-        cmcf.phases_mut(Phases::Rewrite)
-            .handlers_mut()
-            .push(Some(otel_request_start));
-
-        cmcf.phases_mut(Phases::Log)
-            .handlers_mut()
-            .push(Some(otel_request_end));
+        cmcf.push_handler(Phases::Rewrite, otel_request_start);
+        cmcf.push_handler(Phases::Log, otel_request_end);
 
         Ok(())
     }

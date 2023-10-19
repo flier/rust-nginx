@@ -14,6 +14,12 @@ foreign_type! {
     }
 }
 
+impl Cycle {
+    pub fn current() -> &'static CycleRef {
+        unsafe { CycleRef::from_ptr(ffi::ngx_cycle) }
+    }
+}
+
 impl CycleRef {
     property! {
         /// Cycle pool.

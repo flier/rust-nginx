@@ -39,7 +39,7 @@ http = "0.2"
 libc = "0.2"
 merge = "0.1"
 opentelemetry = { version = "0.20", features = ["rt-tokio"] }
-opentelemetry-otlp = { version = "0.13", features = ["http-proto"] }
+opentelemetry-otlp = "0.13"
 opentelemetry-semantic-conventions = "0.12"
 socket2 = "0.5"
 static_str_ops = "0.1"
