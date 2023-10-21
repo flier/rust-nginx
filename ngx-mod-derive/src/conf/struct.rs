@@ -13,6 +13,7 @@ pub struct StructArgs {
     #[merge(strategy = merge::vec::append)]
     pub ty: Vec<Path>,
     pub name: Option<NameValue<Ident>>,
+    pub default: Option<NameValue<Ident>>,
 }
 
 impl StructArgs {
@@ -87,4 +88,21 @@ impl StructArgs {
             }).collect()
         }
     }
+
+    pub fn default_value(&self) -> Option<DefaultValue> {
+        self.default.as_ref().map(|arg| &arg.value).map(|v| {
+            if v == "unset" {
+                DefaultValue::Unset
+            } else if v == "zeroed" {
+                DefaultValue::Zeroed
+            } else {
+                abort! {v.span(), "unknown default value, should be `unset` or `zeroed`"}
+            }
+        })
+    }
+}
+
+pub enum DefaultValue {
+    Unset,
+    Zeroed,
 }

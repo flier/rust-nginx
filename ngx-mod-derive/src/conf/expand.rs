@@ -1,9 +1,13 @@
 use proc_macro2::TokenStream;
 use proc_macro_error::abort;
 use quote::quote;
-use syn::{Data, DataStruct, DeriveInput, Fields, FieldsNamed, Ident};
+use syn::{
+    parse_quote, Block, Data, DataStruct, DeriveInput, ExprStruct, Fields, FieldsNamed, Ident,
+    ItemImpl,
+};
 
 use crate::{
+    conf::r#struct::DefaultValue,
     extract,
     util::{find_ngx_mod, find_ngx_rt},
 };
@@ -23,28 +27,34 @@ pub fn expand(input: DeriveInput) -> TokenStream {
     let struct_name: &Ident = &ident;
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    let directives = if let Data::Struct(DataStruct {
+    let (field_names, directives) = if let Data::Struct(DataStruct {
         fields: Fields::Named(FieldsNamed { named, .. }),
         ..
     }) = data
     {
-        named
-            .into_iter()
-            .filter_map(|f| {
-                let syn::Field {
-                    attrs, ident, ty, ..
-                } = f;
-                let (args, _) = extract::args::<FieldArgs, _>(attrs, "directive");
+        (
+            named
+                .iter()
+                .flat_map(|f| f.ident.clone())
+                .collect::<Vec<_>>(),
+            named
+                .into_iter()
+                .filter_map(|f| {
+                    let syn::Field {
+                        attrs, ident, ty, ..
+                    } = f;
+                    let (args, _) = extract::args::<FieldArgs, _>(attrs, "directive");
 
-                args.map(|args| Directive {
-                    struct_args: &struct_args,
-                    struct_name,
-                    args,
-                    name: ident.expect("name"),
-                    ty,
+                    args.map(|args| Directive {
+                        struct_args: &struct_args,
+                        struct_name,
+                        args,
+                        name: ident.expect("name"),
+                        ty,
+                    })
                 })
-            })
-            .collect::<Vec<_>>()
+                .collect::<Vec<_>>(),
+        )
     } else {
         abort!(
             ident.span(),
@@ -52,9 +62,34 @@ pub fn expand(input: DeriveInput) -> TokenStream {
         )
     };
 
-    let n = directives.len();
     let ngx_rt = find_ngx_rt();
     let ngx_mod = find_ngx_mod();
+
+    let impl_default: Option<ItemImpl> = struct_args.default_value().map(|v| {
+        let block: Block = match v {
+            DefaultValue::Unset => {
+                let s: ExprStruct = parse_quote!{ #struct_name {
+                    #( #field_names : #ngx_rt ::core::conf::unset(), )*
+                } };
+                parse_quote!{ {
+                    #s
+                } }
+            }
+            DefaultValue::Zeroed => {
+                parse_quote!{ {
+                    unsafe { ::std::mem::zeroed() }
+                } }
+            }
+        };
+
+        parse_quote! {
+            impl #impl_generics ::std::default::Default for #struct_name #ty_generics #where_clause {
+                fn default() -> Self #block
+            }
+        }
+    });
+
+    let n = directives.len();
 
     quote! {
         impl #impl_generics #ngx_mod ::UnsafeConf for #struct_name #ty_generics #where_clause {
@@ -64,5 +99,7 @@ pub fn expand(input: DeriveInput) -> TokenStream {
                 #( #directives ),*
             ];
         }
+
+        #impl_default
     }
 }

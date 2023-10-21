@@ -10,7 +10,6 @@ use std::time::SystemTime;
 
 use anyhow::anyhow;
 use foreign_types::ForeignTypeRef;
-use opentelemetry::KeyValue;
 use opentelemetry::{
     global,
     propagation::{Extractor, Injector},
@@ -24,7 +23,7 @@ use opentelemetry::{
         Span, SpanBuilder, SpanContext, SpanId, SpanKind, TraceContextExt, TraceFlags, TraceId,
         TraceState, Tracer,
     },
-    Context, Key, OrderMap, Value,
+    Context, Key, KeyValue, OrderMap, Value,
 };
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_semantic_conventions as semcov;
@@ -33,7 +32,7 @@ use static_str_ops::staticize;
 use ngx_mod::{
     http::{self, Module as _},
     rt::{
-        core::{conf, time::MSec, ArrayRef, CmdRef, Code, ConfRef, CycleRef, Str, Unset},
+        core::{time::MSec, ArrayRef, CmdRef, Code, ConfRef, CycleRef, Str, Unset},
         debug, error,
         http::{
             core::{self, Phases},
@@ -367,7 +366,7 @@ fn parent_sampled_var(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Res
 
 #[repr(C)]
 #[derive(Clone, Conf)]
-#[conf(http::main)]
+#[conf(http::main, default = unset)]
 struct MainConf {
     #[directive(args(1))]
     endpoint: Str,
@@ -381,21 +380,9 @@ struct MainConf {
     service_name: Str,
 }
 
-impl Default for MainConf {
-    fn default() -> Self {
-        MainConf {
-            endpoint: conf::unset(),
-            interval: conf::unset(),
-            batch_size: conf::unset(),
-            batch_count: conf::unset(),
-            service_name: conf::unset(),
-        }
-    }
-}
-
 #[repr(C)]
 #[derive(Clone, Conf)]
-#[conf(http::main, http::server, http::location)]
+#[conf(http::main, http::server, http::location, default = unset)]
 struct LocConf<'a> {
     #[directive(args(1), set = complex_value)]
     trace: Option<&'a ComplexValueRef>,
@@ -405,17 +392,6 @@ struct LocConf<'a> {
     span_name: Option<&'a ComplexValueRef>,
     #[directive(args(2), set = add_span_attr)]
     span_attrs: <ArrayRef<SpanAttr> as ForeignTypeRef>::CType,
-}
-
-impl Default for LocConf<'_> {
-    fn default() -> Self {
-        LocConf {
-            trace: conf::unset(),
-            trace_ctx: conf::unset(),
-            span_name: conf::unset(),
-            span_attrs: conf::unset(),
-        }
-    }
 }
 
 impl LocConf<'_> {

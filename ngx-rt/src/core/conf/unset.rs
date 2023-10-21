@@ -77,11 +77,27 @@ impl Unset for usize {
     }
 }
 
+impl Unset for isize {
+    const UNSET: Self = Self::MAX;
+
+    fn is_unset(&self) -> bool {
+        *self == Self::UNSET
+    }
+}
+
+impl<T> Unset for *const T {
+    const UNSET: Self = usize::MAX as Self;
+
+    fn is_unset(&self) -> bool {
+        *self == Self::UNSET || self.is_null()
+    }
+}
+
 impl<T> Unset for *mut T {
     const UNSET: Self = usize::MAX as Self;
 
     fn is_unset(&self) -> bool {
-        *self == Self::UNSET
+        *self == Self::UNSET || self.is_null()
     }
 }
 

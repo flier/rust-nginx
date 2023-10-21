@@ -35,7 +35,7 @@ impl http::Module for Custom {
 }
 
 #[derive(Clone, Debug, AutoMerge, Conf)]
-#[conf(http::upstream)]
+#[conf(http::upstream, default = unset)]
 struct SrvConfig {
     #[directive(name = "custom", args(0, 1), set = ngx_http_upstream_custom)]
     #[merge(strategy = overwrite_unset)]
@@ -49,16 +49,6 @@ where
 {
     if left.is_unset() {
         *left = right;
-    }
-}
-
-impl Default for SrvConfig {
-    fn default() -> Self {
-        SrvConfig {
-            max: conf::unset(),
-            original_init_upstream: None,
-            original_init_peer: None,
-        }
     }
 }
 
