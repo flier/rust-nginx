@@ -23,11 +23,17 @@ impl<'a> ToTokens for Directive<'a> {
         let struct_name = self.struct_name;
         let field_name = &self.name;
         let name = self.name();
-        let conf_ty = self.struct_args.conf_type();
+        let conf_ty = self
+            .struct_args
+            .scope
+            .types
+            .iter()
+            .cloned()
+            .collect::<Vec<_>>();
         let conf_off = self
             .args
             .conf_offset()
-            .or_else(|| Offset::for_conf(&conf_ty))
+            .or_else(|| Offset::for_conf(conf_ty.as_slice()))
             .map_or_else(|| quote! { 0usize }, |off: Offset| quote! { #off });
         let args = conf_ty
             .into_iter()

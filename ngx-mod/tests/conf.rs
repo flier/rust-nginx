@@ -1,5 +1,4 @@
 #![crate_type = "dylib"]
-#![cfg(not(feature = "static-link"))]
 
 use std::mem;
 
@@ -21,7 +20,7 @@ pub struct MainConf {
 }
 
 #[derive(Clone, Debug, Conf)]
-#[conf(http::main, http::server, default = zeroed)]
+#[conf(http::main | http::server, default = zeroed)]
 pub struct SrvConf {
     #[directive(args(0, 1))]
     pub max: isize,
@@ -30,7 +29,7 @@ pub struct SrvConf {
 }
 
 #[derive(Clone, Debug, Conf)]
-#[conf(http::main, http::server, http::location, default = unset)]
+#[conf(http::main | http::server | http::location, default = unset)]
 pub struct LocConf {
     pub u32: u32,
     pub usize: usize,

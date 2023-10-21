@@ -1,4 +1,4 @@
-use ngx_mod::{stream, Module};
+use ngx_mod::{rt::core::ModuleType, stream, Module, ModuleMetadata};
 
 #[derive(Module)]
 #[module(type = stream)]
@@ -12,16 +12,8 @@ impl stream::Module for M {
     type SrvConf = ();
 }
 
-#[cfg(feature = "static-link")]
-#[cfg(test)]
-mod tests {
-    use ngx_mod::{rt::core::ModuleType, ModuleMetadata};
-
-    use super::*;
-
-    #[test]
-    fn core_module() {
-        assert_eq!(M::module().ty(), ModuleType::Stream);
-        assert_eq!(M::commands().len(), 0);
-    }
+#[test]
+fn core_module() {
+    assert_eq!(M::module().ty(), ModuleType::Stream);
+    assert_eq!(M::commands().len(), 0);
 }

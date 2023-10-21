@@ -1,4 +1,11 @@
-use ngx_mod::{core, Module};
+use ngx_mod::{
+    core,
+    rt::{
+        core::{ModuleType, Str},
+        FromRawRef,
+    },
+    Module, ModuleMetadata,
+};
 
 #[derive(Module)]
 #[module(type = core)]
@@ -11,42 +18,28 @@ impl core::Module for M {
     type Conf = ();
 }
 
-#[cfg(feature = "static-link")]
-#[cfg(test)]
-mod tests {
-    use ngx_mod::{
-        rt::{
-            core::{ModuleType, Str},
-            FromRawRef,
+#[test]
+fn module_metadata() {
+    assert_eq!(M::module().ty(), ModuleType::Core);
+    assert_eq!(M::commands().len(), 0);
+}
+
+#[test]
+fn module_ref() {
+    assert_eq!(M.as_ref().ty(), ModuleType::Core);
+    assert_eq!(M.ty(), ModuleType::Core);
+    assert_eq!(M.commands().len(), 0);
+}
+
+#[test]
+fn module_ctx() {
+    assert_eq!(
+        unsafe {
+            Str::from_raw(&ngx_m_module_ctx.name as *const _ as *mut _)
+                .unwrap()
+                .to_str()
+                .unwrap()
         },
-        ModuleMetadata,
-    };
-
-    use super::*;
-
-    #[test]
-    fn module_metadata() {
-        assert_eq!(M::module().ty(), ModuleType::Core);
-        assert_eq!(M::commands().len(), 0);
-    }
-
-    #[test]
-    fn module_ref() {
-        assert_eq!(M.as_ref().ty(), ModuleType::Core);
-        assert_eq!(M.ty(), ModuleType::Core);
-        assert_eq!(M.commands().len(), 0);
-    }
-
-    #[test]
-    fn module_ctx() {
-        assert_eq!(
-            unsafe {
-                Str::from_raw(&ngx_m_module_ctx.name as *const _ as *mut _)
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-            },
-            "ngx_m_module"
-        );
-    }
+        "ngx_m_module"
+    );
 }

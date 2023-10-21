@@ -44,7 +44,7 @@ impl HttpModule for AwsSig {
 }
 
 #[derive(Clone, Debug, Default, AutoMerge, Conf)]
-#[conf(http::server, http::location)]
+#[conf(http::server | http::location)]
 struct Config {
     #[directive(name = "awssigv4", args(1), set = ngx_http_awssigv4_commands_set_enable)]
     #[merge(strategy = merge::bool::overwrite_false)]

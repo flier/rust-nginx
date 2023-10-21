@@ -1,7 +1,25 @@
+use cfg_if::cfg_if;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
+use syn::{
+    parse::{Parse, ParseStream},
+    punctuated::Punctuated,
+    spanned::Spanned,
+    Error, Path, Token,
+};
 
 use crate::util::find_ngx_rt;
+
+#[derive(Clone, Debug, Default)]
+pub struct Scope {
+    pub types: Punctuated<Type, Token![|]>,
+}
+
+impl Parse for Scope {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        Punctuated::parse_separated_nonempty(input).map(|types| Scope { types })
+    }
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Type {
@@ -34,6 +52,75 @@ pub enum Type {
     MailMain,
     #[cfg(feature = "mail")]
     MailServer,
+}
+
+impl Parse for Type {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        use Type::*;
+
+        let p: Path = input.parse()?;
+        let name = quote! { #p }.to_string().to_lowercase();
+
+        if name.starts_with("http") {
+            cfg_if! {
+                if #[cfg(feature = "http")] {
+                    match name.as_str() {
+                        "http" | "http :: main" => Ok(HttpMain),
+                        "http :: srv" | "http :: server" => Ok(HttpServer),
+                        "http :: loc" | "http :: location" => Ok(HttpLocation),
+                        "http :: ups" | "http :: upstream" => Ok(HttpUpstream),
+                        "http :: sif" | "http :: srv_if" | "http :: server :: if" => Ok(HttpServerIf),
+                        "http :: lif" | "http :: loc_if" | "http :: location :: if" => Ok(HttpLocationIf),
+                        "http :: lmt" | "http :: limit" | "http :: limit_except" => Ok(HttpLimitExcept),
+                        _ => Err(Error::new(p.span(), "unknown `http` directive type"))
+                    }
+                } else {
+                    abort!(p.span(), "`http` support is disabled");
+                }
+            }
+        } else if name.starts_with("stream") {
+            cfg_if! {
+                if #[cfg(feature = "stream")] {
+                    match name.as_str() {
+                        "stream" | "stream :: main" => Ok(StreamMain),
+                        "stream :: srv" | "stream :: server" => Ok(StreamServer),
+                        "stream :: ups" | "stream :: upstream" => Ok(StreamUpstream),
+                        _ => Err(Error::new(p.span(), "unknown `stream` directive type")),
+                    }
+                } else {
+                    Err(Error::new(p.span(), "`stream` support is disabled"));
+                }
+            }
+        } else if name.starts_with("mail") {
+            cfg_if! {
+                if #[cfg(feature = "mail")] {
+                    match name.as_str() {
+                        "mail" | "mail :: main" => Ok(MailMain),
+                        "mail :: srv" | "mail :: server" => Ok(MailServer),
+                        _ => Err(Error::new(p.span(), "unknown `mail` directive type")),
+                    }
+                } else {
+                    Err(Error::new(p.span(), "`mail` support is disabled"))
+                }
+            }
+        } else if name == "main" {
+            Ok(Main)
+        } else if name == "any" {
+            Ok(Any)
+        } else if name == "direct" {
+            Ok(Direct)
+        } else if name == "event" {
+            cfg_if! {
+                if #[cfg(feature = "event")] {
+                    Ok(Event)
+                } else {
+                    Err(Error::new(p.span(), "`event` support is disabled"));
+                }
+            }
+        } else {
+            Err(Error::new(p.span(), "unknown directive type"))
+        }
+    }
 }
 
 impl ToTokens for Type {

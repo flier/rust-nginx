@@ -382,7 +382,7 @@ struct MainConf {
 
 #[repr(C)]
 #[derive(Clone, Conf)]
-#[conf(http::main, http::server, http::location, default = unset)]
+#[conf(http::main | http::server | http::location, default = unset)]
 struct LocConf<'a> {
     #[directive(args(1), set = complex_value)]
     trace: Option<&'a ComplexValueRef>,

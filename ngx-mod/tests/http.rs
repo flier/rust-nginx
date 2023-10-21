@@ -1,4 +1,4 @@
-use ngx_mod::{http, Module};
+use ngx_mod::{http, rt::core::ModuleType, Module, ModuleMetadata};
 
 #[derive(Module)]
 #[module(type = http)]
@@ -13,16 +13,8 @@ impl http::Module for M {
     type LocConf = ();
 }
 
-#[cfg(feature = "static-link")]
-#[cfg(test)]
-mod tests {
-    use ngx_mod::{rt::core::ModuleType, ModuleMetadata};
-
-    use super::*;
-
-    #[test]
-    fn module_metadata() {
-        assert_eq!(M::module().ty(), ModuleType::Http);
-        assert_eq!(M::commands().len(), 0);
-    }
+#[test]
+fn module_metadata() {
+    assert_eq!(M::module().ty(), ModuleType::Http);
+    assert_eq!(M::commands().len(), 0);
 }

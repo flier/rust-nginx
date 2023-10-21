@@ -14,4 +14,4 @@ pub use self::field::FieldArgs;
 pub use self::off::Offset;
 pub use self::r#struct::StructArgs;
 pub use self::set::Set;
-pub use self::ty::Type;
+pub use self::ty::{Scope, Type};
