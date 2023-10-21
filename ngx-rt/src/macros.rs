@@ -31,22 +31,6 @@ macro_rules! property {
         $crate::property!( $( $rest )* );
     };
 
-    ( $( #[$attr:meta] )* $name:ident as Header ) => {
-        $( #[$attr] )*
-        #[inline(always)]
-        pub fn $name(&self) -> Option<& $crate::http::Header> {
-            unsafe {
-                let p = $crate::AsRawRef::as_raw(self).$name;
-
-                <$crate::core::hash::TableEltRef as $crate::FromRawRef>::from_raw(p)
-            }
-        }
-    };
-    ( $( #[$attr:meta] )* $name:ident as Header ; $($rest:tt)* ) => {
-        $crate::property!( $( #[$attr] )* $name as Header );
-        $crate::property!( $( $rest )* );
-    };
-
     ( $( #[$attr:meta] )* $name:ident : Headers ) => {
         $( #[$attr] )*
         #[inline(always)]
@@ -379,7 +363,7 @@ macro_rules! header {
     () => {};
 
     ( $( #[$attr:meta] )* $name:ident) => {
-        $crate::property!($( #[$attr] )* $name as Header);
+        $crate::property!($( #[$attr] )* $name as & $crate::http::Header);
     };
 
     ( $( #[$attr:meta] )* $name:ident ; $($rest:tt)* ) => {
