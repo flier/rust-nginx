@@ -50,6 +50,34 @@ macro_rules! property {
         $crate::property!( $( $rest )* );
     };
 
+    ( $( #[$attr:meta] )* $name:ident into $ty:ty ) => {
+        $( #[$attr] )*
+        #[inline(always)]
+        pub fn $name(&self) -> $ty {
+            unsafe {
+                $crate::AsRawRef::as_raw(self).$name.into()
+            }
+        }
+    };
+    ( $( #[$attr:meta] )* $name:ident into $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!($( #[$attr] )* $name into $ty );
+        $crate::property!( $( $rest )* );
+    };
+
+    ( $( #[$attr:meta] )* $name:ident () into $ty:ty ) => {
+        $( #[$attr] )*
+        #[inline(always)]
+        pub fn $name(&self) -> $ty {
+            unsafe {
+                $crate::AsRawRef::as_raw(self).$name().into()
+            }
+        }
+    };
+    ( $( #[$attr:meta] )* $name:ident () into $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!($( #[$attr] )* $name () into $ty );
+        $crate::property!( $( $rest )* );
+    };
+
     ( $( #[$attr:meta] )* $name:ident as & $ty:ty ) => {
         $( #[$attr] )*
         #[inline(always)]

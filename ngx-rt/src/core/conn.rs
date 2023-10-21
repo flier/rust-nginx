@@ -96,6 +96,10 @@ impl ConnRef {
         pool: &PoolRef;
         buffer: &BufRef;
         requests: usize;
+
+        log_error() into LogError;
+        tcp_nodelay() into TcpNoDelay;
+        tcp_nopush() into TcpNoPush;
     }
 
     str! {
@@ -146,18 +150,6 @@ impl ConnRef {
                 None
             }
         }
-    }
-
-    pub fn log_error(&self) -> LogError {
-        LogError::from(unsafe { self.as_raw().log_error() })
-    }
-
-    pub fn tcp_nodelay(&self) -> TcpNoDelay {
-        TcpNoDelay::from(unsafe { self.as_raw().tcp_nodelay() })
-    }
-
-    pub fn tcp_nopush(&self) -> TcpNoPush {
-        TcpNoPush::from(unsafe { self.as_raw().tcp_nopush() })
     }
 
     pub fn close(&self) {

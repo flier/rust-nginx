@@ -16,24 +16,18 @@ foreign_type! {
 }
 
 impl ConfRef {
+    property! {
+        cycle: &CycleRef;
+        pool: &PoolRef;
+        temp_pool: &PoolRef;
+    }
+
     pub fn name(&self) -> &CStr {
         unsafe { CStr::from_ptr(self.as_raw().name) }
     }
 
     pub fn args(&self) -> &ArrayRef<Str> {
         unsafe { ArrayRef::from_ptr(self.as_raw().args) }
-    }
-
-    pub fn cycle(&self) -> &CycleRef {
-        unsafe { CycleRef::from_ptr(self.as_raw().cycle) }
-    }
-
-    pub fn pool(&self) -> &PoolRef {
-        unsafe { PoolRef::from_ptr(self.as_raw().pool) }
-    }
-
-    pub fn temp_pool(&self) -> &PoolRef {
-        unsafe { PoolRef::from_ptr(self.as_raw().temp_pool) }
     }
 
     pub fn as_http_context(&self) -> Option<&http::ConfContextRef> {

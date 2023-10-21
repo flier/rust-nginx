@@ -1,7 +1,7 @@
 use foreign_types::foreign_type;
 use num_enum::FromPrimitive;
 
-use crate::{raw::never_drop, AsRawRef};
+use crate::raw::never_drop;
 
 foreign_type! {
     pub unsafe type HeadersIn: Send {
@@ -71,6 +71,7 @@ impl HeadersInRef {
         content_length_n: i64;
         headers: Headers;
         keep_alive_n: i64;
+        connection_type() into ConnType;
     }
 
     flag! {
@@ -84,10 +85,6 @@ impl HeadersInRef {
         chrome;
         safari;
         konqueror;
-    }
-
-    pub fn connection_type(&self) -> ConnType {
-        ConnType::from(unsafe { self.as_raw().connection_type() })
     }
 }
 
