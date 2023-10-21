@@ -9,10 +9,7 @@ use merge::Merge as AutoMerge;
 use ngx_mod::{
     http::{self, Module as _},
     rt::{
-        core::{
-            conf::{self, Unset},
-            CmdRef, ConfRef, ConnRef,
-        },
+        core::{conf::Unset, CmdRef, ConfRef, ConnRef},
         event::{FreePeerFn, GetPeerFn, PeerConnRef},
         ffi,
         http::{upstream, RequestRef},
@@ -43,6 +40,7 @@ struct SrvConfig {
     original_init_upstream: Option<upstream::InitFn>,
     original_init_peer: Option<upstream::InitPeerFn>,
 }
+
 fn overwrite_unset<T>(left: &mut T, right: T)
 where
     T: Sized + PartialEq + Unset,

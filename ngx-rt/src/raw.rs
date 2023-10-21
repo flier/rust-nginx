@@ -11,6 +11,13 @@ pub trait NativeCallback {
     type CType;
 }
 
+/// Get a wrapped type for the raw type.
+///
+/// # Safety
+///
+/// This function is unsafe because the caller must ensure
+/// that `ptr` is valid for `T` for the duration of the call.
+/// The caller must not free `ptr` after the call.
 pub unsafe trait FromRaw: ForeignType {
     /// Get a raw pointer to the type.
     ///
@@ -29,7 +36,14 @@ unsafe impl<T: ForeignType> FromRaw for T {
     }
 }
 
-pub trait FromRawRef<'a>: ForeignTypeRef {
+/// Get a reference of foreign type from the raw ptr.
+///
+/// # Safety
+///
+/// This function is unsafe because the caller must ensure
+/// that `ptr` is valid for `T` for the duration of the call.
+/// The caller must not free `ptr` after the call.
+pub unsafe trait FromRawRef<'a>: ForeignTypeRef {
     /// Get a raw reference to the type.
     ///
     /// # Safety
@@ -40,14 +54,21 @@ pub trait FromRawRef<'a>: ForeignTypeRef {
     unsafe fn from_raw(ptr: *mut Self::CType) -> Option<&'a Self>;
 }
 
-impl<'a, T: ForeignTypeRef> FromRawRef<'a> for T {
+unsafe impl<'a, T: ForeignTypeRef> FromRawRef<'a> for T {
     #[inline(always)]
     unsafe fn from_raw(ptr: *mut Self::CType) -> Option<&'a Self> {
         NonNull::new(ptr).map(|p| unsafe { Self::from_ptr(p.as_ptr()) })
     }
 }
 
-pub trait FromRawMut<'a>: ForeignTypeRef {
+/// Get a mutable reference of foreign type from the raw ptr.
+///
+/// # Safety
+///
+/// This function is unsafe because the caller must ensure
+/// that `ptr` is valid for `T` for the duration of the call.
+/// The caller must not free `ptr` after the call.
+pub unsafe trait FromRawMut<'a>: ForeignTypeRef {
     /// Get a mutable raw reference to the type.
     ///
     /// # Safety
@@ -58,14 +79,20 @@ pub trait FromRawMut<'a>: ForeignTypeRef {
     unsafe fn from_raw_mut(ptr: *mut Self::CType) -> Option<&'a mut Self>;
 }
 
-impl<'a, T: ForeignTypeRef> FromRawMut<'a> for T {
+unsafe impl<'a, T: ForeignTypeRef> FromRawMut<'a> for T {
     #[inline(always)]
     unsafe fn from_raw_mut(ptr: *mut Self::CType) -> Option<&'a mut Self> {
         NonNull::new(ptr).map(|p| unsafe { Self::from_ptr_mut(p.as_ptr()) })
     }
 }
 
-pub trait AsRawRef: ForeignTypeRef {
+/// get a reference of raw type from the foreign type.
+///
+/// # Safety
+///
+/// This function is unsafe because the caller must ensure
+/// that the foreign type is valid for the duration of the call.
+pub unsafe trait AsRawRef: ForeignTypeRef {
     /// Get the raw reference to the type.
     ///
     /// # Safety
@@ -74,14 +101,20 @@ pub trait AsRawRef: ForeignTypeRef {
     unsafe fn as_raw(&self) -> &Self::CType;
 }
 
-impl<T: ForeignTypeRef> AsRawRef for T {
+unsafe impl<T: ForeignTypeRef> AsRawRef for T {
     #[inline(always)]
     unsafe fn as_raw(&self) -> &Self::CType {
         &*self.as_ptr()
     }
 }
 
-pub trait AsRawMut: ForeignTypeRef {
+/// get a mutable reference of raw type from the foreign type.
+///
+/// # Safety
+///
+/// This function is unsafe because the caller must ensure
+/// that the foreign type is valid for the duration of the call.
+pub unsafe trait AsRawMut: ForeignTypeRef {
     /// Get the mutable raw reference to the type.
     ///
     /// # Safety
@@ -90,7 +123,7 @@ pub trait AsRawMut: ForeignTypeRef {
     unsafe fn as_raw_mut(&mut self) -> &mut Self::CType;
 }
 
-impl<T: ForeignTypeRef> AsRawMut for T {
+unsafe impl<T: ForeignTypeRef> AsRawMut for T {
     #[inline(always)]
     unsafe fn as_raw_mut(&mut self) -> &mut Self::CType {
         &mut *self.as_ptr()
