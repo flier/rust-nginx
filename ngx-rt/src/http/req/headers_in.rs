@@ -62,9 +62,9 @@ impl HeadersInRef {
     }
 
     str! {
-        user;
-        passwd;
-        server;
+        &user?;
+        &passwd?;
+        &server?;
     }
 
     property! {

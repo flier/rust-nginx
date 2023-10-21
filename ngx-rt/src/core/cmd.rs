@@ -3,7 +3,7 @@ use std::slice;
 use bitflags::bitflags;
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{core::Str, ffi, never_drop, AsRawRef};
+use crate::{ffi, never_drop, str, AsRawRef};
 
 foreign_type! {
     pub unsafe type Cmd: Send {
@@ -14,8 +14,8 @@ foreign_type! {
 }
 
 impl CmdRef {
-    pub fn name(&self) -> Option<Str> {
-        unsafe { Str::from_raw(self.as_raw().name) }
+    str! {
+        &name;
     }
 
     pub fn ty(&self) -> Type {

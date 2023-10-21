@@ -234,10 +234,7 @@ struct HeaderExtractor<'a>(Headers<'a>);
 
 impl<'a> Extractor for HeaderExtractor<'a> {
     fn get(&self, key: &str) -> Option<&str> {
-        self.0
-            .find(key)
-            .and_then(|h| h.value())
-            .and_then(|v| v.to_str().ok())
+        self.0.get(key).and_then(|h| h.value().to_str().ok())
     }
 
     fn keys(&self) -> Vec<&str> {
@@ -249,7 +246,7 @@ struct HeaderInjector<'a>(Headers<'a>);
 
 impl<'a> Injector for HeaderInjector<'a> {
     fn set(&mut self, key: &str, value: String) {
-        self.0.set(key, &value);
+        self.0.insert(key, &value);
     }
 }
 
@@ -604,15 +601,13 @@ fn get_span_attrs(req: &RequestRef) -> anyhow::Result<OrderMap<Key, Value>> {
         attrs.push(semcov::trace::HTTP_ROUTE.string(name.to_str()?.to_string()));
     }
 
-    if let Some(s) = req.http_protocol() {
-        let s = s.to_str()?;
-        if s.len() > 5 {
-            let (_, v) = s.split_at("HTTP/".len());
-            attrs.push(semcov::trace::NETWORK_PROTOCOL_VERSION.string(v.to_string()));
-        }
+    let s = req.http_protocol().to_str()?;
+    if s.len() > 5 {
+        let (_, v) = s.split_at("HTTP/".len());
+        attrs.push(semcov::trace::NETWORK_PROTOCOL_VERSION.string(v.to_string()));
     }
 
-    if let Some(ua) = req.user_agent().and_then(|h| h.value()) {
+    if let Some(ua) = req.user_agent().map(|h| h.value()) {
         attrs.push(semcov::trace::USER_AGENT_ORIGINAL.string(ua.to_str()?.to_string()));
     }
 

@@ -11,7 +11,7 @@ pub trait NativeCallback {
     type CType;
 }
 
-pub trait FromRaw: ForeignType {
+pub unsafe trait FromRaw: ForeignType {
     /// Get a raw pointer to the type.
     ///
     /// # Safety
@@ -22,7 +22,7 @@ pub trait FromRaw: ForeignType {
     unsafe fn from_raw(ptr: *mut Self::CType) -> Option<Self>;
 }
 
-impl<T: ForeignType> FromRaw for T {
+unsafe impl<T: ForeignType> FromRaw for T {
     #[inline(always)]
     unsafe fn from_raw(ptr: *mut Self::CType) -> Option<Self> {
         NonNull::new(ptr).map(|p| unsafe { Self::from_ptr(p.as_ptr()) })

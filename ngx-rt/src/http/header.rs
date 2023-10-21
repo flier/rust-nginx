@@ -12,7 +12,31 @@ pub type Header = hash::TableEltRef;
 pub struct Headers<'a>(&'a mut ListRef<<hash::TableEltRef as ForeignTypeRef>::CType>);
 
 impl<'a> Headers<'a> {
-    pub fn add<K, V>(&mut self, key: K, value: V) -> Option<&Header>
+    /// Inserts a key-value pair into the map.
+    ///
+    /// If the map did not previously have this key present, then None is returned.
+    /// If the map did have this key present, the new value is associated with the key and the previous values are returned.
+    pub fn insert<K, V>(&mut self, key: K, value: V) -> Option<&mut Header>
+    where
+        K: AsRef<str>,
+        V: AsRef<str>,
+    {
+        let key = key.as_ref();
+        let value = value.as_ref();
+
+        if self.contains_key(key) {
+            let v = self.0.pool().strdup(value)?;
+
+            self.get_mut(key).map(|h| {
+                h.set_value(v);
+                h
+            })
+        } else {
+            self.append(key, value)
+        }
+    }
+
+    fn append<K, V>(&mut self, key: K, value: V) -> Option<&mut Header>
     where
         K: AsRef<str>,
         V: AsRef<str>,
@@ -38,38 +62,19 @@ impl<'a> Headers<'a> {
 
         self.0
             .push(elt)
-            .map(|elt| unsafe { hash::TableEltRef::from_ptr(elt as *mut _) })
+            .map(|elt| unsafe { hash::TableEltRef::from_ptr_mut(elt as *mut _) })
     }
 
-    pub fn set<K, V>(&mut self, key: K, value: V) -> Option<&Header>
-    where
-        K: AsRef<str>,
-        V: AsRef<str>,
-    {
-        let key = key.as_ref();
-        let value = value.as_ref();
-
-        if self.contains(key) {
-            let v = self.0.pool().strdup(value)?;
-
-            let h = self.find_mut(key).expect("header");
-
-            h.set_value(v);
-
-            Some(h)
-        } else {
-            self.add(key, value)
-        }
-    }
-
-    pub fn contains<Q>(&self, key: Q) -> bool
+    /// Returns true if the map contains a value for the specified key.
+    pub fn contains_key<Q>(&self, key: Q) -> bool
     where
         Q: AsRef<str>,
     {
-        self.find(key).is_some()
+        self.get(key).is_some()
     }
 
-    pub fn find<Q>(&self, key: Q) -> Option<&Header>
+    /// Returns a reference to the value associated with the key.
+    pub fn get<Q>(&self, key: Q) -> Option<&Header>
     where
         Q: AsRef<str>,
     {
@@ -78,12 +83,12 @@ impl<'a> Headers<'a> {
 
         self.iter().find(|h| {
             h.hash() == hash
-                && h.key().map_or(false, |k| k.len() == key.len())
+                && h.key().len() == key.len()
                 && h.lowcase_key().map_or(false, |k| k == key)
         })
     }
 
-    pub fn find_mut<Q>(&mut self, key: Q) -> Option<&mut Header>
+    pub fn get_mut<Q>(&mut self, key: Q) -> Option<&mut Header>
     where
         Q: AsRef<str>,
     {
@@ -92,7 +97,7 @@ impl<'a> Headers<'a> {
 
         self.iter_mut().find(|h| {
             h.hash() == hash
-                && h.key().map_or(false, |k| k.len() == key.len())
+                && h.key().len() == key.len()
                 && h.lowcase_key().map_or(false, |k| k == key)
         })
     }

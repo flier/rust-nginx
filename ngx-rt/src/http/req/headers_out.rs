@@ -2,7 +2,7 @@ use std::{ffi::CStr, ptr::NonNull};
 
 use foreign_types::foreign_type;
 
-use crate::{core::Str, raw::never_drop, AsRawRef};
+use crate::{raw::never_drop, AsRawRef};
 
 foreign_type! {
     pub unsafe type HeadersOut: Send {
@@ -13,18 +13,21 @@ foreign_type! {
 }
 
 impl HeadersOutRef {
+    str! {
+        &status_line;
+
+        override_charset?;
+        &content_type?;
+        &charset?;
+    }
+
     property! {
         headers: Headers;
         trailers: Headers;
 
         status: usize;
-        &status_line: &Str;
-
-        override_charset as &Str;
 
         content_type_len: usize;
-        &content_type: &Str;
-        &charset: &Str;
 
         content_type_hash: usize;
         content_length_n: i64;

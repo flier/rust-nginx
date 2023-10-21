@@ -31,22 +31,6 @@ macro_rules! property {
         $crate::property!( $( $rest )* );
     };
 
-    ( $( #[$attr:meta] )* $name:ident : Str ) => {
-        $( #[$attr] )*
-        #[inline(always)]
-        pub fn $name(&self) -> Option<$crate::core::Str> {
-            unsafe {
-                let p = $crate::AsRawRef::as_raw(self).$name;
-
-                $crate::core::Str::from_raw(p)
-            }
-        }
-    };
-    ( $( #[$attr:meta] )* $name:ident : Str ; $($rest:tt)* ) => {
-        $crate::property!( $( #[$attr] )* $name : Str );
-        $crate::property!( $( $rest )* );
-    };
-
     ( $( #[$attr:meta] )* $name:ident as Header ) => {
         $( #[$attr] )*
         #[inline(always)]
@@ -85,7 +69,7 @@ macro_rules! property {
     ( $( #[$attr:meta] )* $name:ident as & $ty:ty ) => {
         $( #[$attr] )*
         #[inline(always)]
-        pub fn $name(&self) -> Option<&$ty> {
+        pub fn $name(&self) -> Option<& $ty> {
             unsafe {
                 let p = $crate::AsRawRef::as_raw(self).$name;
 
@@ -118,6 +102,42 @@ macro_rules! property {
         $crate::property!( $( $rest )* );
     };
 
+    ( $( #[$attr:meta] )* & $name:ident as & $ty:ty ) => {
+        $( #[$attr] )*
+        #[inline(always)]
+        pub fn $name(&self) -> Option<& $ty> {
+            unsafe {
+                let p = & $crate::AsRawRef::as_raw(self).$name;
+
+                <$ty as $crate::FromRawRef>::from_raw(p as * const _ as * mut _)
+            }
+        }
+    };
+    ( $( #[$attr:meta] )* & $name:ident as & $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!($( #[$attr] )* & $name as & $ty);
+        $crate::property!( $( $rest )* );
+    };
+
+    ( $( #[$attr:meta] )* &mut $name:ident as &mut $ty:ty ) => {
+        $crate::property!($( #[$attr] )* & $name as & $ty);
+
+        ::paste::paste! {
+            $( #[$attr] )*
+            #[inline(always)]
+            pub fn [< $name _mut >](&mut self) -> Option<&mut $ty> {
+                unsafe {
+                    let p = &mut $crate::AsRawMut::as_raw_mut(self).$name;
+
+                    <$ty as $crate::FromRawMut>::from_raw_mut(p as * mut _)
+                }
+            }
+        }
+    };
+    ( $( #[$attr:meta] )* &mut $name:ident as &mut $ty:ty ; $($rest:tt)* ) => {
+        $crate::property!($( #[$attr] )* &mut $name as &mut $ty);
+        $crate::property!( $( $rest )* );
+    };
+
     ( $( #[$attr:meta] )* $name:ident () as $ty:ty ) => {
         $( #[$attr] )*
         #[inline(always)]
@@ -125,7 +145,7 @@ macro_rules! property {
             unsafe {
                 let p = $crate::AsRawRef::as_raw(self).$name();
 
-                <$ty>::from_raw(p)
+                <$ty as $crate::FromRawRef>::from_raw(p)
             }
         }
     };
@@ -189,7 +209,7 @@ macro_rules! property {
     ( $( #[$attr:meta] )* $name:ident : & $ty:ty ) => {
         $( #[$attr] )*
         #[inline(always)]
-        pub fn $name(&self) -> &$ty {
+        pub fn $name(&self) -> & $ty {
             unsafe {
                 let p = $crate::AsRawRef::as_raw(self).$name as *const _ as *mut _;
 
@@ -315,12 +335,40 @@ macro_rules! str {
         $crate::str!( $( $rest )* );
     };
 
+    ( $( #[$attr:meta] )* &mut $name:ident ) => {
+        $crate::property!{ $( #[$attr] )* &mut $name: &mut $crate::core::Str }
+    };
+
+    ( $( #[$attr:meta] )* &mut $name:ident ; $($rest:tt)* ) => {
+        $crate::str!( $( #[$attr] )* &mut $name );
+        $crate::str!( $( $rest )* );
+    };
+
+
+    ( $( #[$attr:meta] )* & $name:ident ? ) => {
+        $crate::property!{ $( #[$attr] )* & $name as & $crate::core::Str }
+    };
+
+    ( $( #[$attr:meta] )* & $name:ident ? ; $($rest:tt)* ) => {
+        $crate::str!( $( #[$attr] )* & $name ? );
+        $crate::str!( $( $rest )* );
+    };
+
     ( $( #[$attr:meta] )* $name:ident ) => {
-        $crate::property!{ $( #[$attr] )* $name: Str }
+        $crate::property!{ $( #[$attr] )* $name : & $crate::core::Str }
     };
 
     ( $( #[$attr:meta] )* $name:ident ; $($rest:tt)* ) => {
         $crate::str!( $( #[$attr] )* $name );
+        $crate::str!( $( $rest )* );
+    };
+
+    ( $( #[$attr:meta] )* $name:ident ? ) => {
+        $crate::property!{ $( #[$attr] )* $name as & $crate::core::Str }
+    };
+
+    ( $( #[$attr:meta] )* $name:ident ? ; $($rest:tt)* ) => {
+        $crate::str!( $( #[$attr] )* $name ? );
         $crate::str!( $( $rest )* );
     };
 }

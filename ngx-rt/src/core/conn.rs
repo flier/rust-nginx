@@ -99,7 +99,7 @@ impl ConnRef {
     }
 
     str! {
-        addr_text;
+        &addr_text?;
     }
 
     flag! {

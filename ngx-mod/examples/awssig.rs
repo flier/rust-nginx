@@ -158,10 +158,7 @@ fn header_handler(req: &mut RequestRef) -> Result<Code, Code> {
         "https://{}.{}{}",
         conf.s3_bucket.as_ref().map(|s| s.as_str()).unwrap_or(""),
         conf.s3_endpoint.as_ref().map(|s| s.as_str()).unwrap_or(""),
-        req.unparsed_uri().ok_or(Code::ERROR).and_then(|s| s
-            .to_str()
-            .map(|s| s.to_string())
-            .map_err(|_| Code::DECLINED))?
+        req.unparsed_uri().to_str().map_err(|_| Code::DECLINED)?
     );
 
     let datetime = chrono::Utc::now();
@@ -173,8 +170,8 @@ fn header_handler(req: &mut RequestRef) -> Result<Code, Code> {
         // Copy only headers that will be used to sign the request
         let mut headers = HeaderMap::new();
 
-        if let Some(s) = req.host().and_then(|h| h.value().cloned()) {
-            if let Ok(s) = s.to_str() {
+        if let Some(h) = req.host() {
+            if let Ok(s) = h.value().to_str() {
                 if let Ok(val) = s.parse() {
                     headers.insert(http::header::HOST, val);
                 }
@@ -197,8 +194,8 @@ fn header_handler(req: &mut RequestRef) -> Result<Code, Code> {
         .sign()
     };
 
-    req.headers().add("authorization", signature.as_str());
-    req.headers().add("X-Amz-Date", datetime_now.as_str());
+    req.headers().insert("authorization", signature.as_str());
+    req.headers().insert("X-Amz-Date", datetime_now.as_str());
 
     Ok(Code::OK)
 }

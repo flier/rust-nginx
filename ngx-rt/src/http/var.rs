@@ -205,8 +205,11 @@ impl DerefMut for VarRef {
 }
 
 impl VarRef {
+    str! {
+        &name;
+    }
+
     property! {
-        &name: &Str;
         /// passed to variable handlers
         data: usize;
         /// assigned variable index used to reference the variable

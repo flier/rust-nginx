@@ -6,9 +6,7 @@ use std::{
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{ffi, never_drop, AsRawMut, AsRawRef};
-
-use super::{LogRef, Str};
+use crate::{core::LogRef, ffi, never_drop, AsRawMut, AsRawRef};
 
 foreign_type! {
     pub unsafe type Shm: Send {
@@ -21,24 +19,21 @@ foreign_type! {
 impl ShmRef {
     const EXISTS_BIT: usize = 0x0001;
 
+    str! {
+        &name;
+    }
+
+    property! {
+        size: usize;
+        log: &LogRef;
+    }
+
     pub fn exists(&self) -> bool {
         unsafe { self.as_raw().exists & Self::EXISTS_BIT != 0 }
     }
 
     pub fn addr(&self) -> Option<NonNull<u8>> {
         NonNull::new(unsafe { self.as_raw().addr.cast() })
-    }
-
-    pub fn size(&self) -> usize {
-        unsafe { self.as_raw().size }
-    }
-
-    pub fn name(&self) -> Option<Str> {
-        unsafe { Str::from_raw(self.as_raw().name) }
-    }
-
-    pub fn log(&self) -> &LogRef {
-        unsafe { LogRef::from_ptr(self.as_raw().log) }
     }
 
     pub fn as_slice(&self) -> Option<&[u8]> {

@@ -15,7 +15,10 @@ impl core::Module for M {
 #[cfg(test)]
 mod tests {
     use ngx_mod::{
-        rt::core::{ModuleType, Str},
+        rt::{
+            core::{ModuleType, Str},
+            FromRawRef,
+        },
         ModuleMetadata,
     };
 
@@ -38,7 +41,7 @@ mod tests {
     fn module_ctx() {
         assert_eq!(
             unsafe {
-                Str::from_raw(ngx_m_module_ctx.name)
+                Str::from_raw(&ngx_m_module_ctx.name as *const _ as *mut _)
                     .unwrap()
                     .to_str()
                     .unwrap()

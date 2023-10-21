@@ -12,7 +12,7 @@ foreign_type! {
 
 impl SrvConfRef {
     str! {
-        server_name;
+        &server_name?;
     }
 
     property! {

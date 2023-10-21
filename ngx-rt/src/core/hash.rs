@@ -135,16 +135,13 @@ foreign_type! {
 }
 
 impl TableEltRef {
-    pub fn hash(&self) -> usize {
-        unsafe { self.as_raw().hash }
+    property! {
+        hash: usize;
     }
 
-    pub fn key(&self) -> Option<&Str> {
-        unsafe { Str::from_ptr(&self.as_raw().key as *const _ as *mut _) }
-    }
-
-    pub fn value(&self) -> Option<&Str> {
-        unsafe { Str::from_ptr(&self.as_raw().value as *const _ as *mut _) }
+    str! {
+        &key;
+        &mut value;
     }
 
     pub fn set_value<S: Into<<Str as ForeignTypeRef>::CType>>(&mut self, value: S) {

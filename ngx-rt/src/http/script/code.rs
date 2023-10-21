@@ -124,7 +124,7 @@ impl RegexCodeRef {
     }
 
     str! {
-        name;
+        &name;
     }
 }
 

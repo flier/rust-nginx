@@ -118,21 +118,23 @@ impl RequestRef {
         /// the name of client HTTP request method.
         &method_name;
 
+        /// client HTTP protocol version in its original text form
+        &http_protocol;
+
         /// URI for the current request.
         &uri;
 
         /// arguments for the current request.
-        args;
+        &args?;
 
         /// file extension for the current request.
-        exten;
+        &exten?;
 
         /// URI in the original client request.
-        unparsed_uri;
+        &unparsed_uri;
 
-        /// client HTTP protocol version in its original text form
-        http_protocol;
-        schema;
+        /// HTTP request schema.
+        &schema?;
     }
 
     callback! {
