@@ -38,6 +38,22 @@ impl CycleRef {
         &new_log: &LogRef;
 
         old_cycle as &CycleRef;
+
+        /// open file objects
+        &open_files: &ListRef<OpenFile>;
+
+        /// hared memory zones
+        &shared_memory: &ListRef<shm::Zone>;
+    }
+
+    str! {
+        &conf_file;
+        &conf_param;
+        &conf_prefix;
+        &prefix;
+        &error_log;
+        &lock_file;
+        &hostname;
     }
 
     pub fn conns(&self) -> ConnSlice {
@@ -63,26 +79,6 @@ impl CycleRef {
 
             std::slice::from_raw_parts(r.modules.cast(), r.modules_n)
         }
-    }
-
-    /// open file objects
-    pub fn open_files(&self) -> &ListRef<OpenFile> {
-        unsafe { ListRef::from_ptr(&self.as_raw().open_files as *const _ as *mut _) }
-    }
-
-    /// hared memory zones
-    pub fn shared_memory(&self) -> &ListRef<shm::Zone> {
-        unsafe { ListRef::from_ptr(&self.as_raw().shared_memory as *const _ as *mut _) }
-    }
-
-    str! {
-        &conf_file;
-        &conf_param;
-        &conf_prefix;
-        &prefix;
-        &error_log;
-        &lock_file;
-        &hostname;
     }
 }
 

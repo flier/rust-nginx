@@ -57,6 +57,10 @@ impl LogRef {
     const LOG_LEVEL_MASK: u32 = 0x000F;
     const LOG_MODULE_MASK: u32 = 0xFFF0;
 
+    property! {
+        file: &OpenFileRef;
+    }
+
     pub fn level(&self) -> Level {
         Level::from(unsafe { self.as_raw().log_level as u32 & Self::LOG_LEVEL_MASK })
     }
@@ -69,10 +73,6 @@ impl LogRef {
 
     pub fn with_module(&mut self, module: Module) {
         unsafe { self.as_raw_mut().log_level |= module.bits() as usize }
-    }
-
-    pub fn file(&self) -> &OpenFileRef {
-        unsafe { OpenFileRef::from_ptr(self.as_raw().file) }
     }
 
     pub fn core(&self) -> WithModule {

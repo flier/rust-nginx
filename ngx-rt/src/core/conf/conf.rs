@@ -1,4 +1,4 @@
-use std::{ffi::CStr, ptr::NonNull};
+use std::ptr::NonNull;
 
 use foreign_types::{foreign_type, ForeignTypeRef};
 
@@ -20,14 +20,8 @@ impl ConfRef {
         cycle: &CycleRef;
         pool: &PoolRef;
         temp_pool: &PoolRef;
-    }
-
-    pub fn name(&self) -> &CStr {
-        unsafe { CStr::from_ptr(self.as_raw().name) }
-    }
-
-    pub fn args(&self) -> &ArrayRef<Str> {
-        unsafe { ArrayRef::from_ptr(self.as_raw().args) }
+        name: &CStr;
+        args: &ArrayRef<Str>;
     }
 
     pub fn as_http_context(&self) -> Option<&http::ConfContextRef> {

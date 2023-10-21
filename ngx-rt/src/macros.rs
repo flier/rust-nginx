@@ -31,6 +31,18 @@ macro_rules! property {
         $crate::property!( $( $rest )* );
     };
 
+    ( $( #[$attr:meta] )* $name:ident : &CStr ) => {
+        $( #[$attr] )*
+        #[inline(always)]
+        pub fn $name(&self) -> &::std::ffi::CStr {
+            unsafe { ::std::ffi::CStr::from_ptr($crate::AsRawRef::as_raw(self).$name) }
+        }
+    };
+    ( $( #[$attr:meta] )* $name:ident : &CStr ; $($rest:tt)* ) => {
+        $crate::property!( $( #[$attr] )* $name : &CStr );
+        $crate::property!( $( $rest )* );
+    };
+
     ( $( #[$attr:meta] )* $name:ident : Headers ) => {
         $( #[$attr] )*
         #[inline(always)]

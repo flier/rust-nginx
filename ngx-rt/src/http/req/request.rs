@@ -109,6 +109,8 @@ impl RequestRef {
 
         limit_conn_status(): u32;
         limit_req_status(): u32;
+
+        http_state() into State;
     }
 
     str! {
@@ -268,10 +270,6 @@ impl RequestRef {
 
             ((v >> 16) as u32, (v & 0xFFFF) as u32)
         }
-    }
-
-    pub fn http_state(&self) -> State {
-        unsafe { State::from(self.as_raw().http_state()) }
     }
 
     /// Bitmask showing which modules have buffered the output produced by the request.

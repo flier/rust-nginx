@@ -26,6 +26,10 @@ impl<T: Sized> List<T> {
 }
 
 impl<T: Sized> ListRef<T> {
+    property! {
+        pool: &PoolRef;
+    }
+
     pub fn is_empty(&self) -> bool {
         unsafe {
             let r = self.as_raw();
@@ -36,10 +40,6 @@ impl<T: Sized> ListRef<T> {
 
     pub fn len(&self) -> usize {
         self.parts().map(|p| p.len()).sum()
-    }
-
-    pub fn pool(&self) -> &PoolRef {
-        unsafe { PoolRef::from_ptr(self.as_raw().pool) }
     }
 
     pub fn push(&mut self, value: T) -> Option<&mut T> {

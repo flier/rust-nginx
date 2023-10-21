@@ -1,4 +1,4 @@
-use std::{ffi::CStr, slice};
+use std::slice;
 
 use foreign_types::foreign_type;
 use num_enum::FromPrimitive;
@@ -18,14 +18,8 @@ impl ModuleRef {
         ctx_index: usize;
         index: usize;
         version: usize;
-    }
-
-    pub fn name(&self) -> &CStr {
-        unsafe { CStr::from_ptr(self.as_raw().name) }
-    }
-
-    pub fn signature(&self) -> &CStr {
-        unsafe { CStr::from_ptr(self.as_raw().signature) }
+        name: &CStr;
+        signature: &CStr;
     }
 
     pub fn ty(&self) -> Type {

@@ -145,8 +145,8 @@ foreign_type! {
 }
 
 impl ChainRef {
-    pub fn buf(&self) -> &BufRef {
-        unsafe { BufRef::from_ptr(self.as_raw().buf) }
+    property! {
+        buf: &BufRef;
     }
 
     pub fn next(&self) -> Option<&Self> {
