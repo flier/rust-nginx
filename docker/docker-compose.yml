@@ -1,0 +1,45 @@
+version: "3.8"
+
+x-common-variables: &build-args
+  UBUNTU_VERSION: 22.04
+  NGINX_VERSION: 1.24.0
+  NGINX_OPTS: |
+    --with-compat
+    --with-debug
+    --with-http_ssl_module
+    --with-stream
+
+services:
+  base:
+    image: rust-nginx/base
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+      args: *build-args
+      target: base
+      labels:
+        org.opencontainers.image.authors: Flier Lu <flier.lu@gmail.com>
+      ssh:
+        - default
+    expose:
+      - 15500
+      - 15501
+      - 15502
+      - 15503
+      - 15504
+      - 15505
+    volumes:
+      - log-data:/usr/local/nginx/logs
+
+  integration-tests:
+    image: rust-nginx/integration-tests
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+      args: *build-args
+      target: integration-tests
+      labels:
+        org.opencontainers.image.authors: Flier Lu <flier.lu@gmail.com>
+
+volumes:
+  log-data:

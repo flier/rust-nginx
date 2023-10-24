@@ -191,7 +191,7 @@ unsafe fn sockaddr(sa: NonNull<ffi::sockaddr>, len: usize) -> Option<SocketAddr>
             .as_ref()
             .map(|sa| {
                 SocketAddr::V4(SocketAddrV4::new(
-                    Ipv4Addr::from(sa.sin_addr.s_addr.to_be_bytes()),
+                    Ipv4Addr::from(sa.sin_addr.s_addr.to_ne_bytes()),
                     u16::from_be(sa.sin_port),
                 ))
             }),

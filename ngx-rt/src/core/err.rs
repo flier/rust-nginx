@@ -2,6 +2,8 @@ use std::ffi::CString;
 
 use crate::ffi;
 
+pub use errno::{errno, Errno};
+
 pub fn strerror(err: ffi::ngx_err_t) -> CString {
     #[cfg(feature = "static-link")]
     {

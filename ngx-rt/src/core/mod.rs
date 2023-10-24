@@ -28,7 +28,7 @@ pub use self::conn::{
     Conn, ConnList, ConnRef, ConnSlice, ConnsIter, LogError, SocketType, TcpNoDelay, TcpNoPush,
 };
 pub use self::cycle::{ConfContext, Cycle, CycleRef, UnsafeConfContext};
-pub use self::err::strerror;
+pub use self::err::{errno, strerror, Errno};
 pub use self::file::{
     CopyFile, CopyFileRef, ExtRenameFile, ExtRenameFileRef, File, FileRef, Path, PathRef, TempFile,
     TempFileRef,

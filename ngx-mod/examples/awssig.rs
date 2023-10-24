@@ -133,7 +133,7 @@ fn set_s3_endpoint(cf: &ConfRef, _cmd: &CmdRef, conf: &mut Config) -> anyhow::Re
         .transpose()?
         .map(|s| s.to_string());
 
-    notice!(cf, "AwsSig set S3 bucket: {:?}", conf.s3_endpoint);
+    notice!(cf, "AwsSig set S3 endpoint: {:?}", conf.s3_endpoint);
 
     Ok(())
 }

@@ -1,14 +1,16 @@
 #![crate_type = "dylib"]
 #![cfg(not(feature = "static-link"))]
 
-use std::{mem::zeroed, net::SocketAddrV4, os::fd::AsRawFd, ptr::NonNull};
+use std::mem::zeroed;
+use std::net::{SocketAddr, SocketAddrV4};
+use std::os::fd::AsRawFd;
 
 use socket2::SockAddr;
 
 use ngx_mod::{
     http::{self, Module as _},
     rt::{
-        core::{Code, ConfRef, PoolRef, Str},
+        core::{errno, Code, ConfRef, PoolRef, Str},
         http::{ModuleContext, RequestRef, ValueRef},
         http_debug, native_handler, ngx_var, notice,
     },
@@ -53,6 +55,8 @@ fn get_origdst(req: &RequestRef) -> Result<SocketAddrV4, Code> {
         Code::ERROR
     })?;
 
+    http_debug!(req, "httporigdst: local addr: {}", local);
+
     if !local.is_ipv4() {
         http_debug!(req, "httporigdst: only support IPv4");
 
@@ -71,12 +75,22 @@ fn get_origdst(req: &RequestRef) -> Result<SocketAddrV4, Code> {
             &mut len as *mut _,
         ) < 0
         {
-            http_debug!(req, "httporigdst: getsockopt failed");
+            http_debug!(req, "httporigdst: getsockopt failed, {}", errno());
 
             return Err(Code::DECLINED);
         }
 
-        SockAddr::new(ss, len).as_socket_ipv4().ok_or(Code::ERROR)
+        let orig_dst_addr = SockAddr::new(ss, len)
+            .as_socket_ipv4()
+            .ok_or(Code::DECLINED)?;
+
+        if SocketAddr::V4(orig_dst_addr) == local {
+            http_debug!(req, "httporigdst: orig_dst_addr same to local address");
+
+            Err(Code::DECLINED)
+        } else {
+            Ok(orig_dst_addr)
+        }
     }
 }
 
@@ -144,11 +158,7 @@ impl OrigDstCtx {
         if self.orig_dst_addr.is_empty() {
             v.set_not_found(true);
         } else {
-            v.set_valid(true)
-                .set_no_cacheable(true)
-                .set_not_found(false)
-                .set_len(self.orig_dst_addr.len() as u32)
-                .set_data(NonNull::new(self.orig_dst_addr.as_ptr() as *mut u8));
+            v.set_value(self.orig_dst_addr);
         }
     }
 
@@ -156,11 +166,7 @@ impl OrigDstCtx {
         if self.orig_dst_port.is_empty() {
             v.set_not_found(true);
         } else {
-            v.set_valid(true)
-                .set_no_cacheable(true)
-                .set_not_found(false)
-                .set_len(self.orig_dst_port.len() as u32)
-                .set_data(NonNull::new(self.orig_dst_port.as_ptr() as *mut u8));
+            v.set_value(self.orig_dst_port);
         }
     }
 }
