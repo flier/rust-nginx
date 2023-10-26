@@ -23,13 +23,10 @@ impl<'a> ToTokens for Directive<'a> {
         let struct_name = self.struct_name;
         let field_name = &self.name;
         let name = self.name();
-        let conf_ty = self
-            .struct_args
-            .scope
-            .types
-            .iter()
-            .cloned()
-            .collect::<Vec<_>>();
+        let conf_ty = self.struct_args.scope.as_ref().map_or_else(
+            || vec![super::Type::Any],
+            |scope| scope.types.iter().cloned().collect::<Vec<_>>(),
+        );
         let conf_off = self
             .args
             .conf_offset()

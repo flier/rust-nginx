@@ -106,8 +106,9 @@ impl<'a> Compiler<'a> {
             }
 
             ffi::ngx_http_compile_complex_value(&mut ccv)
-                .ok_or_else(Error::InternalError)
+                .ok()
                 .map(|_| ())
+                .map_err(Error::InternalError)
         }
     }
 }

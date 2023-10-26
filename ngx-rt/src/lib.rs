@@ -24,4 +24,4 @@ pub use self::raw::{
 };
 
 #[doc(hidden)]
-pub(crate) use self::raw::never_drop;
+pub(crate) use self::raw::{box_copy, box_drop, never_drop};

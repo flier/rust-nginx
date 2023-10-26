@@ -6,11 +6,7 @@ use syn::{
     ItemImpl,
 };
 
-use crate::{
-    conf::r#struct::DefaultValue,
-    extract,
-    util::{find_ngx_mod, find_ngx_rt},
-};
+use crate::{conf::r#struct::DefaultValue, extract, util::find_ngx_rt};
 
 use super::{Directive, FieldArgs, StructArgs};
 
@@ -63,7 +59,6 @@ pub fn expand(input: DeriveInput) -> TokenStream {
     };
 
     let ngx_rt = find_ngx_rt();
-    let ngx_mod = find_ngx_mod();
 
     let impl_default: Option<ItemImpl> = struct_args.default_value().map(|v| {
         let block: Block = match v {
@@ -91,15 +86,27 @@ pub fn expand(input: DeriveInput) -> TokenStream {
 
     let n = directives.len();
 
-    quote! {
-        impl #impl_generics #ngx_mod ::UnsafeConf for #struct_name #ty_generics #where_clause {
-            type T = [#ngx_rt ::ffi::ngx_command_t; #n];
+    let impl_unsafe_conf: ItemImpl = parse_quote! {
+        impl #impl_generics #ngx_rt ::core::UnsafeConf for #struct_name #ty_generics #where_clause {
+            type Commands = [#ngx_rt ::ffi::ngx_command_t; #n];
 
-            const COMMANDS: [#ngx_rt ::ffi::ngx_command_t; #n] = [
+            const COMMANDS: Self::Commands = [
                 #( #directives ),*
             ];
         }
+    };
 
+    let impl_conf_ext: ItemImpl = parse_quote! {
+        impl #impl_generics #ngx_rt ::core::ConfExt for #struct_name #ty_generics #where_clause {
+            fn commands() -> #ngx_rt ::core::Cmds<'static> {
+                #ngx_rt ::core::Cmds::from( & <Self as #ngx_rt ::core::UnsafeConf>::COMMANDS[.. #n - 1])
+            }
+        }
+    };
+
+    quote! {
         #impl_default
+        #impl_unsafe_conf
+        #impl_conf_ext
     }
 }

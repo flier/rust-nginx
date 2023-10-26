@@ -1,10 +1,24 @@
-use std::{ffi::c_char, ptr::NonNull};
+use std::ffi::{c_char, CStr, CString};
+use std::ptr::NonNull;
 
 use foreign_types::{ForeignType, ForeignTypeRef};
+
+use crate::{
+    core::conf::{NGX_CONF_ERROR, NGX_CONF_OK},
+    Error,
+};
 
 #[inline(always)]
 pub(crate) fn never_drop<T>(_: *mut T) {
     unreachable!()
+}
+
+pub(crate) unsafe fn box_copy<T>(p: *mut T) -> *mut T {
+    Box::into_raw(Box::new(p.read()))
+}
+
+pub(crate) unsafe fn box_drop<T>(p: *mut T) {
+    let _ = Box::from_raw(p);
 }
 
 pub trait NativeCallback {
@@ -131,31 +145,41 @@ unsafe impl<T: ForeignTypeRef> AsRawMut for T {
 }
 
 pub trait AsResult {
-    fn ok(self) -> Result<Self, Self>
-    where
-        Self: Copy,
-    {
-        self.ok_or(self)
-    }
+    type Output;
+    type Error;
 
-    fn ok_or<E>(self, err: E) -> Result<Self, E>
+    fn ok(self) -> Result<Self::Output, Self::Error>
+    where
+        Self: Copy;
+
+    fn ok_or(self, err: Self::Error) -> Result<Self::Output, Self::Error>
     where
         Self: Sized,
     {
         self.ok_or_else(|_| err)
     }
 
-    fn ok_or_else<E, F>(self, err: F) -> Result<Self, E>
+    fn ok_or_else<F>(self, err: F) -> Result<Self::Output, Self::Error>
     where
         Self: Sized,
-        F: FnOnce(Self) -> E;
+        F: FnOnce(Self) -> Self::Error;
 }
 
 impl AsResult for ffi::ngx_int_t {
-    fn ok_or_else<E, F>(self, err: F) -> Result<Self, E>
+    type Output = Self;
+    type Error = Self;
+
+    fn ok(self) -> Result<Self::Output, Self::Error>
+    where
+        Self: Copy,
+    {
+        self.ok_or(self)
+    }
+
+    fn ok_or_else<F>(self, err: F) -> Result<Self::Output, Self::Error>
     where
         Self: Sized,
-        F: FnOnce(Self) -> E,
+        F: FnOnce(Self) -> Self::Error,
     {
         if self == ffi::NGX_OK as isize {
             Ok(self)
@@ -166,13 +190,29 @@ impl AsResult for ffi::ngx_int_t {
 }
 
 impl AsResult for *mut c_char {
-    fn ok_or_else<E, F>(self, err: F) -> Result<Self, E>
+    type Output = ();
+    type Error = Error;
+
+    fn ok(self) -> Result<Self::Output, Self::Error>
+    where
+        Self: Copy,
+    {
+        self.ok_or_else(|err| {
+            Error::ConfigError(if err == NGX_CONF_ERROR {
+                CString::new("error").unwrap()
+            } else {
+                unsafe { CStr::from_ptr(self as *const _).to_owned() }
+            })
+        })
+    }
+
+    fn ok_or_else<F>(self, err: F) -> Result<(), Self::Error>
     where
         Self: Sized,
-        F: FnOnce(Self) -> E,
+        F: FnOnce(Self) -> Self::Error,
     {
-        if self != usize::MAX as Self {
-            Ok(self)
+        if self == NGX_CONF_OK {
+            Ok(())
         } else {
             Err(err(self))
         }

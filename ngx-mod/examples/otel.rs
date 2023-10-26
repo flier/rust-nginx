@@ -8,7 +8,7 @@ use std::ptr;
 use std::time::Duration;
 use std::time::SystemTime;
 
-use anyhow::anyhow;
+use anyhow::{anyhow, bail, Context as _};
 use foreign_types::ForeignTypeRef;
 use opentelemetry::{
     global,
@@ -53,46 +53,15 @@ impl<'a> Module for Otel<'a> {
     fn init_process(cycle: &CycleRef) -> Result<(), Code> {
         info!(cycle, "otel: init process {}", process::id());
 
-        let (endpoint, service_name, batch_size, batch_count, interval) = Self::main_conf(cycle)
-            .and_then(|mcf| {
-                if !mcf.endpoint.is_empty() {
-                    Some((
-                        mcf.endpoint.to_string_lossy().to_string(),
-                        mcf.service_name.to_string_lossy().to_string(),
-                        mcf.batch_size,
-                        mcf.batch_count,
-                        Duration::from_millis(mcf.interval as u64),
-                    ))
-                } else {
-                    None
-                }
-            })
-            .ok_or(Code::ERROR)?;
+        if let Some(mcf) = Self::main_conf(cycle) {
+            if !mcf.exporter.endpoint.is_empty() {
+                mcf.init_tracing().map_err(|err| {
+                    error!(cycle, "otel: failed to initialize opentelemetry: {}", err);
 
-        global::set_text_map_propagator(TraceContextPropagator::new());
-
-        opentelemetry_otlp::new_pipeline()
-            .tracing()
-            .with_exporter(
-                opentelemetry_otlp::new_exporter()
-                    .tonic()
-                    .with_endpoint(endpoint),
-            )
-            .with_trace_config(trace_config().with_resource(Resource::new(vec![
-                semcov::resource::SERVICE_NAME.string(service_name),
-            ])))
-            .with_batch_config(
-                BatchConfig::default()
-                    .with_max_export_batch_size(batch_size)
-                    .with_max_concurrent_exports(batch_count)
-                    .with_scheduled_delay(interval),
-            )
-            .install_batch(runtime::Tokio)
-            .map_err(|err| {
-                error!(cycle, "otel: failed to install opentelemetry: {}", err);
-
-                Code::ERROR
-            })?;
+                    Code::ERROR
+                })?;
+            }
+        }
 
         Ok(())
     }
@@ -139,9 +108,9 @@ impl<'a> http::Module for Otel<'a> {
     fn init_main_conf(cf: &ConfRef, conf: &mut Self::MainConf) -> Result<(), Self::Error> {
         info!(cf, "otel: init main conf");
 
-        conf.interval.or_insert(5000);
-        conf.batch_size.or_insert(512);
-        conf.batch_count.or_insert(4);
+        conf.exporter.interval.or_insert(5000);
+        conf.exporter.batch_size.or_insert(512);
+        conf.exporter.batch_count.or_insert(4);
         conf.service_name
             .or_insert_with(|| Str::from("unknown_service:nginx"));
 
@@ -366,31 +335,77 @@ fn parent_sampled_var(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Res
 
 #[repr(C)]
 #[derive(Clone, Conf)]
-#[conf(http::main, default = unset)]
+#[conf(http::main, default = zeroed)]
 struct MainConf {
-    #[directive(args(1))]
-    endpoint: Str,
-    #[directive(args(1))]
-    interval: MSec,
-    #[directive(args(1))]
-    batch_size: usize,
-    #[directive(args(1))]
-    batch_count: usize,
-    #[directive(args(1))]
+    #[directive(name = "otel_exporter", args(0), block, set = set_exporter)]
+    exporter: Exporter,
+    #[directive(name = "otel_service_name", args(1))]
     service_name: Str,
+}
+
+impl MainConf {
+    pub fn init_tracing(&self) -> anyhow::Result<()> {
+        global::set_text_map_propagator(TraceContextPropagator::new());
+
+        opentelemetry_otlp::new_pipeline()
+            .tracing()
+            .with_exporter(
+                opentelemetry_otlp::new_exporter()
+                    .tonic()
+                    .with_endpoint(self.exporter.endpoint.to_str()?.to_string()),
+            )
+            .with_trace_config(trace_config().with_resource(Resource::new(vec![
+                semcov::resource::SERVICE_NAME.string(self.service_name.to_str()?.to_string()),
+            ])))
+            .with_batch_config(
+                BatchConfig::default()
+                    .with_max_export_batch_size(self.exporter.batch_size)
+                    .with_max_concurrent_exports(self.exporter.batch_count)
+                    .with_scheduled_delay(Duration::from_millis(self.exporter.interval as u64)),
+            )
+            .install_batch(runtime::Tokio)?;
+
+        Ok(())
+    }
+}
+
+#[native_setter(log = cf)]
+fn set_exporter(cf: &ConfRef, _cmd: &CmdRef, conf: &mut MainConf) -> anyhow::Result<()> {
+    if !conf.exporter.endpoint.is_empty() {
+        bail!("exporter is duplicate");
+    }
+
+    cf.parse_block(&mut conf.exporter)
+        .context("parse exporter")?;
+
+    Ok(())
+}
+
+#[repr(C)]
+#[derive(Clone, Conf)]
+#[conf(default = unset)]
+struct Exporter {
+    #[directive(args(1), set = str)]
+    endpoint: Str,
+    #[directive(args(1), set = msec)]
+    interval: MSec,
+    #[directive(args(1), set = size)]
+    batch_size: usize,
+    #[directive(args(1), set = size)]
+    batch_count: usize,
 }
 
 #[repr(C)]
 #[derive(Clone, Conf)]
 #[conf(http::main | http::server | http::location, default = unset)]
 struct LocConf<'a> {
-    #[directive(args(1), set = complex_value)]
+    #[directive(name = "otel_trace", args(1), set = complex_value)]
     trace: Option<&'a ComplexValueRef>,
-    #[directive(args(1), set = enum_values, values = propagation::TYPES)]
+    #[directive(name = "otel_trace_context", args(1), set = enum_values, values = propagation::TYPES)]
     trace_ctx: propagation::Type,
-    #[directive(args(1), set = complex_value)]
+    #[directive(name = "otel_span_name", args(1), set = complex_value)]
     span_name: Option<&'a ComplexValueRef>,
-    #[directive(args(2), set = add_span_attr)]
+    #[directive(name = "otel_span_attr", args(2), set = add_span_attr)]
     span_attrs: <ArrayRef<SpanAttr> as ForeignTypeRef>::CType,
 }
 

@@ -229,10 +229,10 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
                 Some(parse_quote! {
                     #[no_mangle]
                     static mut #ngx_module_cmds_name: [#ngx_rt ::ffi::ngx_command_t;
-                        <<#ident as #ngx_mod ::core::Module>::Conf as #ngx_mod ::UnsafeConf>::COMMANDS.len() +
+                        <<#ident as #ngx_mod ::core::Module>::Conf as #ngx_rt ::core::UnsafeConf>::COMMANDS.len() +
                     1] = unsafe {
                         #ngx_mod ::const_concat!(
-                            <<#ident as #ngx_mod ::core::Module> :: Conf as #ngx_mod ::UnsafeConf>::COMMANDS,
+                            <<#ident as #ngx_mod ::core::Module> :: Conf as #ngx_rt ::core::UnsafeConf>::COMMANDS,
                             [ #ngx_rt ::ngx_command!() ]
                         )
                     };
@@ -255,14 +255,14 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
                 Some(parse_quote! {
                     #[no_mangle]
                     static mut #ngx_module_cmds_name: [#ngx_rt ::ffi::ngx_command_t;
-                        <<#ident as #ngx_mod ::http::Module> :: MainConf as #ngx_mod ::UnsafeConf>::COMMANDS.len() +
-                        <<#ident as #ngx_mod ::http::Module> :: SrvConf as #ngx_mod ::UnsafeConf>::COMMANDS.len() +
-                        <<#ident as #ngx_mod ::http::Module> :: LocConf as #ngx_mod ::UnsafeConf>::COMMANDS.len() +
+                        <<#ident as #ngx_mod ::http::Module> :: MainConf as #ngx_rt ::core::UnsafeConf>::COMMANDS.len() +
+                        <<#ident as #ngx_mod ::http::Module> :: SrvConf as #ngx_rt ::core::UnsafeConf>::COMMANDS.len() +
+                        <<#ident as #ngx_mod ::http::Module> :: LocConf as #ngx_rt ::core::UnsafeConf>::COMMANDS.len() +
                     1] = unsafe {
                         #ngx_mod ::const_concat!(
-                            <<#ident as #ngx_mod ::http::Module> :: MainConf as #ngx_mod ::UnsafeConf>::COMMANDS,
-                            <<#ident as #ngx_mod ::http::Module> :: SrvConf as #ngx_mod ::UnsafeConf>::COMMANDS,
-                            <<#ident as #ngx_mod ::http::Module> :: LocConf as #ngx_mod ::UnsafeConf>::COMMANDS,
+                            <<#ident as #ngx_mod ::http::Module> :: MainConf as #ngx_rt ::core::UnsafeConf>::COMMANDS,
+                            <<#ident as #ngx_mod ::http::Module> :: SrvConf as #ngx_rt ::core::UnsafeConf>::COMMANDS,
+                            <<#ident as #ngx_mod ::http::Module> :: LocConf as #ngx_rt ::core::UnsafeConf>::COMMANDS,
                             [ #ngx_rt ::ngx_command!() ]
                         )
                     };
@@ -283,12 +283,12 @@ pub fn expand(input: syn::DeriveInput) -> TokenStream {
                 Some(parse_quote! {
                     #[no_mangle]
                     static mut #ngx_module_cmds_name: [#ngx_rt ::ffi::ngx_command_t;
-                        <<#ident as #ngx_mod ::stream::Module> :: MainConf as #ngx_mod ::UnsafeConf>::COMMANDS.len() +
-                        <<#ident as #ngx_mod ::stream::Module> :: SrvConf as #ngx_mod ::UnsafeConf>::COMMANDS.len() +
+                        <<#ident as #ngx_mod ::stream::Module> :: MainConf as #ngx_rt ::core::UnsafeConf>::COMMANDS.len() +
+                        <<#ident as #ngx_mod ::stream::Module> :: SrvConf as #ngx_rt ::core::UnsafeConf>::COMMANDS.len() +
                     1] = unsafe {
                         #ngx_mod ::const_concat!(
-                            <<#ident as #ngx_mod ::stream::Module> :: MainConf as #ngx_mod ::UnsafeConf>::COMMANDS,
-                            <<#ident as #ngx_mod ::stream::Module> :: SrvConf as #ngx_mod ::UnsafeConf>::COMMANDS,
+                            <<#ident as #ngx_mod ::stream::Module> :: MainConf as #ngx_rt ::core::UnsafeConf>::COMMANDS,
+                            <<#ident as #ngx_mod ::stream::Module> :: SrvConf as #ngx_rt ::core::UnsafeConf>::COMMANDS,
                             [ #ngx_rt ::ngx_command!() ]
                         )
                     };

@@ -1,4 +1,4 @@
-use std::ffi::c_char;
+use std::ffi::{c_char, CString};
 
 use errno::{errno, Errno};
 use thiserror::Error;
@@ -17,6 +17,9 @@ pub enum Error {
 
     #[error("internal error, {0}")]
     InternalError(isize),
+
+    #[error("config error, {0:?}")]
+    ConfigError(CString),
 
     #[error(transparent)]
     NulError(#[from] std::ffi::NulError),

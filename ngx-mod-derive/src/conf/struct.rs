@@ -8,14 +8,9 @@ use super::Scope;
 #[derive(Clone, Debug, Default, Merge, StructMeta)]
 pub struct StructArgs {
     #[struct_meta(unnamed)]
-    #[merge(strategy = append_scope)]
-    pub scope: Scope,
+    pub scope: Option<Scope>,
     pub name: Option<NameValue<Ident>>,
     pub default: Option<NameValue<Ident>>,
-}
-
-fn append_scope(lhs: &mut Scope, rhs: Scope) {
-    lhs.types.extend(rhs.types)
 }
 
 impl StructArgs {

@@ -9,7 +9,7 @@ mod log;
 mod open_file;
 mod unset;
 
-pub use self::conf::{Conf, ConfRef};
+pub use self::conf::{Conf, ConfExt, ConfRef, UnsafeConf};
 pub use self::file::{ConfFile, ConfFileRef};
 pub use self::open_file::{OpenFile, OpenFileRef};
 pub use self::r#enum::values as enum_values;

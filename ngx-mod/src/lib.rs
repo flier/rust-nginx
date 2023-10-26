@@ -14,6 +14,5 @@ pub mod http;
 #[cfg(feature = "stream")]
 pub mod stream;
 
-pub use self::conf::UnsafeConf;
 pub use self::merge::Merge;
 pub use self::module::{Module, ModuleMetadata, UnsafeModule, UNSET_INDEX};

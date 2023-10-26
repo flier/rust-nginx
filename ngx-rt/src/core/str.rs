@@ -11,7 +11,7 @@ use foreign_types::ForeignTypeRef;
 use crate::{core::PoolRef, ffi::ngx_str_t};
 
 #[repr(transparent)]
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 pub struct Str(ngx_str_t);
 
 impl Str {
@@ -146,6 +146,12 @@ impl DerefMut for Str {
 impl PartialEq<ffi::ngx_str_t> for Str {
     fn eq(&self, other: &ffi::ngx_str_t) -> bool {
         unsafe { self.as_bytes() == slice::from_raw_parts(other.data, other.len) }
+    }
+}
+
+impl PartialEq<Str> for Str {
+    fn eq(&self, other: &Str) -> bool {
+        self.as_bytes() == other.as_bytes()
     }
 }
 
