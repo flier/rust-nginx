@@ -22,6 +22,7 @@ pub enum Set {
     BitMask,
     Path,
     Access,
+    #[cfg(feature = "http")]
     ComplexValue,
     #[cfg(feature = "http")]
     HttpTypes,
@@ -49,6 +50,7 @@ impl FromStr for Set {
             "bitmask" => BitMask,
             "path" => Path,
             "access" => Access,
+            #[cfg(feature = "http")]
             "complex_value" => ComplexValue,
             #[cfg(feature = "http")]
             "types" | "http_types" => HttpTypes,
@@ -78,6 +80,7 @@ impl ToTokens for Set {
             BitMask => quote! { #ngx_rt ::ffi::ngx_conf_set_bitmask_slot },
             Path => quote! { #ngx_rt ::ffi::ngx_conf_set_path_slot },
             Access => quote! { #ngx_rt ::ffi::ngx_conf_set_access_slot },
+            #[cfg(feature = "http")]
             ComplexValue => quote! { #ngx_rt ::ffi::ngx_http_set_complex_value_slot },
             #[cfg(feature = "http")]
             HttpTypes => quote! { #ngx_rt ::ffi::ngx_http_types_slot },
@@ -111,6 +114,7 @@ impl Set {
                 Some(parse_quote! { #assert_eq_size!( #ty, #ngx_rt ::ffi::ngx_uint_t ) })
             }
             Path => Some(parse_quote! { #assert_eq_size!( #ty, * mut #ngx_rt ::ffi::ngx_path_t ) }),
+            #[cfg(feature = "http")]
             ComplexValue => Some(
                 parse_quote! { #assert_eq_size!( #ty, * mut #ngx_rt ::ffi::ngx_http_complex_value_t ) },
             ),
