@@ -26,6 +26,8 @@ pub enum Set {
     ComplexValue,
     #[cfg(feature = "http")]
     HttpTypes,
+    #[cfg(feature = "mail")]
+    MailCaps,
     Setter(Path),
 }
 
@@ -54,6 +56,8 @@ impl FromStr for Set {
             "complex_value" => ComplexValue,
             #[cfg(feature = "http")]
             "types" | "http_types" => HttpTypes,
+            #[cfg(feature = "mail")]
+            "caps" | "mail_caps" => MailCaps,
             _ => return Err(()),
         })
     }
@@ -64,28 +68,31 @@ impl ToTokens for Set {
         use Set::*;
 
         let ngx_rt = find_ngx_rt();
+        let set: syn::Path = match self {
+            Flag => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_flag_slot },
+            Str => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_str_slot },
+            StrArray => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_str_array_slot },
+            KeyValue => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_keyval_slot },
+            Number => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_num_slot },
+            Size => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_size_slot },
+            Offset => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_off_slot },
+            MSec => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_msec_slot },
+            Seconds => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_sec_slot },
+            Buffers => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_bufs_slot },
+            Enum => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_enum_slot },
+            BitMask => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_bitmask_slot },
+            Path => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_path_slot },
+            Access => parse_quote! { #ngx_rt ::ffi::ngx_conf_set_access_slot },
+            #[cfg(feature = "http")]
+            ComplexValue => parse_quote! { #ngx_rt ::ffi::ngx_http_set_complex_value_slot },
+            #[cfg(feature = "http")]
+            HttpTypes => parse_quote! { #ngx_rt ::ffi::ngx_http_types_slot },
+            #[cfg(feature = "mail")]
+            MailCaps => parse_quote! { #ngx_rt ::ffi::ngx_mail_capabilities },
+            Setter(path) => parse_quote! { #path },
+        };
 
-        tokens.append_all(match self {
-            Flag => quote! { #ngx_rt ::ffi::ngx_conf_set_flag_slot },
-            Str => quote! { #ngx_rt ::ffi::ngx_conf_set_str_slot },
-            StrArray => quote! { #ngx_rt ::ffi::ngx_conf_set_str_array_slot },
-            KeyValue => quote! { #ngx_rt ::ffi::ngx_conf_set_keyval_slot },
-            Number => quote! { #ngx_rt ::ffi::ngx_conf_set_num_slot },
-            Size => quote! { #ngx_rt ::ffi::ngx_conf_set_size_slot },
-            Offset => quote! { #ngx_rt ::ffi::ngx_conf_set_off_slot },
-            MSec => quote! { #ngx_rt ::ffi::ngx_conf_set_msec_slot },
-            Seconds => quote! { #ngx_rt ::ffi::ngx_conf_set_sec_slot },
-            Buffers => quote! { #ngx_rt ::ffi::ngx_conf_set_bufs_slot },
-            Enum => quote! { #ngx_rt ::ffi::ngx_conf_set_enum_slot },
-            BitMask => quote! { #ngx_rt ::ffi::ngx_conf_set_bitmask_slot },
-            Path => quote! { #ngx_rt ::ffi::ngx_conf_set_path_slot },
-            Access => quote! { #ngx_rt ::ffi::ngx_conf_set_access_slot },
-            #[cfg(feature = "http")]
-            ComplexValue => quote! { #ngx_rt ::ffi::ngx_http_set_complex_value_slot },
-            #[cfg(feature = "http")]
-            HttpTypes => quote! { #ngx_rt ::ffi::ngx_http_types_slot },
-            Setter(path) => quote! { #path },
-        })
+        tokens.append_all(quote! { #set })
     }
 }
 
