@@ -23,6 +23,8 @@ pub enum Set {
     Path,
     Access,
     ComplexValue,
+    #[cfg(feature = "http")]
+    HttpTypes,
     Setter(Path),
 }
 
@@ -48,6 +50,8 @@ impl FromStr for Set {
             "path" => Path,
             "access" => Access,
             "complex_value" => ComplexValue,
+            #[cfg(feature = "http")]
+            "types" | "http_types" => HttpTypes,
             _ => return Err(()),
         })
     }
@@ -75,6 +79,8 @@ impl ToTokens for Set {
             Path => quote! { #ngx_rt ::ffi::ngx_conf_set_path_slot },
             Access => quote! { #ngx_rt ::ffi::ngx_conf_set_access_slot },
             ComplexValue => quote! { #ngx_rt ::ffi::ngx_http_set_complex_value_slot },
+            #[cfg(feature = "http")]
+            HttpTypes => quote! { #ngx_rt ::ffi::ngx_http_types_slot },
             Setter(path) => quote! { #path },
         })
     }
@@ -108,6 +114,10 @@ impl Set {
             ComplexValue => Some(
                 parse_quote! { #assert_eq_size!( #ty, * mut #ngx_rt ::ffi::ngx_http_complex_value_t ) },
             ),
+            #[cfg(feature = "http")]
+            HttpTypes => {
+                Some(parse_quote! { #assert_eq_size!( #ty, * mut #ngx_rt ::ffi::ngx_array_t ) })
+            }
             Setter(_) => None,
         }
     }
