@@ -113,7 +113,7 @@ impl Unset for Str {
     const UNSET: Self = Self::null();
 
     fn is_unset(&self) -> bool {
-        self.is_null()
+        self.is_null() && self.len() == 0
     }
 }
 

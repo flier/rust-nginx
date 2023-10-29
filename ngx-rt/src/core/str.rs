@@ -8,17 +8,20 @@ use std::str::{self, Utf8Error};
 
 use foreign_types::ForeignTypeRef;
 
-use crate::{core::PoolRef, ffi::ngx_str_t};
+use crate::{core::PoolRef, ffi};
 
 #[repr(transparent)]
 #[derive(Clone, Copy, Debug)]
-pub struct Str(ngx_str_t);
+pub struct Str(ffi::ngx_str_t);
 
 impl Str {
     pub const NULL: Self = Self::null();
 
     pub const fn null() -> Self {
-        Self(crate::ngx_str!())
+        Self(ffi::ngx_str_t {
+            len: 0,
+            data: ::std::ptr::null_mut(),
+        })
     }
 
     /// Create an [`Str`] from a memory pointer and size.
@@ -29,7 +32,7 @@ impl Str {
     /// to range of bytes of at least `len` bytes, whose content remains valid and doesn't
     /// change for the lifetime of the returned `Str`.
     pub fn unchecked_new(data: NonNull<c_uchar>, len: usize) -> Self {
-        Str(ngx_str_t {
+        Str(ffi::ngx_str_t {
             len,
             data: data.as_ptr(),
         })
@@ -64,7 +67,7 @@ impl Str {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.0.len == 0
+        self.0.data.is_null() || self.0.len == 0
     }
 
     pub fn len(&self) -> usize {
@@ -74,7 +77,7 @@ impl Str {
 
 impl Default for Str {
     fn default() -> Self {
-        Str(ngx_str_t {
+        Str(ffi::ngx_str_t {
             len: 0,
             data: null_mut(),
         })
@@ -87,13 +90,13 @@ impl fmt::Display for Str {
     }
 }
 
-impl From<ngx_str_t> for Str {
-    fn from(str: ngx_str_t) -> Self {
+impl From<ffi::ngx_str_t> for Str {
+    fn from(str: ffi::ngx_str_t) -> Self {
         Self(str)
     }
 }
 
-impl From<Str> for ngx_str_t {
+impl From<Str> for ffi::ngx_str_t {
     fn from(str: Str) -> Self {
         str.0
     }
@@ -101,7 +104,7 @@ impl From<Str> for ngx_str_t {
 
 impl From<&[u8]> for Str {
     fn from(bytes: &[u8]) -> Self {
-        Str(ngx_str_t {
+        Str(ffi::ngx_str_t {
             len: bytes.len(),
             data: bytes.as_ptr().cast::<c_uchar>() as *mut _,
         })
@@ -110,21 +113,21 @@ impl From<&[u8]> for Str {
 
 impl From<&str> for Str {
     fn from(s: &str) -> Self {
-        Str(ngx_str_t {
+        Str(ffi::ngx_str_t {
             len: s.len(),
             data: s.as_ptr().cast::<c_uchar>() as *mut _,
         })
     }
 }
 
-impl AsRef<ngx_str_t> for Str {
-    fn as_ref(&self) -> &ngx_str_t {
+impl AsRef<ffi::ngx_str_t> for Str {
+    fn as_ref(&self) -> &ffi::ngx_str_t {
         &self.0
     }
 }
 
-impl AsMut<ngx_str_t> for Str {
-    fn as_mut(&mut self) -> &mut ngx_str_t {
+impl AsMut<ffi::ngx_str_t> for Str {
+    fn as_mut(&mut self) -> &mut ffi::ngx_str_t {
         &mut self.0
     }
 }
@@ -162,7 +165,7 @@ impl PartialEq<&str> for Str {
 }
 
 unsafe impl ForeignTypeRef for Str {
-    type CType = ngx_str_t;
+    type CType = ffi::ngx_str_t;
 }
 
 #[macro_export]
@@ -192,7 +195,7 @@ impl PoolRef {
 
                 ptr::copy_nonoverlapping(s.as_ptr(), p.as_ptr(), s.len());
 
-                Str(ngx_str_t {
+                Str(ffi::ngx_str_t {
                     len: s.len(),
                     data: p.as_ptr(),
                 })

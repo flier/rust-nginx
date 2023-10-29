@@ -2,8 +2,7 @@ use proc_macro2::TokenStream;
 use proc_macro_error::abort;
 use quote::quote;
 use syn::{
-    parse_quote, Block, Data, DataStruct, DeriveInput, ExprStruct, Fields, FieldsNamed, Ident,
-    ItemImpl,
+    parse_quote, Block, Data, DataStruct, DeriveInput, Fields, FieldsNamed, Ident, ItemImpl,
 };
 
 use crate::{conf::r#struct::DefaultValue, extract, util::find_ngx_rt};
@@ -63,11 +62,8 @@ pub fn expand(input: DeriveInput) -> TokenStream {
     let impl_default: Option<ItemImpl> = struct_args.default_value().map(|v| {
         let block: Block = match v {
             DefaultValue::Unset => {
-                let s: ExprStruct = parse_quote!{ #struct_name {
-                    #( #field_names : #ngx_rt ::core::conf::unset(), )*
-                } };
                 parse_quote!{ {
-                    #s
+                    <Self as #ngx_rt ::core::conf::Unset>::UNSET
                 } }
             }
             DefaultValue::Zeroed => {
@@ -84,6 +80,23 @@ pub fn expand(input: DeriveInput) -> TokenStream {
         }
     });
 
+    let impl_unset: Option<ItemImpl> = struct_args
+        .default_value()
+        .filter(|v| matches!(v, DefaultValue::Unset))
+        .map(|_| {
+            parse_quote! {
+                impl #impl_generics #ngx_rt ::core::conf::Unset for #struct_name #ty_generics #where_clause {
+                    const UNSET: Self = Self {
+                        #( #field_names : #ngx_rt ::core::conf::unset(), )*
+                    };
+
+                    fn is_unset(&self) -> bool {
+                        #( #ngx_rt ::core::conf::Unset::is_unset( & self. #field_names ) ) &&*
+                    }
+                }
+            }
+        });
+
     let n = directives.len();
 
     let impl_unsafe_conf: ItemImpl = parse_quote! {
@@ -99,13 +112,14 @@ pub fn expand(input: DeriveInput) -> TokenStream {
     let impl_conf_ext: ItemImpl = parse_quote! {
         impl #impl_generics #ngx_rt ::core::ConfExt for #struct_name #ty_generics #where_clause {
             fn commands() -> #ngx_rt ::core::Cmds<'static> {
-                #ngx_rt ::core::Cmds::from( & <Self as #ngx_rt ::core::UnsafeConf>::COMMANDS[.. #n - 1])
+                #ngx_rt ::core::Cmds::from( & <Self as #ngx_rt ::core::UnsafeConf>::COMMANDS[..])
             }
         }
     };
 
     quote! {
         #impl_default
+        #impl_unset
         #impl_unsafe_conf
         #impl_conf_ext
     }

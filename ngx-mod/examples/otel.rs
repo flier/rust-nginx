@@ -273,7 +273,7 @@ impl OtelContext {
 
         let lcf = Otel::loc_conf(req)?;
 
-        if lcf.trace_ctx.contains(propagation::Type::EXTRACT) {
+        if lcf.trace_ctx().contains(propagation::Type::EXTRACT) {
             ctx.parent = TraceContext::extract(req);
         }
 
@@ -335,7 +335,7 @@ fn parent_sampled_var(req: &RequestRef, val: &mut ValueRef, _data: usize) -> Res
 
 #[repr(C)]
 #[derive(Clone, Conf)]
-#[conf(http::main, default = zeroed)]
+#[conf(http::main, default = unset)]
 struct MainConf {
     #[directive(name = "otel_exporter", args(0), block, set = set_exporter)]
     exporter: Exporter,
@@ -402,7 +402,7 @@ struct LocConf<'a> {
     #[directive(name = "otel_trace", args(1), set = complex_value)]
     trace: Option<&'a ComplexValueRef>,
     #[directive(name = "otel_trace_context", args(1), set = enum_values, values = propagation::TYPES)]
-    trace_ctx: propagation::Type,
+    trace_ctx: usize,
     #[directive(name = "otel_span_name", args(1), set = complex_value)]
     span_name: Option<&'a ComplexValueRef>,
     #[directive(name = "otel_span_attr", args(2), set = add_span_attr)]
@@ -410,6 +410,10 @@ struct LocConf<'a> {
 }
 
 impl LocConf<'_> {
+    pub fn trace_ctx(&self) -> propagation::Type {
+        propagation::Type::from_bits_truncate(self.trace_ctx)
+    }
+
     pub fn span_attrs(&self) -> &ArrayRef<SpanAttr> {
         unsafe { ArrayRef::from_ptr(&self.span_attrs as *const _ as *mut _) }
     }
@@ -440,21 +444,13 @@ struct SpanAttr {
 }
 
 mod propagation {
-    use ngx_mod::rt::{core::Unset, ngx_enum_values};
+    use ngx_mod::rt::ngx_enum_values;
 
     bitflags::bitflags! {
         #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
         pub struct Type: usize {
             const EXTRACT = 0x0001;
             const INJECT = 0x0002;
-        }
-    }
-
-    impl Unset for Type {
-        const UNSET: Self = Self::empty();
-
-        fn is_unset(&self) -> bool {
-            self.is_empty()
         }
     }
 
@@ -511,7 +507,7 @@ fn request_start(req: &RequestRef) -> Result<(), Code> {
         false
     };
 
-    if lcf.trace_ctx.is_empty() && !sampled {
+    if !lcf.trace_ctx.is_unset() && lcf.trace_ctx().is_empty() && !sampled {
         return Err(Code::DECLINED);
     }
 
@@ -519,7 +515,7 @@ fn request_start(req: &RequestRef) -> Result<(), Code> {
 
     ctx.current.sampled = sampled;
 
-    if lcf.trace_ctx.contains(propagation::Type::INJECT) {
+    if lcf.trace_ctx().contains(propagation::Type::INJECT) {
         ctx.current.inject(req);
     }
 

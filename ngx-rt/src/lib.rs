@@ -1,5 +1,8 @@
 #[doc(hidden)]
 pub extern crate foreign_types;
+#[doc(hidden)]
+pub extern crate static_assertions;
+
 pub extern crate ngx_sys as ffi;
 
 pub use ::ngx_rt_derive::{native_callback, native_handler, native_setter};

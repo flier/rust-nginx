@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
-use syn::Path;
+use syn::{parse_quote, Expr, Path, Type};
 
 use crate::util::find_ngx_rt;
 
@@ -77,5 +77,38 @@ impl ToTokens for Set {
             ComplexValue => quote! { #ngx_rt ::ffi::ngx_http_set_complex_value_slot },
             Setter(path) => quote! { #path },
         })
+    }
+}
+
+impl Set {
+    pub fn assert_eq_size(&self, ty: &Type) -> Option<Expr> {
+        use Set::*;
+
+        let ngx_rt = find_ngx_rt();
+        let assert_eq_size: syn::Path = parse_quote! {
+            #ngx_rt ::static_assertions::assert_eq_size
+        };
+
+        match self {
+            Flag => Some(parse_quote! { #assert_eq_size!( #ty, #ngx_rt ::ffi::ngx_flag_t ) }),
+            Str => Some(parse_quote! { #assert_eq_size!( #ty, #ngx_rt ::ffi::ngx_str_t ) }),
+            StrArray | KeyValue => {
+                Some(parse_quote! { #assert_eq_size!( #ty, * mut #ngx_rt ::ffi::ngx_array_t ) })
+            }
+            Number => Some(parse_quote! { #assert_eq_size!( #ty, #ngx_rt ::ffi::ngx_int_t ) }),
+            Size => Some(parse_quote! { #assert_eq_size!( #ty, usize ) }),
+            Offset => Some(parse_quote! { #assert_eq_size!( #ty, #ngx_rt ::ffi::off_t ) }),
+            MSec => Some(parse_quote! { #assert_eq_size!( #ty, #ngx_rt ::ffi::ngx_msec_t ) }),
+            Seconds => Some(parse_quote! { #assert_eq_size!( #ty, #ngx_rt ::ffi::time_t ) }),
+            Buffers => Some(parse_quote! { #assert_eq_size!( #ty, #ngx_rt ::ffi::ngx_bufs_t ) }),
+            Enum | BitMask | Access => {
+                Some(parse_quote! { #assert_eq_size!( #ty, #ngx_rt ::ffi::ngx_uint_t ) })
+            }
+            Path => Some(parse_quote! { #assert_eq_size!( #ty, * mut #ngx_rt ::ffi::ngx_path_t ) }),
+            ComplexValue => Some(
+                parse_quote! { #assert_eq_size!( #ty, * mut #ngx_rt ::ffi::ngx_http_complex_value_t ) },
+            ),
+            Setter(_) => None,
+        }
     }
 }

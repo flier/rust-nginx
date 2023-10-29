@@ -2,7 +2,7 @@ use case::CaseExt;
 use proc_macro2::TokenStream;
 use proc_macro_error::abort;
 use quote::{quote, ToTokens, TokenStreamExt};
-use syn::{Ident, Type, TypePath};
+use syn::{parse_quote, Expr, GenericArgument, Ident, Path, Stmt, Type, TypePath};
 
 use crate::util::{find_ngx_mod, find_ngx_rt};
 
@@ -37,6 +37,7 @@ impl<'a> ToTokens for Directive<'a> {
             .map(|ty| quote! { #ty })
             .chain(self.args.args().into_iter().map(|args| quote! { #args }));
         let set = self.set();
+        let assertions: Option<Stmt> = self.assertions().map(|expr| parse_quote! { #expr ; });
         let post = if set == Set::Enum {
             if let Some(p) = self.args.values.as_ref().map(|arg| &arg.value) {
                 quote! { #ngx_rt ::core::conf::enum_values( & #p ).as_ptr().cast() }
@@ -53,7 +54,11 @@ impl<'a> ToTokens for Directive<'a> {
             #ngx_rt ::ffi::ngx_command_t {
                 name: #ngx_rt ::ngx_str!( #name ),
                 type_: ( #( #args )|* ) as usize,
-                set: Some( #set ),
+                set: {
+                    #assertions
+
+                    Some( #set )
+                },
                 conf: #conf_off as usize,
                 offset: #ngx_mod ::memoffset::offset_of!( #struct_name , #field_name ) as usize,
                 post: #post,
@@ -98,5 +103,52 @@ impl<'a> Directive<'a> {
                 _ => abort! { self.ty, "unknown directive type: {:?}", self.ty },
             }
         }
+    }
+
+    pub fn assertions(&self) -> Option<Expr> {
+        let mut ty = self.ty.clone();
+
+        strip_type_lifetime(&mut ty);
+
+        self.set().assert_eq_size(&ty)
+    }
+}
+
+fn strip_type_lifetime(ty: &mut Type) {
+    match ty {
+        Type::Reference(syn::TypeReference {
+            ref mut lifetime,
+            elem,
+            ..
+        }) => {
+            lifetime.take();
+
+            strip_type_lifetime(elem.as_mut());
+        }
+        Type::Path(TypePath {
+            path: Path { segments, .. },
+            ..
+        }) => {
+            for s in segments.iter_mut() {
+                if let syn::PathArguments::AngleBracketed(syn::AngleBracketedGenericArguments {
+                    ref mut args,
+                    ..
+                }) = s.arguments
+                {
+                    *args = args
+                        .iter_mut()
+                        .flat_map(|arg| match arg {
+                            GenericArgument::Lifetime(_) => None,
+                            GenericArgument::Type(ty) => {
+                                strip_type_lifetime(ty);
+                                Some(GenericArgument::Type(ty.clone()))
+                            }
+                            _ => Some(arg.clone()),
+                        })
+                        .collect()
+                }
+            }
+        }
+        _ => {}
     }
 }

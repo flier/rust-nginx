@@ -67,7 +67,7 @@ impl ConfRef {
 }
 
 #[native_setter(log = cf)]
-unsafe fn parse_block<T>(cf: &ConfRef, cmd: &CmdRef, conf: &mut T) -> Result<(), Error>
+unsafe fn parse_block<T>(cf: &ConfRef, _dummy: Option<&CmdRef>, conf: &mut T) -> Result<(), Error>
 where
     T: ConfExt,
 {
@@ -75,27 +75,31 @@ where
 
     if cf.args().len() != 2 {
         return Err(Error::ConfigError(CString::new(format!(
-            "invalid number of arguments in {} directive",
+            "invalid number of arguments in directive `{}`",
             name,
         ))?));
     }
 
-    for c in <T as ConfExt>::commands() {
-        if c.name() != name {
+    for cmd in <T as ConfExt>::commands() {
+        if cmd.name() != name {
             continue;
         }
 
         unsafe {
-            if let Some(f) = c.as_raw().set {
-                f(cf.as_ptr(), c.as_ptr(), conf as *mut _ as *mut _).ok()?;
-            }
+            return if let Some(f) = cmd.as_raw().set {
+                f(cf.as_ptr(), cmd.as_ptr(), conf as *mut _ as *mut _).ok()
+            } else {
+                Err(Error::ConfigError(CString::new(format!(
+                    "directive `{}` missing setter",
+                    name
+                ))?))
+            };
         }
     }
 
     Err(Error::ConfigError(CString::new(format!(
-        "unknown directive {} in {}",
-        name,
-        cmd.name()
+        "unknown directive `{}` in `otel_exporter`",
+        name
     ))?))
 }
 
