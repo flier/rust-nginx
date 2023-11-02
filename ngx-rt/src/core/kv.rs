@@ -47,6 +47,6 @@ impl From<(&Str, &Str)> for KeyValue {
 
 impl From<KeyValue> for (Str, Str) {
     fn from(kv: KeyValue) -> (Str, Str) {
-        (kv.key().clone(), kv.value().clone())
+        (*kv.key(), *kv.value())
     }
 }

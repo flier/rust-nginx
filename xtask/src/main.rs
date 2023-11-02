@@ -154,7 +154,7 @@ where
     debug!(?build_dir, "finding crate `{}`...", name);
 
     let mut dirs = fs::read_dir(build_dir)?
-        .flat_map(|e| e)
+        .flatten()
         .map(|e| e.path())
         .filter(|p| p.is_dir() && p.file_name().unwrap().to_string_lossy().starts_with(name))
         .flat_map(|p| f(&p))
@@ -200,7 +200,7 @@ fn copy_nginx_modules(from: &Path, to: &Path) -> io::Result<()> {
     info!(?from, ?to);
 
     let modules = fs::read_dir(from)?
-        .flat_map(|e| e)
+        .flatten()
         .map(|e| e.path())
         .flat_map(|file| {
             if file.is_file() && is_nginx_module(&file) {
@@ -226,7 +226,7 @@ fn copy_nginx_modules(from: &Path, to: &Path) -> io::Result<()> {
 
 fn is_nginx_module(file: &Path) -> bool {
     if let Some((name, ext)) = file.file_name().zip(file.extension()) {
-        if !name.to_string_lossy().contains("-") && (ext == "so" || ext == "dylib" || ext == "dll")
+        if !name.to_string_lossy().contains('-') && (ext == "so" || ext == "dylib" || ext == "dll")
         {
             return true;
         }

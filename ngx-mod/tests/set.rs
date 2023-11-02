@@ -64,39 +64,3 @@ mod propagation {
         }
     }
 }
-
-#[test]
-fn parse() -> anyhow::Result<()> {
-    let temp_file = mktemp::Temp::new_file()?;
-
-    fs::write(
-        &temp_file,
-        r#"
-flag        on;
-str         "test";
-str_array   "first"     "second";
-keyval      Host        $host;
-num         123;
-size        64k;
-off         1m;
-msec        3m;
-sec         5s;
-bufs        8 4k;
-ctx         propagate;
-bitmask     extract inject;
-"#,
-    )?;
-
-    // let cfg = Conf::default();
-
-    // cfg.parse_file(&temp_file)?;
-
-    // assert_eq!(cfg.flag, 1);
-    // assert_eq!(cfg.str.to_string_lossy(), "test");
-    // assert_eq!(
-    //     cfg.str_array.unwrap().into_iter().collect::<Vec<_>>(),
-    //     vec!["first", "second"]
-    // );
-
-    Ok(())
-}
