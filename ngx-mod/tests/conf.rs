@@ -1,5 +1,3 @@
-#![crate_type = "dylib"]
-
 use std::mem;
 
 use ngx_mod::{
@@ -63,7 +61,7 @@ fn loc_conf() {
 
     assert_eq!(c.u32, u32::MAX);
     assert_eq!(c.usize, usize::MAX);
-    assert_eq!(c.isize, isize::MAX);
+    assert_eq!(c.isize, usize::MAX as isize);
     assert_eq!(c.cptr, usize::MAX as *const _);
     assert_eq!(c.ptr, usize::MAX as *mut _);
     assert_eq!(c.opt, None);

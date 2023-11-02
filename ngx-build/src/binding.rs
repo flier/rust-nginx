@@ -1,5 +1,7 @@
 use std::path::Path;
 
+use tracing::{debug, instrument, trace};
+
 use crate::Error;
 
 pub struct Binding<'a> {
@@ -14,8 +16,9 @@ pub struct Binding<'a> {
 }
 
 impl<'a> Binding<'a> {
+    #[instrument(skip(self))]
     pub fn generate(self) -> Result<(), Error> {
-        let mut bindings = bindgen::builder()
+        let mut builder = bindgen::builder()
             .header(self.header)
             .clang_args(
                 [
@@ -33,17 +36,21 @@ impl<'a> Binding<'a> {
             .allowlist_type("^(NGX|ngx)_.*$")
             .allowlist_function("^(NGX|ngx)_.*$")
             .allowlist_var("^(NGX|ngx|NGINX|nginx)_.*$")
+            .derive_copy(true)
+            .derive_debug(true)
+            .derive_default(true)
+            .derive_partialeq(true)
             .parse_callbacks(Box::new(bindgen::CargoCallbacks));
 
         if self.event {
-            bindings = bindings.clang_args(&[
+            builder = builder.clang_args(&[
                 "-DNGX_EVENT".to_string(),
                 format!("-I{}", self.src_dir.join("event").display()),
             ]);
         }
 
         if self.http {
-            bindings = bindings.clang_args(&[
+            builder = builder.clang_args(&[
                 "-DNGX_HTTP".to_string(),
                 format!("-I{}", self.src_dir.join("http").display()),
                 format!("-I{}", self.src_dir.join("http/modules").display()),
@@ -52,22 +59,26 @@ impl<'a> Binding<'a> {
         }
 
         if self.mail {
-            bindings = bindings.clang_args(&[
+            builder = builder.clang_args(&[
                 "-DNGX_MAIL".to_string(),
                 format!("-I{}", self.src_dir.join("mail").display()),
             ]);
         }
 
         if self.stream {
-            bindings = bindings.clang_args(&[
+            builder = builder.clang_args(&[
                 "-DNGX_STREAM".to_string(),
                 format!("-I{}", self.src_dir.join("stream").display()),
             ]);
         }
 
-        let builder = bindings.generate()?;
+        debug!(?builder);
 
-        builder.write_to_file(self.out_file)?;
+        let bindings = builder.generate()?;
+
+        trace!(?bindings, out_file=?self.out_file);
+
+        bindings.write_to_file(self.out_file)?;
 
         Ok(())
     }

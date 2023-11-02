@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["stable", "base", "vendored"]
+default = ["stable", "base"]
 
 vendored = ['ngx-src']
 
@@ -216,8 +216,8 @@ debug-log = ["ngx-src/debug-log"]
 
 # optional features for build
 
-gen = ["ngx-build/gen"]
-static-link = ["ngx-src/static-lib"]
+gen = ["ngx-build/gen", "vendored"]
+static-link = ["ngx-src/static-lib", "vendored"]
 
 [dependencies]
 cfg-if = "1.0"

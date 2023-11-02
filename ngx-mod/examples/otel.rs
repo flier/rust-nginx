@@ -108,7 +108,7 @@ impl<'a> http::Module for Otel<'a> {
     fn init_main_conf(cf: &ConfRef, conf: &mut Self::MainConf) -> Result<(), Self::Error> {
         info!(cf, "otel: init main conf");
 
-        conf.exporter.interval.or_insert(5000);
+        conf.exporter.interval.or_insert(5000.into());
         conf.exporter.batch_size.or_insert(512);
         conf.exporter.batch_count.or_insert(4);
         conf.service_name
@@ -361,7 +361,7 @@ impl MainConf {
                 BatchConfig::default()
                     .with_max_export_batch_size(self.exporter.batch_size)
                     .with_max_concurrent_exports(self.exporter.batch_count)
-                    .with_scheduled_delay(Duration::from_millis(self.exporter.interval as u64)),
+                    .with_scheduled_delay(self.exporter.interval.into()),
             )
             .install_batch(runtime::Tokio)?;
 

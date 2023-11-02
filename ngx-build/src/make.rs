@@ -1,6 +1,6 @@
 use std::{path::PathBuf, process::Command};
 
-use tracing::instrument;
+use tracing::{debug, instrument};
 
 use crate::{CommandExt, Result};
 
@@ -13,18 +13,23 @@ pub struct Make {
 impl Make {
     #[instrument]
     pub fn build(&self) -> Result<()> {
-        Command::new("make")
-            .current_dir(&self.src_dir)
-            .run()
-            .map(|_| ())
+        let mut cmd = Command::new("make");
+
+        cmd.current_dir(&self.src_dir);
+
+        debug!(?cmd, "build");
+
+        cmd.run().map(|_| ())
     }
 
     #[instrument]
     pub fn install(&self) -> Result<()> {
-        Command::new("make")
-            .arg("install")
-            .current_dir(&self.src_dir)
-            .run()
-            .map(|_| ())
+        let mut cmd = Command::new("make");
+
+        cmd.arg("install").current_dir(&self.src_dir);
+
+        debug!(?cmd, "install");
+
+        cmd.run().map(|_| ())
     }
 }

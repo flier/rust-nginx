@@ -7,5 +7,6 @@ members = [
     "ngx-rt",
     "ngx-src",
     "ngx-sys",
+    "xtask",
 ]
 resolver = "2"

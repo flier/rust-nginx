@@ -69,6 +69,30 @@ impl Unset for u32 {
     }
 }
 
+impl Unset for i32 {
+    const UNSET: Self = u32::MAX as i32;
+
+    fn is_unset(&self) -> bool {
+        *self == Self::UNSET
+    }
+}
+
+impl Unset for u64 {
+    const UNSET: Self = Self::MAX;
+
+    fn is_unset(&self) -> bool {
+        *self == Self::UNSET
+    }
+}
+
+impl Unset for i64 {
+    const UNSET: Self = u64::MAX as i64;
+
+    fn is_unset(&self) -> bool {
+        *self == Self::UNSET
+    }
+}
+
 impl Unset for usize {
     const UNSET: Self = Self::MAX;
 
@@ -78,7 +102,7 @@ impl Unset for usize {
 }
 
 impl Unset for isize {
-    const UNSET: Self = Self::MAX;
+    const UNSET: Self = usize::MAX as isize;
 
     fn is_unset(&self) -> bool {
         *self == Self::UNSET

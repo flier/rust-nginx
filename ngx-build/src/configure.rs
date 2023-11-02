@@ -1,7 +1,7 @@
 use std::{fs, path::PathBuf, process::Command};
 
 use pathdiff::diff_paths;
-use tracing::instrument;
+use tracing::{debug, instrument};
 
 use crate::{CommandExt, Make, Result};
 
@@ -106,13 +106,15 @@ impl Configure {
         fs::create_dir_all(&self.build_dir)?;
         fs::create_dir_all(&self.out_dir)?;
 
-        Command::new(self.src_dir.join("configure"))
-            .args(&args)
-            .current_dir(&self.src_dir)
-            .run()
-            .map(|_| Make {
-                src_dir: self.src_dir,
-                build_dir: self.build_dir,
-            })
+        let mut cmd = Command::new(self.src_dir.join("configure"));
+
+        cmd.args(&args).current_dir(&self.src_dir);
+
+        debug!(?cmd);
+
+        cmd.run().map(|_| Make {
+            src_dir: self.src_dir,
+            build_dir: self.build_dir,
+        })
     }
 }

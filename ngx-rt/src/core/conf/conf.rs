@@ -47,7 +47,7 @@ impl ConfRef {
         ModuleType::from(unsafe { self.as_raw().module_type as u32 })
     }
 
-    pub fn parse_block<T: ConfExt>(&self, c: &mut T) -> Result<(), Error> {
+    pub fn parse_block<T: ConfExt>(&mut self, c: &mut T) -> Result<(), Error> {
         let mut cf = self.to_owned();
 
         unsafe {
@@ -58,7 +58,7 @@ impl ConfRef {
         }
     }
 
-    pub fn parse_file<P: AsRef<Path>>(&self, filename: P) -> Result<(), Error> {
+    pub fn parse_file<P: AsRef<Path>>(&mut self, filename: P) -> Result<(), Error> {
         let p = filename.as_ref();
         let s = CString::new(p.as_os_str().as_bytes())?;
 

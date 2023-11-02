@@ -1,3 +1,4 @@
+use core::fmt;
 use std::{
     mem::{self, MaybeUninit},
     ops::{Deref, DerefMut},
@@ -140,6 +141,12 @@ impl<T: Sized> ArrayRef<T> {
 
             unsafe { slice_assume_init_mut(s) }
         })
+    }
+}
+
+impl<T: fmt::Debug> fmt::Debug for ArrayRef<T> {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt.debug_list().entries(self.iter()).finish()
     }
 }
 

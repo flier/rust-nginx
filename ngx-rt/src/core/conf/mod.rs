@@ -1,5 +1,7 @@
 use std::{ffi::c_char, ptr};
 
+use crate::ffi;
+
 #[allow(clippy::module_inception)]
 mod conf;
 #[macro_use]
@@ -17,3 +19,5 @@ pub use self::unset::{unset, Unset};
 
 pub const NGX_CONF_OK: *mut c_char = ptr::null_mut();
 pub const NGX_CONF_ERROR: *mut c_char = usize::MAX as *mut c_char;
+
+pub type Flag = ffi::ngx_flag_t;

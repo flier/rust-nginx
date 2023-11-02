@@ -1,11 +1,42 @@
+use std::fmt;
+use std::mem;
+use std::ptr::NonNull;
 use std::slice;
-use std::{mem, ptr::NonNull};
 
+use derive_more::{AsRef, Deref};
 use foreign_types::{foreign_type, ForeignTypeRef};
 
-use crate::{ffi, flag, never_drop, property, AsRawMut, AsRawRef};
+use crate::{
+    core::{FileRef, PoolRef, SizeFmt, Unset},
+    ffi, flag, never_drop, property, AsRawMut, AsRawRef,
+};
 
-use super::{FileRef, PoolRef};
+#[repr(transparent)]
+#[derive(Clone, Default, AsRef, Deref)]
+pub struct Bufs(ffi::ngx_bufs_t);
+
+impl fmt::Display for Bufs {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} {}", self.0.num, SizeFmt(self.0.size))
+    }
+}
+
+impl fmt::Debug for Bufs {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt.debug_struct("Bufs")
+            .field("num", &self.0.num)
+            .field("size", &self.0.size)
+            .finish()
+    }
+}
+
+impl Unset for Bufs {
+    const UNSET: Self = Bufs(ffi::ngx_bufs_t { num: 0, size: 0 });
+
+    fn is_unset(&self) -> bool {
+        self.num == 0
+    }
+}
 
 foreign_type! {
     pub unsafe type Buf: Send {

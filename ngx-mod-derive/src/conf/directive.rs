@@ -38,7 +38,7 @@ impl<'a> ToTokens for Directive<'a> {
             .chain(self.args.args().into_iter().map(|args| quote! { #args }));
         let set = self.set();
         let assertions: Option<Stmt> = self.assertions().map(|expr| parse_quote! { #expr ; });
-        let post = if set == Set::Enum {
+        let post = if matches!(set, Set::Enum | Set::BitMask) {
             if let Some(p) = self.args.values.as_ref().map(|arg| &arg.value) {
                 quote! { #ngx_rt ::core::conf::enum_values( & #p ).as_ptr().cast() }
             } else {
@@ -89,11 +89,13 @@ impl<'a> Directive<'a> {
                 }) if qself.is_none() => {
                     if let Some(ident) = path.get_ident() {
                         match ident.to_string().as_str() {
-                            "bool" => Set::Flag,
+                            "Flag" => Set::Flag,
+                            "Str" => Set::Str,
                             "isize" => Set::Number,
                             "usize" => Set::Size,
                             "MSec" => Set::MSec,
-                            "Str" => Set::Str,
+                            "Sec" => Set::Seconds,
+                            "Bufs" => Set::Buffers,
                             _ => abort! { self.ty, "unexpected field type: {:?}", path },
                         }
                     } else {

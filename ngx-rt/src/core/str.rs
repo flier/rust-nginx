@@ -1,17 +1,19 @@
 use std::borrow::Cow;
 use std::ffi::c_uchar;
 use std::fmt;
+use std::hash::{Hash, Hasher};
 use std::ops::{Deref, DerefMut};
 use std::ptr::{self, null_mut, NonNull};
 use std::slice;
 use std::str::{self, Utf8Error};
 
+use derive_more::{AsMut, AsRef, From, Into};
 use foreign_types::ForeignTypeRef;
 
 use crate::{core::PoolRef, ffi};
 
 #[repr(transparent)]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, AsRef, AsMut, From, Into)]
 pub struct Str(ffi::ngx_str_t);
 
 impl Str {
@@ -84,21 +86,15 @@ impl Default for Str {
     }
 }
 
+impl Hash for Str {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.as_bytes().hash(state)
+    }
+}
+
 impl fmt::Display for Str {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.to_string_lossy())
-    }
-}
-
-impl From<ffi::ngx_str_t> for Str {
-    fn from(str: ffi::ngx_str_t) -> Self {
-        Self(str)
-    }
-}
-
-impl From<Str> for ffi::ngx_str_t {
-    fn from(str: Str) -> Self {
-        str.0
     }
 }
 
@@ -111,24 +107,21 @@ impl From<&[u8]> for Str {
     }
 }
 
+impl From<&Str> for ffi::ngx_str_t {
+    fn from(s: &Str) -> Self {
+        ffi::ngx_str_t {
+            len: s.len(),
+            data: s.as_ptr().cast::<c_uchar>() as *mut _,
+        }
+    }
+}
+
 impl From<&str> for Str {
     fn from(s: &str) -> Self {
         Str(ffi::ngx_str_t {
             len: s.len(),
             data: s.as_ptr().cast::<c_uchar>() as *mut _,
         })
-    }
-}
-
-impl AsRef<ffi::ngx_str_t> for Str {
-    fn as_ref(&self) -> &ffi::ngx_str_t {
-        &self.0
-    }
-}
-
-impl AsMut<ffi::ngx_str_t> for Str {
-    fn as_mut(&mut self) -> &mut ffi::ngx_str_t {
-        &mut self.0
     }
 }
 
@@ -152,6 +145,7 @@ impl PartialEq<ffi::ngx_str_t> for Str {
     }
 }
 
+impl Eq for Str {}
 impl PartialEq<Str> for Str {
     fn eq(&self, other: &Str) -> bool {
         self.as_bytes() == other.as_bytes()
